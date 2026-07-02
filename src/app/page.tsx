@@ -88,7 +88,7 @@ function useSoundEffects() {
     setTimeout(() => playTone(1047, 0.2, 'sine', 0.04), 240)
   }, [playTone])
 
-  // ============ LOFI BACKGROUND MUSIC ============
+  // ============ SMOOTH AMBIENT DRONE (optimized) ============
   const musicNodesRef = useRef<any>(null)
 
   const startMusic = useCallback(() => {
@@ -97,70 +97,42 @@ function useSoundEffects() {
       const ctx = getCtx()
       const masterGain = ctx.createGain()
       masterGain.gain.setValueAtTime(0, ctx.currentTime)
-      masterGain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2)
+      masterGain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 3)
       masterGain.connect(ctx.destination)
 
-      // Lofi chord progression (Am - F - C - G in lofi style)
-      const chords = [
-        [220, 261.63, 329.63], // Am: A C E
-        [174.61, 220, 261.63], // F: F A C
-        [261.63, 329.63, 392], // C: C E G
-        [196, 246.94, 293.66], // G: G B D
-      ]
+      // Simple ambient drone — 2 sustained oscillators with slow LFO
+      const drone1 = ctx.createOscillator()
+      const drone2 = ctx.createOscillator()
+      const droneGain1 = ctx.createGain()
+      const droneGain2 = ctx.createGain()
 
-      let chordIndex = 0
-      const playChord = () => {
-        if (!musicNodesRef.current) return
-        const chord = chords[chordIndex]
-        const now = ctx.currentTime
+      drone1.type = 'sine'
+      drone1.frequency.value = 110 // A2
+      drone2.type = 'sine'
+      drone2.frequency.value = 164.81 // E3
 
-        // Pad chord
-        chord.forEach((freq) => {
-          const osc = ctx.createOscillator()
-          const gain = ctx.createGain()
-          osc.type = 'sine'
-          osc.frequency.value = freq
-          gain.gain.setValueAtTime(0, now)
-          gain.gain.linearRampToValueAtTime(0.3, now + 0.5)
-          gain.gain.linearRampToValueAtTime(0, now + 3.5)
-          osc.connect(gain)
-          gain.connect(masterGain)
-          osc.start(now)
-          osc.stop(now + 4)
-        })
+      droneGain1.gain.value = 0.5
+      droneGain2.gain.value = 0.3
 
-        // Bass note
-        const bassOsc = ctx.createOscillator()
-        const bassGain = ctx.createGain()
-        bassOsc.type = 'triangle'
-        bassOsc.frequency.value = chord[0] / 2
-        bassGain.gain.setValueAtTime(0, now)
-        bassGain.gain.linearRampToValueAtTime(0.2, now + 0.3)
-        bassGain.gain.linearRampToValueAtTime(0, now + 3.5)
-        bassOsc.connect(bassGain)
-        bassGain.connect(masterGain)
-        bassOsc.start(now)
-        bassOsc.stop(now + 4)
+      // Slow LFO for gentle volume modulation
+      const lfo = ctx.createOscillator()
+      const lfoGain = ctx.createGain()
+      lfo.type = 'sine'
+      lfo.frequency.value = 0.08 // Very slow (12 second cycle)
+      lfoGain.gain.value = 0.15
+      lfo.connect(lfoGain)
+      lfoGain.connect(droneGain1.gain)
 
-        // Melody note (random from chord)
-        const melodyOsc = ctx.createOscillator()
-        const melodyGain = ctx.createGain()
-        melodyOsc.type = 'sine'
-        melodyOsc.frequency.value = chord[Math.floor(Math.random() * chord.length)] * 2
-        melodyGain.gain.setValueAtTime(0, now + 1)
-        melodyGain.gain.linearRampToValueAtTime(0.1, now + 1.3)
-        melodyGain.gain.linearRampToValueAtTime(0, now + 2.5)
-        melodyOsc.connect(melodyGain)
-        melodyGain.connect(masterGain)
-        melodyOsc.start(now + 1)
-        melodyOsc.stop(now + 3)
+      drone1.connect(droneGain1)
+      drone2.connect(droneGain2)
+      droneGain1.connect(masterGain)
+      droneGain2.connect(masterGain)
 
-        chordIndex = (chordIndex + 1) % chords.length
-      }
+      drone1.start()
+      drone2.start()
+      lfo.start()
 
-      playChord()
-      const interval = setInterval(playChord, 4000)
-      musicNodesRef.current = { masterGain, interval }
+      musicNodesRef.current = { masterGain, drone1, drone2, lfo }
     } catch {}
   }, [getCtx])
 
@@ -168,13 +140,16 @@ function useSoundEffects() {
     if (!musicNodesRef.current) return
     try {
       const ctx = getCtx()
-      musicNodesRef.current.masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1)
-      clearInterval(musicNodesRef.current.interval)
+      const { masterGain, drone1, drone2, lfo } = musicNodesRef.current
+      masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1)
       setTimeout(() => {
-        if (musicNodesRef.current) {
-          musicNodesRef.current.masterGain.disconnect()
-          musicNodesRef.current = null
-        }
+        try {
+          drone1.stop()
+          drone2.stop()
+          lfo.stop()
+          masterGain.disconnect()
+        } catch {}
+        musicNodesRef.current = null
       }, 1500)
     } catch {}
   }, [getCtx])
@@ -186,41 +161,48 @@ function useSoundEffects() {
     } else {
       stopMusic()
     }
-    
-  }, [enabled])
+  }, [enabled, startMusic, stopMusic])
 
   return { enabled, setEnabled, playHover, playClick, playModalOpen, playModalClose, playNavHover, playFilter, playScroll, playWarp, playPop, playSuccess }
 }
 
-// ============ 3D SCENE COMPONENTS ============
+// ============ ELEGANT 3D OBJECTS (glass + wireframe) ============
 
-function FloatingShape({ position, geometry, color, speed = 1, scale = 1 }) {
+function GlassShape({ position, geometry, color, speed = 1, scale = 1 }) {
   const meshRef = useRef<any>(null)
   
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.x = state.clock.elapsedTime * 0.15 * speed
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.2 * speed
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * speed) * 0.3
     }
   })
 
   return (
-    <Float speed={1.5} rotationIntensity={0.8} floatIntensity={1.5}>
+    <Float speed={1.2} rotationIntensity={0.5} floatIntensity={1}>
       <mesh ref={meshRef} position={position} scale={scale}>
-        {geometry === 'dodecahedron' && <dodecahedronGeometry args={[1, 0]} />}
-        {geometry === 'tetrahedron' && <tetrahedronGeometry args={[1.2, 0]} />}
-        {geometry === 'torus' && <torusGeometry args={[0.7, 0.28, 16, 48]} />}
+        {geometry === 'icosahedron' && <icosahedronGeometry args={[1, 0]} />}
+        {geometry === 'torus' && <torusGeometry args={[0.7, 0.25, 16, 48]} />}
         {geometry === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
-        {geometry === 'cone' && <coneGeometry args={[0.9, 1.5, 8]} />}
-        {geometry === 'capsule' && <capsuleGeometry args={[0.5, 1, 8, 16]} />}
-        <MeshDistortMaterial
+        {geometry === 'dodecahedron' && <dodecahedronGeometry args={[0.9, 0]} />}
+        <meshPhysicalMaterial
           color={color}
           roughness={0.1}
-          metalness={0.9}
-          distort={0.2}
-          speed={1.5}
+          metalness={0.1}
+          transmission={0.8}
+          thickness={0.5}
+          transparent
+          opacity={0.6}
+          ior={1.5}
         />
+      </mesh>
+      {/* Wireframe overlay */}
+      <mesh position={position} scale={scale * 1.01}>
+        {geometry === 'icosahedron' && <icosahedronGeometry args={[1, 0]} />}
+        {geometry === 'torus' && <torusGeometry args={[0.7, 0.25, 16, 48]} />}
+        {geometry === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
+        {geometry === 'dodecahedron' && <dodecahedronGeometry args={[0.9, 0]} />}
+        <meshBasicMaterial color={color} wireframe transparent opacity={0.3} />
       </mesh>
     </Float>
   )
@@ -232,20 +214,20 @@ function AnimatedSphere() {
   useFrame((state) => {
     if (meshRef.current) {
       meshRef.current.rotation.y = state.clock.elapsedTime * 0.08
-      meshRef.current.rotation.z = state.clock.elapsedTime * 0.03
     }
   })
 
   return (
-    <Float speed={0.8} rotationIntensity={0.3} floatIntensity={0.8}>
-      <Sphere ref={meshRef} args={[2.2, 64, 64]} position={[0, 0, 0]}>
-        <MeshDistortMaterial
+    <Float speed={0.6} rotationIntensity={0.2} floatIntensity={0.5}>
+      <Sphere ref={meshRef} args={[1.8, 48, 48]} position={[0, 0, 0]}>
+        <meshPhysicalMaterial
           color="#14b8a6"
-          attach="material"
-          distort={0.35}
-          speed={1.2}
           roughness={0.05}
-          metalness={0.95}
+          metalness={0.9}
+          transmission={0.3}
+          thickness={1}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
         />
       </Sphere>
     </Float>
@@ -257,18 +239,17 @@ function ParticleField() {
   
   useFrame(({ clock }) => {
     if (points.current) {
-      points.current.rotation.y = clock.getElapsedTime() * 0.03
-      points.current.rotation.x = clock.getElapsedTime() * 0.01
+      points.current.rotation.y = clock.getElapsedTime() * 0.02
     }
   })
 
-  const particleCount = 1500
+  const particleCount = 800
   const positions = new Float32Array(particleCount * 3)
   
   for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 35
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 35
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 35
+    positions[i * 3] = (Math.random() - 0.5) * 30
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 30
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 30
   }
 
   return (
@@ -282,166 +263,32 @@ function ParticleField() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.025}
+        size={0.02}
         color="#fbbf24"
         transparent
-        opacity={0.5}
+        opacity={0.4}
         sizeAttenuation
       />
     </points>
   )
 }
 
-// ============ TECH 3D OBJECTS ============
-
-function Monitor({ position, scale = 1 }) {
-  const ref = useRef<any>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.3
-      ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.5) * 0.2
-    }
-  })
-  return (
-    <Float speed={1} rotationIntensity={0.3} floatIntensity={1}>
-      <group ref={ref} position={position} scale={scale}>
-        {/* Monitor body */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[1.2, 0.8, 0.1]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.3} metalness={0.8} />
-        </mesh>
-        {/* Screen (glowing) */}
-        <mesh position={[0, 0, 0.06]}>
-          <planeGeometry args={[1.05, 0.65]} />
-          <meshStandardMaterial color="#14b8a6" emissive="#14b8a6" emissiveIntensity={0.6} />
-        </mesh>
-        {/* Stand */}
-        <mesh position={[0, -0.55, 0]}>
-          <boxGeometry args={[0.15, 0.3, 0.1]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.3} metalness={0.8} />
-        </mesh>
-        {/* Base */}
-        <mesh position={[0, -0.72, 0]}>
-          <boxGeometry args={[0.5, 0.05, 0.3]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.3} metalness={0.8} />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
-
-function PCTower({ position, scale = 1 }) {
-  const ref = useRef<any>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.15
-      ref.current.position.y = position[1] + Math.cos(state.clock.elapsedTime * 0.4) * 0.2
-    }
-  })
-  return (
-    <Float speed={1.2} rotationIntensity={0.4} floatIntensity={1.2}>
-      <group ref={ref} position={position} scale={scale}>
-        {/* Tower body */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[0.6, 1.3, 0.8]} />
-          <meshStandardMaterial color="#0f0f1e" roughness={0.2} metalness={0.9} />
-        </mesh>
-        {/* Power button (glowing) */}
-        <mesh position={[0, 0.5, 0.41]}>
-          <circleGeometry args={[0.06, 16]} />
-          <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.8} />
-        </mesh>
-        {/* LED strip */}
-        <mesh position={[0, 0.2, 0.41]}>
-          <planeGeometry args={[0.4, 0.04]} />
-          <meshStandardMaterial color="#a855f7" emissive="#a855f7" emissiveIntensity={0.7} />
-        </mesh>
-        {/* Vent lines */}
-        <mesh position={[0, -0.3, 0.41]}>
-          <planeGeometry args={[0.4, 0.15]} />
-          <meshStandardMaterial color="#1a1a2e" />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
-
-function Laptop({ position, scale = 1 }) {
-  const ref = useRef<any>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime * 0.2
-      ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.6) * 0.15
-    }
-  })
-  return (
-    <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1}>
-      <group ref={ref} position={position} scale={scale}>
-        {/* Screen */}
-        <mesh position={[0, 0.35, -0.2]} rotation={[-0.2, 0, 0]}>
-          <boxGeometry args={[1.1, 0.7, 0.06]} />
-          <meshStandardMaterial color="#1a1a2e" roughness={0.2} metalness={0.8} />
-        </mesh>
-        {/* Screen display */}
-        <mesh position={[0, 0.35, -0.17]} rotation={[-0.2, 0, 0]}>
-          <planeGeometry args={[0.95, 0.55]} />
-          <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} />
-        </mesh>
-        {/* Keyboard base */}
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[1.1, 0.05, 0.7]} />
-          <meshStandardMaterial color="#0f0f1e" roughness={0.3} metalness={0.7} />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
-
-function Phone3D({ position, scale = 1 }) {
-  const ref = useRef<any>(null)
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.z = state.clock.elapsedTime * 0.3
-      ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 0.7) * 0.25
-    }
-  })
-  return (
-    <Float speed={2} rotationIntensity={0.8} floatIntensity={1.5}>
-      <group ref={ref} position={position} scale={scale}>
-        {/* Phone body */}
-        <mesh>
-          <boxGeometry args={[0.4, 0.8, 0.05]} />
-          <meshStandardMaterial color="#0f0f1e" roughness={0.1} metalness={0.95} />
-        </mesh>
-        {/* Screen */}
-        <mesh position={[0, 0, 0.03]}>
-          <planeGeometry args={[0.32, 0.7]} />
-          <meshStandardMaterial color="#14b8a6" emissive="#14b8a6" emissiveIntensity={0.6} />
-        </mesh>
-      </group>
-    </Float>
-  )
-}
-
 function Scene3D() {
   return (
     <>
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[5, 5, 5]} intensity={0.8} color="#14b8a6" />
-      <pointLight position={[-5, -5, -5]} intensity={0.4} color="#fbbf24" />
-      <pointLight position={[5, -5, 5]} intensity={0.3} color="#a855f7" />
-      <spotLight position={[0, 8, 0]} intensity={0.5} color="#14b8a6" angle={0.5} penumbra={1} />
+      <ambientLight intensity={0.3} />
+      <directionalLight position={[5, 5, 5]} intensity={0.6} color="#14b8a6" />
+      <pointLight position={[-5, -3, -5]} intensity={0.3} color="#fbbf24" />
+      <pointLight position={[5, -3, 5]} intensity={0.2} color="#a855f7" />
       
       <AnimatedSphere />
       
-      {/* Tech gadgets replacing geometric shapes */}
-      <Monitor position={[-4.5, 2.5, -2]} scale={0.8} />
-      <PCTower position={[4.5, -1, -1]} scale={0.7} />
-      <Laptop position={[-3.5, -2.5, 1]} scale={0.7} />
-      <Phone3D position={[4, 2.5, 0]} scale={0.6} />
-      <Monitor position={[3, -2, 1.5]} scale={0.5} />
+      <GlassShape position={[-3.5, 2, -2]} geometry="icosahedron" color="#14b8a6" speed={0.5} scale={0.6} />
+      <GlassShape position={[3.5, -1, -1]} geometry="torus" color="#fbbf24" speed={0.8} scale={0.55} />
+      <GlassShape position={[-2.5, -2, 1]} geometry="octahedron" color="#a855f7" speed={0.6} scale={0.5} />
+      <GlassShape position={[3, 2, 0]} geometry="dodecahedron" color="#f97316" speed={0.7} scale={0.45} />
       
-      <Stars radius={60} depth={50} count={2500} factor={4} saturation={0} fade speed={0.5} />
+      <Stars radius={50} depth={30} count={1500} factor={3} saturation={0} fade speed={0.5} />
       <ParticleField />
     </>
   )

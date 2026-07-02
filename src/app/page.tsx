@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, Suspense, useCallback } from 'react'
+import { useRef, useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center } from '@react-three/drei'
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useInView } from 'framer-motion'
@@ -13,13 +13,18 @@ import { Github, Mail, MapPin, Phone, ExternalLink, Download, Sparkles, Zap, Cod
 // ============ SOUND EFFECT SYSTEM ============
 
 function useSoundEffects() {
-  const [enabled, setEnabled] = useState(true)
+  const [enabled, setEnabled] = useState(false) // Start muted — user must click to enable
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const audioReadyRef = useRef(false)
 
   const getCtx = useCallback(() => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
     }
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume()
+    }
+    audioReadyRef.current = true
     return audioCtxRef.current
   }, [])
 
@@ -286,21 +291,30 @@ function ParticleField() {
     }
   })
 
-  const particleCount = 800
-  const positions = new Float32Array(particleCount * 3)
-  
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 30
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 30
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 30
-  }
+  // Use useMemo so positions don't change between SSR and client render
+  const { positions, count } = useMemo(() => {
+    const particleCount = 600
+    const pos = new Float32Array(particleCount * 3)
+    // Use a seeded pseudo-random for consistent SSR/CSR
+    let seed = 12345
+    const rand = () => {
+      seed = (seed * 9301 + 49297) % 233280
+      return seed / 233280
+    }
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (rand() - 0.5) * 30
+      pos[i * 3 + 1] = (rand() - 0.5) * 30
+      pos[i * 3 + 2] = (rand() - 0.5) * 30
+    }
+    return { positions: pos, count: particleCount }
+  }, [])
 
   return (
     <points ref={points}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={particleCount}
+          count={count}
           array={positions}
           itemSize={3}
         />
@@ -322,20 +336,18 @@ function Scene3D() {
       <ambientLight intensity={0.3} />
       <directionalLight position={[5, 5, 5]} intensity={0.6} color="#14b8a6" />
       <pointLight position={[-5, -3, -5]} intensity={0.3} color="#fbbf24" />
-      <pointLight position={[5, -3, 5]} intensity={0.2} color="#a855f7" />
       
       <AnimatedSphere />
       
-      {/* Rolling glass shapes */}
+      {/* Fewer glass shapes for performance */}
       <GlassShape position={[-3.5, 2, -2]} geometry="icosahedron" color="#14b8a6" speed={0.5} scale={0.6} />
       <GlassShape position={[3.5, -1, -1]} geometry="torus" color="#fbbf24" speed={0.8} scale={0.55} />
-      <GlassShape position={[-2.5, -2, 1]} geometry="octahedron" color="#a855f7" speed={0.6} scale={0.5} />
-      <GlassShape position={[3, 2, 0]} geometry="dodecahedron" color="#f97316" speed={0.7} scale={0.45} />
+      <GlassShape position={[3, 2, 0]} geometry="dodecahedron" color="#a855f7" speed={0.7} scale={0.45} />
 
-      {/* The Hero — a large glass rolling wheel */}
+      {/* Rolling glass wheel */}
       <RollingWheel />
       
-      <Stars radius={50} depth={30} count={1500} factor={3} saturation={0} fade speed={0.5} />
+      <Stars radius={40} depth={20} count={800} factor={2} saturation={0} fade speed={0.3} />
       <ParticleField />
     </>
   )
@@ -365,7 +377,7 @@ function RollingWheel() {
     <group ref={groupRef}>
       {/* Main wheel — glass torus */}
       <mesh ref={wheelRef}>
-        <torusGeometry args={[1.5, 0.4, 32, 100]} />
+        <torusGeometry args={[1.5, 0.4, 16, 48]} />
         <meshPhysicalMaterial
           color="#14b8a6"
           roughness={0.05}
@@ -381,26 +393,26 @@ function RollingWheel() {
       </mesh>
 
       {/* Wireframe overlay on wheel */}
-      <mesh ref={wheelRef} scale={1.01}>
-        <torusGeometry args={[1.5, 0.4, 16, 32]} />
+      <mesh scale={1.01}>
+        <torusGeometry args={[1.5, 0.4, 8, 16]} />
         <meshBasicMaterial color="#fbbf24" wireframe transparent opacity={0.2} />
       </mesh>
 
-      {/* Spokes */}
-      {[0, 60, 120, 180, 240, 300].map((deg) => {
+      {/* Spokes — only 4 for performance */}
+      {[0, 90, 180, 270].map((deg) => {
         const rad = (deg * Math.PI) / 180
         return (
-          <mesh key={deg} ref={wheelRef} position={[0, 0, 0]} rotation={[0, 0, rad]}>
+          <mesh key={deg} position={[0, 0, 0]} rotation={[0, 0, rad]}>
             <boxGeometry args={[2.8, 0.05, 0.05]} />
-            <meshPhysicalMaterial color="#fbbf24" roughness={0.1} metalness={0.8} />
+            <meshStandardMaterial color="#fbbf24" roughness={0.1} metalness={0.8} />
           </mesh>
         )
       })}
 
       {/* Inner hub */}
-      <mesh ref={wheelRef}>
-        <cylinderGeometry args={[0.25, 0.25, 0.15, 32]} />
-        <meshPhysicalMaterial color="#a855f7" roughness={0.1} metalness={0.9} clearcoat={1} />
+      <mesh>
+        <cylinderGeometry args={[0.25, 0.25, 0.15, 16]} />
+        <meshStandardMaterial color="#a855f7" roughness={0.1} metalness={0.9} />
       </mesh>
     </group>
   )
@@ -644,14 +656,16 @@ function ScrollWarp({ onWarp, onConfirm }: { onWarp: () => void; onConfirm?: () 
           warpTriggered.current = true
           setWarping(true)
           onWarp()
+          // Wait 2.5s for the warp animation to build up, THEN scroll
           setTimeout(() => {
             window.scrollTo({ top: 0, behavior: 'smooth' })
-          }, 1500)
+          }, 2500)
+          // Keep overlay visible during scroll + fade out
           setTimeout(() => {
             setWarping(false)
             warpTriggered.current = false
             atBottomRef.current = false
-          }, 3500)
+          }, 4500)
         }
       }
 
@@ -854,15 +868,12 @@ function HoloCard({ agent, index, sound }: { agent: any; index: number; sound: a
       whileHover={{ scale: 1.03 }}
       className="relative group"
     >
-      {/* Animated rotating gradient border */}
-      <motion.div
-        className="absolute -inset-0.5 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+      {/* Static gradient border glow */}
+      <div
+        className="absolute -inset-0.5 rounded-2xl opacity-40 group-hover:opacity-80 transition-opacity -z-10"
         style={{
-          background: 'conic-gradient(from 0deg, #14b8a6, #fbbf24, #a855f7, #f97316, #14b8a6)',
+          background: 'linear-gradient(135deg, #14b8a6, #fbbf24, #a855f7)',
           filter: 'blur(8px)',
-          zIndex: -1,
         }}
       />
 
@@ -1092,6 +1103,7 @@ export default function Home() {
   useEffect(() => {
     // Set mounted on client side
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
     const handleMouse = (e: MouseEvent) => {
       setMousePos({ x: e.clientX / window.innerWidth - 0.5, y: e.clientY / window.innerHeight - 0.5 })
@@ -1208,7 +1220,13 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => { sound.setEnabled(!sound.enabled); sound.playClick() }}
+              onClick={() => {
+                if (!enabled) {
+                  getCtx() // Initialize AudioContext on user gesture
+                  sound.playClick()
+                }
+                sound.setEnabled(!enabled)
+              }}
               className="ml-2 p-2 rounded-lg border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
               title={sound.enabled ? "Mute sounds" : "Enable sounds"}
             >
@@ -1375,25 +1393,21 @@ export default function Home() {
       <section id="agents" className="relative z-10 py-24 px-6 overflow-hidden">
         {/* Floating background particles for this section */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 rounded-full bg-teal-400/30"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0.2, 0.6, 0.2],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 4,
-                repeat: Infinity,
-                delay: Math.random() * 3,
-              }}
-            />
-          ))}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const left = (i * 37) % 100
+            const top = (i * 53) % 100
+            const delay = (i * 0.7) % 3
+            const duration = 3 + (i % 3)
+            return (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 rounded-full bg-teal-400/30"
+                style={{ left: `${left}%`, top: `${top}%` }}
+                animate={{ y: [0, -30, 0], opacity: [0.2, 0.6, 0.2] }}
+                transition={{ duration, repeat: Infinity, delay }}
+              />
+            )
+          })}
         </div>
 
         <div className="max-w-7xl mx-auto relative">

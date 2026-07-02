@@ -88,8 +88,9 @@ function useSoundEffects() {
     setTimeout(() => playTone(1047, 0.2, 'sine', 0.04), 240)
   }, [playTone])
 
-  // ============ SMOOTH AMBIENT MUSIC (optimized) ============
+  // ============ GENTLE MELODY MUSIC ============
   const musicNodesRef = useRef<any>(null)
+  const musicIntervalRef = useRef<any>(null)
 
   const startMusic = useCallback(() => {
     if (musicNodesRef.current) return
@@ -97,53 +98,61 @@ function useSoundEffects() {
       const ctx = getCtx()
       const masterGain = ctx.createGain()
       masterGain.gain.setValueAtTime(0, ctx.currentTime)
-      masterGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 3)
+      masterGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 2)
       masterGain.connect(ctx.destination)
 
-      // Warm ambient pad — 3 oscillators creating a lush chord
+      musicNodesRef.current = { masterGain, ctx }
+
+      // Soft arpeggio — C major pentatonic, music-box style
       const notes = [
-        { freq: 130.81, type: 'sine' as OscillatorType, gain: 0.4 },     // C3
-        { freq: 196.00, type: 'sine' as OscillatorType, gain: 0.3 },     // G3
-        { freq: 261.63, type: 'triangle' as OscillatorType, gain: 0.15 }, // C4
+        523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33, // C5 D5 E5 G5 A5 G5 E5 D5
+        523.25, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33, 523.25, // C5 E5 G5 A5 G5 E5 D5 C5
       ]
+      let noteIndex = 0
 
-      const oscillators: any[] = []
-      const gains: any[] = []
+      const playNote = () => {
+        if (!musicNodesRef.current) return
+        const freq = notes[noteIndex]
+        const now = ctx.currentTime
 
-      notes.forEach((note) => {
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.type = note.type
-        osc.frequency.value = note.freq
-        gain.gain.value = note.gain
-        osc.connect(gain)
-        gain.connect(masterGain)
-        osc.start()
-        oscillators.push(osc)
-        gains.push(gain)
-      })
+        // Soft bell tone — two oscillators (fundamental + octave)
+        const osc1 = ctx.createOscillator()
+        const osc2 = ctx.createOscillator()
+        const gain1 = ctx.createGain()
+        const gain2 = ctx.createGain()
 
-      // Slow detune LFO for warmth — subtle pitch wobble
-      const detuneLfo = ctx.createOscillator()
-      const detuneLfoGain = ctx.createGain()
-      detuneLfo.type = 'sine'
-      detuneLfo.frequency.value = 0.15
-      detuneLfoGain.gain.value = 3
-      detuneLfo.connect(detuneLfoGain)
-      oscillators.forEach((osc) => detuneLfoGain.connect(osc.detune))
-      detuneLfo.start()
+        osc1.type = 'sine'
+        osc1.frequency.value = freq
+        osc2.type = 'sine'
+        osc2.frequency.value = freq * 2
 
-      // Volume LFO for breathing effect
-      const volLfo = ctx.createOscillator()
-      const volLfoGain = ctx.createGain()
-      volLfo.type = 'sine'
-      volLfo.frequency.value = 0.06
-      volLfoGain.gain.value = 0.08
-      volLfo.connect(volLfoGain)
-      volLfoGain.connect(masterGain.gain)
-      volLfo.start()
+        // Soft attack + long decay = bell-like
+        gain1.gain.setValueAtTime(0, now)
+        gain1.gain.linearRampToValueAtTime(0.12, now + 0.02)
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 2.5)
 
-      musicNodesRef.current = { masterGain, oscillators, detuneLfo, volLfo }
+        gain2.gain.setValueAtTime(0, now)
+        gain2.gain.linearRampToValueAtTime(0.04, now + 0.02)
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 1.5)
+
+        osc1.connect(gain1)
+        osc2.connect(gain2)
+        gain1.connect(masterGain)
+        gain2.connect(masterGain)
+
+        osc1.start(now)
+        osc1.stop(now + 3)
+        osc2.start(now)
+        osc2.stop(now + 2)
+
+        noteIndex = (noteIndex + 1) % notes.length
+      }
+
+      // Play first note immediately, then every 1.2 seconds
+      playNote()
+      musicIntervalRef.current = setInterval(playNote, 1200)
+
+      musicNodesRef.current = { masterGain, ctx, interval: musicIntervalRef.current }
     } catch {}
   }, [getCtx])
 
@@ -151,14 +160,14 @@ function useSoundEffects() {
     if (!musicNodesRef.current) return
     try {
       const ctx = getCtx()
-      const { masterGain, oscillators, detuneLfo, volLfo } = musicNodesRef.current
-      masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1)
+      musicNodesRef.current.masterGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1)
+      if (musicIntervalRef.current) {
+        clearInterval(musicIntervalRef.current)
+        musicIntervalRef.current = null
+      }
       setTimeout(() => {
         try {
-          oscillators.forEach((osc: any) => osc.stop())
-          detuneLfo.stop()
-          volLfo.stop()
-          masterGain.disconnect()
+          musicNodesRef.current?.masterGain.disconnect()
         } catch {}
         musicNodesRef.current = null
       }, 1500)
@@ -169,7 +178,6 @@ function useSoundEffects() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.hidden) {
-        // Tab hidden — fade out music
         if (musicNodesRef.current) {
           try {
             const ctx = getCtx()
@@ -177,11 +185,10 @@ function useSoundEffects() {
           } catch {}
         }
       } else {
-        // Tab visible again — fade music back in
         if (musicNodesRef.current && enabled) {
           try {
             const ctx = getCtx()
-            musicNodesRef.current.masterGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 1)
+            musicNodesRef.current.masterGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1)
           } catch {}
         }
       }
@@ -732,6 +739,188 @@ function ScrollWarp({ onWarp, onConfirm }: { onWarp: () => void; onConfirm?: () 
   )
 }
 
+// ============ HOLOGRAPHIC AGENT CARD ============
+
+function HoloCard({ agent, index, sound }: { agent: any; index: number; sound: any }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
+  const [isHovered, setIsHovered] = useState(false)
+  const rotateX = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
+  const rotateY = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const cx = rect.width / 2
+    const cy = rect.height / 2
+    rotateX.set(((y - cy) / cy) * -8)
+    rotateY.set(((x - cx) / cx) * 8)
+    setMousePos({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 })
+  }
+
+  const handleMouseLeave = () => {
+    rotateX.set(0)
+    rotateY.set(0)
+    setIsHovered(false)
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 60, rotateZ: -5 }}
+      whileInView={{ opacity: 1, y: 0, rotateZ: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.15, type: 'spring', stiffness: 100 }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => { setIsHovered(true); sound.playPop() }}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+        perspective: 1000,
+      }}
+      whileHover={{ scale: 1.03 }}
+      className="relative group"
+    >
+      {/* Animated rotating gradient border */}
+      <motion.div
+        className="absolute -inset-0.5 rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        style={{
+          background: 'conic-gradient(from 0deg, #14b8a6, #fbbf24, #a855f7, #f97316, #14b8a6)',
+          filter: 'blur(8px)',
+          zIndex: -1,
+        }}
+      />
+
+      {/* Card body */}
+      <div
+        className="relative rounded-2xl overflow-hidden bg-[#0a0a0f]/90 backdrop-blur-xl border border-white/10 p-6 h-full"
+        style={{ transform: 'translateZ(20px)' }}
+      >
+        {/* Mouse-tracking spotlight */}
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+          style={{
+            background: isHovered
+              ? `radial-gradient(400px circle at ${mousePos.x}% ${mousePos.y}%, rgba(20, 184, 166, 0.15), transparent 40%)`
+              : 'transparent',
+            opacity: isHovered ? 1 : 0,
+          }}
+        />
+
+        {/* Shimmer sweep on hover */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ x: '-100%' }}
+          animate={isHovered ? { x: '200%' } : { x: '-100%' }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
+          style={{
+            background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)',
+            width: '100%',
+          }}
+        />
+
+        {/* Header */}
+        <div className="relative flex items-start justify-between mb-4">
+          <motion.div
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
+            className="relative"
+          >
+            {/* Glow behind icon */}
+            <motion.div
+              className="absolute inset-0 rounded-xl blur-lg"
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              style={{ background: 'radial-gradient(circle, rgba(20,184,166,0.4), transparent 70%)' }}
+            />
+            <div className="relative p-3 rounded-xl bg-gradient-to-br from-teal-500/20 to-amber-500/20 border border-white/10">
+              <agent.icon className="w-6 h-6 text-teal-400" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
+            className={`px-3 py-1 rounded-full text-xs font-mono border ${
+              agent.difficulty === 'Advanced'
+                ? 'border-purple-500/40 text-purple-400 bg-purple-500/10'
+                : 'border-teal-500/40 text-teal-400 bg-teal-500/10'
+            }`}
+          >
+            {agent.difficulty}
+          </motion.div>
+        </div>
+
+        {/* Title */}
+        <h3 className="text-xl font-bold mb-1 text-white" style={{ transform: 'translateZ(30px)' }}>
+          {agent.name}
+        </h3>
+        <p className="text-sm text-teal-400 font-mono mb-3">{agent.tagline}</p>
+
+        {/* Description */}
+        <p className="text-sm text-gray-400 mb-4 leading-relaxed">{agent.description}</p>
+
+        {/* Tech tags */}
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {agent.tech.map((t: string) => (
+            <span
+              key={t}
+              className="text-xs px-2 py-1 bg-white/5 border border-white/10 rounded-md text-gray-400 font-mono transition-colors group-hover:border-teal-500/20"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex gap-2">
+          <motion.a
+            href={agent.demo}
+            target="_blank"
+            rel="noopener"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => sound.playClick()}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg text-sm font-semibold text-white"
+            style={{
+              background: 'linear-gradient(135deg, #14b8a6, #fbbf24)',
+              boxShadow: '0 4px 20px rgba(20, 184, 166, 0.3)',
+            }}
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> Live Demo
+          </motion.a>
+          <motion.a
+            href={agent.repo}
+            target="_blank"
+            rel="noopener"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => sound.playClick()}
+            className="flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg text-sm font-semibold text-gray-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            <Github className="w-3.5 h-3.5" /> Code
+          </motion.a>
+        </div>
+
+        {/* Bottom glow line */}
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-px"
+          style={{
+            background: 'linear-gradient(90deg, transparent, #14b8a6, #fbbf24, transparent)',
+          }}
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity, delay: index * 0.3 }}
+        />
+      </div>
+    </motion.div>
+  )
+}
+
 // ============ 3D TILT CARD COMPONENT ============
 
 function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => void; onHover?: () => void }) {
@@ -833,7 +1022,7 @@ export default function Home() {
 
   useEffect(() => {
     // Set mounted on client side
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    
     setMounted(true)
     const handleMouse = (e: MouseEvent) => {
       setMousePos({ x: e.clientX / window.innerWidth - 0.5, y: e.clientY / window.innerHeight - 0.5 })
@@ -1113,18 +1302,47 @@ export default function Home() {
         </motion.div>
       </motion.section>
 
-      {/* ============ AI AGENTS SECTION ============ */}
-      <section id="agents" className="relative z-10 py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      {/* ============ AI AGENTS SECTION — HOLOGRAPHIC ============ */}
+      <section id="agents" className="relative z-10 py-24 px-6 overflow-hidden">
+        {/* Floating background particles for this section */}
+        <div className="absolute inset-0 pointer-events-none">
+          {[...Array(20)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 rounded-full bg-teal-400/30"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+              }}
+              animate={{
+                y: [0, -30, 0],
+                opacity: [0.2, 0.6, 0.2],
+              }}
+              transition={{
+                duration: 3 + Math.random() * 4,
+                repeat: Infinity,
+                delay: Math.random() * 3,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="max-w-7xl mx-auto relative">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge variant="secondary" className="mb-4 bg-indigo-500/10 text-indigo-400 border-indigo-500/30 font-mono">{"// ai engineering"}</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              AI Agents
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-block mb-4"
+            >
+              <Badge variant="secondary" className="bg-teal-500/10 text-teal-400 border-teal-500/30 font-mono">{"// ai engineering"}</Badge>
+            </motion.div>
+            <h2 className="text-4xl md:text-6xl font-bold mb-4">
+              <GradientText>AI Agents</GradientText>
             </h2>
             <p className="text-gray-500 max-w-2xl mx-auto">
               Autonomous AI systems — each demonstrating a different agent pattern
@@ -1133,51 +1351,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {AI_AGENTS.map((agent, i) => (
-              <motion.div
-                key={agent.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                onMouseEnter={() => sound.playPop()}
-              >
-                <Card className="relative overflow-hidden liquid-glass h-full">
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${agent.gradient}`} />
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${agent.gradient} bg-opacity-10`}>
-                        <agent.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <Badge variant="outline" className={
-                        agent.difficulty === 'Advanced'
-                          ? 'border-purple-500/30 text-purple-400 bg-purple-500/10'
-                          : 'border-cyan-500/30 text-cyan-400 bg-cyan-500/10'
-                      }>
-                        {agent.difficulty}
-                      </Badge>
-                    </div>
-                    <CardTitle className="text-xl mt-4">{agent.name}</CardTitle>
-                    <p className="text-sm text-indigo-400 font-mono">{agent.tagline}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-400 mb-4 leading-relaxed">{agent.description}</p>
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {agent.tech.map((t) => (
-                        <span key={t} className="text-xs px-2 py-1 bg-white/5 rounded-md text-gray-400 font-mono">{t}</span>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" className={`bg-gradient-to-r ${agent.gradient} border-0 text-white flex-1`} asChild>
-                        <a href={agent.demo} target="_blank" rel="noopener"><ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Live Demo</a>
-                      </Button>
-                      <Button size="sm" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10" asChild>
-                        <a href={agent.repo} target="_blank" rel="noopener"><Github className="w-3.5 h-3.5 mr-1.5" /> Code</a>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <HoloCard key={agent.name} agent={agent} index={i} sound={sound} />
             ))}
           </div>
 
@@ -1189,10 +1363,10 @@ export default function Home() {
             className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4"
           >
             {[
-              { label: 'AI Agents Built', value: '4', color: 'text-indigo-400' },
-              { label: 'Agent Patterns', value: '3', color: 'text-purple-400' },
-              { label: 'API Cost', value: '$0', color: 'text-cyan-400' },
-              { label: 'Free Stack', value: '100%', color: 'text-emerald-400' },
+              { label: 'AI Agents Built', value: '4', color: 'text-teal-400' },
+              { label: 'Agent Patterns', value: '3', color: 'text-amber-400' },
+              { label: 'API Cost', value: '$0', color: 'text-purple-400' },
+              { label: 'Free Stack', value: '100%', color: 'text-orange-400' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -1200,10 +1374,20 @@ export default function Home() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                whileHover={{ scale: 1.05, y: -4 }}
+                onMouseEnter={() => sound.playPop()}
               >
                 <Card className="liquid-glass text-center">
                   <CardContent className="pt-6">
-                    <div className={`text-3xl font-bold ${stat.color} font-mono`}>{stat.value}</div>
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 + 0.3, type: 'spring' }}
+                      className={`text-4xl font-bold ${stat.color} font-mono`}
+                    >
+                      {stat.value}
+                    </motion.div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">{stat.label}</div>
                   </CardContent>
                 </Card>

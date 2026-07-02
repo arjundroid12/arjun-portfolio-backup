@@ -1,14 +1,62 @@
 'use client'
 
-import { useRef, useState, useEffect, Suspense } from 'react'
+import { useRef, useState, useEffect, Suspense, useCallback } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center } from '@react-three/drei'
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Github, Mail, MapPin, Phone, ExternalLink, Download, Sparkles, Zap, Code2, Brain, Database, Cpu, Rocket, ArrowDown, X } from 'lucide-react'
+import { Github, Mail, MapPin, Phone, ExternalLink, Download, Sparkles, Zap, Code2, Brain, Database, Cpu, Rocket, ArrowDown, X, Volume2, VolumeX } from 'lucide-react'
+
+// ============ SOUND EFFECT SYSTEM ============
+
+function useSoundEffects() {
+  const [enabled, setEnabled] = useState(true)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+
+  const getCtx = useCallback(() => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+    }
+    return audioCtxRef.current
+  }, [])
+
+  const playTone = useCallback((freq: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) => {
+    if (!enabled) return
+    try {
+      const ctx = getCtx()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = type
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(volume, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + duration)
+    } catch {}
+  }, [enabled, getCtx])
+
+  const playHover = useCallback(() => playTone(880, 0.05, 'sine', 0.03), [playTone])
+  const playClick = useCallback(() => {
+    playTone(523, 0.08, 'sine', 0.05)
+    setTimeout(() => playTone(784, 0.08, 'sine', 0.04), 50)
+  }, [playTone])
+  const playModalOpen = useCallback(() => {
+    playTone(440, 0.1, 'sine', 0.05)
+    setTimeout(() => playTone(659, 0.1, 'sine', 0.04), 80)
+    setTimeout(() => playTone(880, 0.15, 'sine', 0.03), 160)
+  }, [playTone])
+  const playModalClose = useCallback(() => {
+    playTone(880, 0.1, 'sine', 0.04)
+    setTimeout(() => playTone(440, 0.15, 'sine', 0.03), 80)
+  }, [playTone])
+
+  return { enabled, setEnabled, playHover, playClick, playModalOpen, playModalClose }
+}
 
 // ============ 3D SCENE COMPONENTS ============
 
@@ -201,9 +249,71 @@ const SKILLS = {
   'Tools': ['Git', 'GitHub Actions', 'Vercel', 'Render', 'Three.js', 'Framer Motion'],
 }
 
+// ============ MAGNETIC BUTTON COMPONENT ============
+
+function MagneticButton({ children, onClick, className, asChild, ...props }: any) {
+  const ref = useRef<HTMLDivElement>(null)
+  const x = useSpring(0, { stiffness: 150, damping: 15 })
+  const y = useSpring(0, { stiffness: 150, damping: 15 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    const distX = e.clientX - centerX
+    const distY = e.clientY - centerY
+    x.set(distX * 0.3)
+    y.set(distY * 0.3)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x, y, display: 'inline-block' }}
+      onClick={onClick}
+    >
+      <Button className={className} asChild={asChild} {...props}>{children}</Button>
+    </motion.div>
+  )
+}
+
+// ============ ANIMATED GRADIENT TEXT ============
+
+function GradientText({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={`relative inline-block ${className}`}>
+      <motion.span
+        className="bg-clip-text text-transparent"
+        animate={{
+          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+        }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+        style={{
+          backgroundImage: 'linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #06b6d4, #6366f1)',
+          backgroundSize: '200% 200%',
+        }}
+      >
+        {children}
+      </motion.span>
+    </span>
+  )
+}
+
 // ============ 3D TILT CARD COMPONENT ============
 
-function TiltCard({ project, onClick }: { project: any; onClick: () => void }) {
+function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => void; onHover?: () => void }) {
   const ref = useRef<HTMLDivElement>(null)
   const rotateX = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 })
   const rotateY = useSpring(useMotionValue(0), { stiffness: 300, damping: 30 })
@@ -231,14 +341,15 @@ function TiltCard({ project, onClick }: { project: any; onClick: () => void }) {
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseEnter={onHover}
       style={{
         rotateX,
         rotateY,
         transformStyle: 'preserve-3d',
         perspective: 1000,
       }}
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.97 }}
       onClick={onClick}
       className="cursor-pointer"
     >
@@ -280,10 +391,24 @@ export default function Home() {
   const { scrollYProgress } = useScroll()
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -100])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0])
+  const heroScale = useTransform(scrollYProgress, [0, 0.3], [1, 0.9])
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const [activeFilter, setActiveFilter] = useState('All')
   const [mounted, setMounted] = useState(false)
   const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null)
+  const sound = useSoundEffects()
+  const heroRef = useRef<HTMLElement>(null)
+  const heroInView = useInView(heroRef, { once: true })
+
+  const handleProjectClick = useCallback((project: typeof PROJECTS[0]) => {
+    sound.playModalOpen()
+    setSelectedProject(project)
+  }, [sound])
+
+  const handleCloseModal = useCallback(() => {
+    sound.playModalClose()
+    setSelectedProject(null)
+  }, [sound])
 
   useEffect(() => {
     // Set mounted on client side
@@ -300,6 +425,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
+      {/* ============ DYNAMIC COLOR AURORA BACKGROUND ============ */}
+      <motion.div
+        className="fixed inset-0 z-0 pointer-events-none"
+        animate={{
+          background: [
+            'radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.12), transparent 50%)',
+            'radial-gradient(ellipse at 80% 20%, rgba(236,72,153,0.12), transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(6,182,212,0.12), transparent 50%)',
+            'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.12), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.12), transparent 50%)',
+            'radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.12), transparent 50%)',
+          ],
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+      />
+
       {/* ============ 3D BACKGROUND CANVAS ============ */}
       <div className="fixed inset-0 z-0">
         {mounted && (
@@ -377,21 +516,70 @@ export default function Home() {
                 <Github className="w-4 h-4 mr-2" /> GitHub
               </a>
             </Button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => { sound.setEnabled(!sound.enabled); sound.playClick() }}
+              className="ml-2 p-2 rounded-lg border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
+              title={sound.enabled ? "Mute sounds" : "Enable sounds"}
+            >
+              {sound.enabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </motion.button>
           </div>
         </div>
       </motion.nav>
 
       {/* ============ HERO SECTION ============ */}
       <motion.section
+        ref={heroRef}
         id="hero"
-        style={{ y: heroY, opacity: heroOpacity }}
+        style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
         className="relative z-10 min-h-screen flex items-center justify-center px-6"
       >
         <div className="text-center max-w-4xl">
+          {/* Photo placeholder with animated ring */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0, rotateY: 180 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{ delay: 0.2, duration: 1, type: 'spring' }}
+            className="relative w-40 h-40 md:w-48 md:h-48 mx-auto mb-8"
+          >
+            {/* Rotating gradient ring */}
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              style={{
+                background: 'conic-gradient(from 0deg, #6366f1, #a855f7, #ec4899, #06b6d4, #6366f1)',
+                padding: 4,
+              }}
+            >
+              <div className="w-full h-full rounded-full bg-[#0a0a0f]" />
+            </motion.div>
+            {/* Inner photo placeholder */}
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/10 flex items-center justify-center overflow-hidden">
+              {/* Replace this div with <img src="/photo.jpg" /> when you have your photo */}
+              <motion.div
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="text-5xl"
+              >
+                👨‍💻
+              </motion.div>
+            </div>
+            {/* Pulsing glow */}
+            <motion.div
+              className="absolute inset-0 rounded-full blur-2xl -z-10"
+              animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%)' }}
+            />
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
             className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-indigo-500/10 border border-indigo-500/30"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -401,30 +589,25 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
             className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-6"
-            style={{
-              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
           >
-            Arjun Vashishtha
+            <GradientText>Arjun Vashishtha</GradientText>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="text-xl md:text-2xl text-indigo-400 mb-4 font-mono"
+            transition={{ delay: 0.7, duration: 0.6 }}
+            className="text-xl md:text-2xl mb-4 font-mono"
           >
-            Software Management · Data Science · AI Builder
+            <GradientText>Software Management · Data Science · AI Builder</GradientText>
           </motion.p>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.6 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
             className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto mb-10"
           >
             4th-year B.Tech CSE student at VIT Bhopal, currently at Techify Inc.
@@ -434,34 +617,52 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
+            transition={{ delay: 0.9, duration: 0.6 }}
             className="flex flex-wrap gap-4 justify-center mb-16"
           >
-            <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white border-0" asChild>
+            <MagneticButton
+              size="lg"
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white border-0"
+              asChild
+              onClick={() => sound.playClick()}
+            >
               <a href="#agents"><Brain className="w-4 h-4 mr-2" /> Explore AI Agents</a>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10" asChild>
+            </MagneticButton>
+            <MagneticButton
+              size="lg"
+              variant="outline"
+              className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+              asChild
+              onClick={() => sound.playClick()}
+            >
               <a href="#projects"><Rocket className="w-4 h-4 mr-2" /> View Projects</a>
-            </Button>
-            <Button size="lg" variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10" asChild>
+            </MagneticButton>
+            <MagneticButton
+              size="lg"
+              variant="outline"
+              className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+              asChild
+              onClick={() => sound.playClick()}
+            >
               <a href="/resume.pdf" download><Download className="w-4 h-4 mr-2" /> Resume</a>
-            </Button>
+            </MagneticButton>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            transition={{ delay: 1.3 }}
             className="flex flex-wrap gap-3 justify-center"
           >
             {['Python', 'React', 'Next.js', 'Cerebras', 'Power BI', 'MySQL', 'Three.js'].map((tech, i) => (
               <motion.span
                 key={tech}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2 + i * 0.1 }}
-                whileHover={{ scale: 1.1, y: -3 }}
-                className="px-3 py-1 text-xs font-mono text-gray-400 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full"
+                initial={{ opacity: 0, scale: 0, rotateZ: -20 }}
+                animate={{ opacity: 1, scale: 1, rotateZ: 0 }}
+                transition={{ delay: 1.3 + i * 0.1, type: 'spring' }}
+                whileHover={{ scale: 1.15, y: -5, rotateZ: 5 }}
+                onMouseEnter={() => sound.playHover()}
+                className="px-3 py-1 text-xs font-mono text-gray-400 bg-black/40 backdrop-blur-sm border border-white/10 rounded-full cursor-pointer"
               >
                 {tech}
               </motion.span>
@@ -630,7 +831,7 @@ export default function Home() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <TiltCard project={project} onClick={() => setSelectedProject(project)} />
+                  <TiltCard project={project} onClick={() => handleProjectClick(project)} onHover={() => sound.playHover()} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -788,7 +989,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedProject(null)}
+            onClick={handleCloseModal}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
           >
             <motion.div
@@ -804,7 +1005,7 @@ export default function Home() {
               
               {/* Close button */}
               <button
-                onClick={() => setSelectedProject(null)}
+                onClick={handleCloseModal}
                 className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-400" />

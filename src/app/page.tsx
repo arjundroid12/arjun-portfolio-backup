@@ -98,25 +98,27 @@ function FloatingShape({ position, geometry, color, speed = 1, scale = 1 }) {
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.2 * speed
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.3 * speed
+      meshRef.current.rotation.x = state.clock.elapsedTime * 0.15 * speed
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.2 * speed
       meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * speed) * 0.3
     }
   })
 
   return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={2}>
+    <Float speed={1.5} rotationIntensity={0.8} floatIntensity={1.5}>
       <mesh ref={meshRef} position={position} scale={scale}>
-        {geometry === 'icosahedron' && <icosahedronGeometry args={[1, 0]} />}
-        {geometry === 'torus' && <torusGeometry args={[0.8, 0.3, 16, 32]} />}
-        {geometry === 'box' && <boxGeometry args={[1.2, 1.2, 1.2]} />}
+        {geometry === 'dodecahedron' && <dodecahedronGeometry args={[1, 0]} />}
+        {geometry === 'tetrahedron' && <tetrahedronGeometry args={[1.2, 0]} />}
+        {geometry === 'torus' && <torusGeometry args={[0.7, 0.28, 16, 48]} />}
         {geometry === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
+        {geometry === 'cone' && <coneGeometry args={[0.9, 1.5, 8]} />}
+        {geometry === 'capsule' && <capsuleGeometry args={[0.5, 1, 8, 16]} />}
         <MeshDistortMaterial
           color={color}
-          roughness={0.2}
-          metalness={0.8}
-          distort={0.3}
-          speed={2}
+          roughness={0.1}
+          metalness={0.9}
+          distort={0.2}
+          speed={1.5}
         />
       </mesh>
     </Float>
@@ -128,21 +130,21 @@ function AnimatedSphere() {
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.1
-      meshRef.current.rotation.z = state.clock.elapsedTime * 0.05
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.08
+      meshRef.current.rotation.z = state.clock.elapsedTime * 0.03
     }
   })
 
   return (
-    <Float speed={1} rotationIntensity={0.5} floatIntensity={1}>
-      <Sphere ref={meshRef} args={[2.5, 64, 64]} position={[0, 0, 0]}>
+    <Float speed={0.8} rotationIntensity={0.3} floatIntensity={0.8}>
+      <Sphere ref={meshRef} args={[2.2, 64, 64]} position={[0, 0, 0]}>
         <MeshDistortMaterial
-          color="#6366f1"
+          color="#14b8a6"
           attach="material"
-          distort={0.5}
-          speed={1.5}
-          roughness={0.1}
-          metalness={0.9}
+          distort={0.35}
+          speed={1.2}
+          roughness={0.05}
+          metalness={0.95}
         />
       </Sphere>
     </Float>
@@ -154,18 +156,18 @@ function ParticleField() {
   
   useFrame(({ clock }) => {
     if (points.current) {
-      points.current.rotation.y = clock.getElapsedTime() * 0.05
-      points.current.rotation.x = clock.getElapsedTime() * 0.02
+      points.current.rotation.y = clock.getElapsedTime() * 0.03
+      points.current.rotation.x = clock.getElapsedTime() * 0.01
     }
   })
 
-  const particleCount = 2000
+  const particleCount = 1500
   const positions = new Float32Array(particleCount * 3)
   
   for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 30
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 30
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 30
+    positions[i * 3] = (Math.random() - 0.5) * 35
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 35
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 35
   }
 
   return (
@@ -179,10 +181,10 @@ function ParticleField() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.03}
-        color="#a855f7"
+        size={0.025}
+        color="#fbbf24"
         transparent
-        opacity={0.6}
+        opacity={0.5}
         sizeAttenuation
       />
     </points>
@@ -192,19 +194,22 @@ function ParticleField() {
 function Scene3D() {
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 5, 5]} intensity={1} color="#6366f1" />
-      <pointLight position={[-5, -5, -5]} intensity={0.5} color="#a855f7" />
-      <pointLight position={[5, -5, 5]} intensity={0.3} color="#06b6d4" />
+      <ambientLight intensity={0.25} />
+      <directionalLight position={[5, 5, 5]} intensity={0.8} color="#14b8a6" />
+      <pointLight position={[-5, -5, -5]} intensity={0.4} color="#fbbf24" />
+      <pointLight position={[5, -5, 5]} intensity={0.3} color="#a855f7" />
+      <spotLight position={[0, 8, 0]} intensity={0.5} color="#14b8a6" angle={0.5} penumbra={1} />
       
       <AnimatedSphere />
       
-      <FloatingShape position={[-4, 2, -2]} geometry="icosahedron" color="#a855f7" speed={0.8} scale={0.8} />
-      <FloatingShape position={[4, -1, -1]} geometry="torus" color="#06b6d4" speed={1.2} scale={0.7} />
-      <FloatingShape position={[-3, -2, 1]} geometry="octahedron" color="#10b981" speed={0.9} scale={0.6} />
-      <FloatingShape position={[3, 2, 0]} geometry="box" color="#f59e0b" speed={1.1} scale={0.5} />
+      <FloatingShape position={[-4.5, 2.5, -2]} geometry="dodecahedron" color="#fbbf24" speed={0.6} scale={0.7} />
+      <FloatingShape position={[4.5, -1, -1]} geometry="torus" color="#a855f7" speed={1} scale={0.65} />
+      <FloatingShape position={[-3, -2.5, 1]} geometry="tetrahedron" color="#14b8a6" speed={0.8} scale={0.6} />
+      <FloatingShape position={[3.5, 2.5, 0]} geometry="octahedron" color="#f97316" speed={0.9} scale={0.5} />
+      <FloatingShape position={[0, -3, -1]} geometry="cone" color="#fbbf24" speed={0.7} scale={0.55} />
+      <FloatingShape position={[-4, 0, 2]} geometry="capsule" color="#a855f7" speed={1.1} scale={0.45} />
       
-      <Stars radius={50} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+      <Stars radius={60} depth={50} count={2500} factor={4} saturation={0} fade speed={0.5} />
       <ParticleField />
     </>
   )
@@ -334,7 +339,7 @@ function GradientText({ children, className = '' }: { children: React.ReactNode;
           ease: 'linear',
         }}
         style={{
-          backgroundImage: 'linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #06b6d4, #6366f1)',
+          backgroundImage: 'linear-gradient(90deg, #14b8a6, #fbbf24, #a855f7, #f97316, #14b8a6)',
           backgroundSize: '200% 200%',
         }}
       >
@@ -430,13 +435,15 @@ function ScrollWarp({ onWarp }: { onWarp: () => void }) {
         warpTriggered.current = true
         setWarping(true)
         onWarp()
+        // Give the warp animation time to play before scrolling
         setTimeout(() => {
           window.scrollTo({ top: 0, behavior: 'smooth' })
-        }, 400)
+        }, 1500)
+        // Keep the overlay visible during scroll + fade out
         setTimeout(() => {
           setWarping(false)
           warpTriggered.current = false
-        }, 2000)
+        }, 3500)
       }
     }
 
@@ -451,53 +458,101 @@ function ScrollWarp({ onWarp }: { onWarp: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center"
+      transition={{ duration: 0.3 }}
+      className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center overflow-hidden"
     >
-      {/* Warp tunnel effect */}
+      {/* Dark backdrop that fades in */}
       <motion.div
-        className="absolute inset-0"
-        animate={{
-          background: [
-            'radial-gradient(circle at center, transparent 0%, rgba(99,102,241,0.3) 30%, rgba(168,85,247,0.6) 60%, rgba(0,0,0,1) 100%)',
-            'radial-gradient(circle at center, transparent 0%, rgba(168,85,247,0.4) 20%, rgba(236,72,153,0.7) 40%, rgba(0,0,0,1) 70%)',
-            'radial-gradient(circle at center, transparent 0%, rgba(99,102,241,0.3) 30%, rgba(168,85,247,0.6) 60%, rgba(0,0,0,1) 100%)',
-          ],
-        }}
-        transition={{ duration: 0.8, repeat: 2 }}
+        className="absolute inset-0 bg-black"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.9 }}
+        transition={{ duration: 0.4 }}
       />
-      {/* Zooming circles */}
-      {[0, 1, 2, 3, 4].map((i) => (
+      
+      {/* Expanding portal rings — staggered for depth */}
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
         <motion.div
-          key={i}
-          className="absolute rounded-full border-2 border-white/30"
-          initial={{ width: 0, height: 0, opacity: 0.8 }}
-          animate={{ width: 2000, height: 2000, opacity: 0 }}
-          transition={{ duration: 0.8, delay: i * 0.1, repeat: 2, ease: 'easeOut' }}
-          style={{ borderStyle: 'dashed' }}
+          key={`ring-${i}`}
+          className="absolute rounded-full"
+          initial={{ width: 0, height: 0, opacity: 0, borderWidth: 4 }}
+          animate={{ width: [0, 2500], height: [0, 2500], opacity: [0, 0.6, 0] }}
+          transition={{ duration: 2, delay: i * 0.2, ease: 'easeOut', repeat: 1 }}
+          style={{
+            borderStyle: 'solid',
+            borderColor: i % 2 === 0 ? 'rgba(20, 184, 166, 0.5)' : 'rgba(251, 191, 36, 0.4)',
+          }}
         />
       ))}
-      {/* Center text */}
+
+      {/* Starburst streaks emanating from center */}
+      {Array.from({ length: 16 }).map((_, i) => {
+        const angle = (i / 16) * 360
+        return (
+          <motion.div
+            key={`streak-${i}`}
+            className="absolute"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: [0, 0.8, 0], scale: [0, 1, 1.5] }}
+            transition={{ duration: 1.5, delay: 0.2 + i * 0.03, ease: 'easeOut' }}
+            style={{
+              width: '2px',
+              height: '100vh',
+              background: `linear-gradient(to bottom, transparent 0%, ${
+                i % 3 === 0 ? 'rgba(20, 184, 166, 0.8)' : i % 3 === 1 ? 'rgba(251, 191, 36, 0.6)' : 'rgba(168, 85, 247, 0.5)'
+              } 50%, transparent 100%)`,
+              transformOrigin: 'center',
+              transform: `rotate(${angle}deg)`,
+            }}
+          />
+        )
+      })}
+
+      {/* Center portal glow */}
       <motion.div
-        initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+        className="absolute rounded-full"
+        initial={{ width: 0, height: 0 }}
+        animate={{ width: [0, 400, 0], height: [0, 400, 0] }}
+        transition={{ duration: 2, repeat: 1, ease: 'easeInOut' }}
+        style={{
+          background: 'radial-gradient(circle, rgba(20,184,166,0.6), rgba(251,191,36,0.3), transparent 70%)',
+          filter: 'blur(20px)',
+        }}
+      />
+
+      {/* Center content — spinning portal emoji */}
+      <motion.div
+        initial={{ scale: 0, rotate: 0 }}
+        animate={{ scale: [0, 1.2, 1, 1.2, 0], rotate: [0, 180, 360, 540, 720] }}
+        transition={{ duration: 2.5, ease: 'easeInOut' }}
         className="relative z-10 text-center"
       >
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 0.8, repeat: 2, ease: 'linear' }}
-          className="text-6xl mb-2"
+          transition={{ duration: 1, repeat: 3, ease: 'linear' }}
+          className="text-7xl mb-3"
         >
-          🌀
+          🌌
         </motion.div>
         <motion.p
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-white font-bold text-lg font-mono"
+          animate={{ opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 2.5, times: [0, 0.2, 0.8, 1] }}
+          className="text-white font-bold text-lg font-mono tracking-widest"
         >
-          WARPING BACK TO TOP...
+          WARPING TO TOP...
         </motion.p>
+        <motion.div
+          className="mt-2 flex gap-1 justify-center"
+        >
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="w-2 h-2 rounded-full bg-teal-400"
+              animate={{ opacity: [0.2, 1, 0.2] }}
+              transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+            />
+          ))}
+        </motion.div>
       </motion.div>
     </motion.div>
   )
@@ -630,13 +685,13 @@ export default function Home() {
         className="fixed inset-0 z-0 pointer-events-none"
         animate={{
           background: [
-            'radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.12), transparent 50%)',
-            'radial-gradient(ellipse at 80% 20%, rgba(236,72,153,0.12), transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(6,182,212,0.12), transparent 50%)',
-            'radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.12), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.12), transparent 50%)',
-            'radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.15), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.12), transparent 50%)',
+            'radial-gradient(ellipse at 20% 20%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(251,191,36,0.10), transparent 50%)',
+            'radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.10), transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(249,115,22,0.08), transparent 50%)',
+            'radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.08), transparent 50%)',
+            'radial-gradient(ellipse at 20% 20%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(251,191,36,0.10), transparent 50%)',
           ],
         }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
       />
 
       {/* ============ 3D BACKGROUND CANVAS ============ */}
@@ -673,13 +728,13 @@ export default function Home() {
       {/* ============ GRADIENT GLOWS ============ */}
       <div className="fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%)',
+          background: 'radial-gradient(circle, rgba(20,184,166,0.12), transparent 70%)',
           filter: 'blur(60px)',
         }}
       />
       <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none z-0"
         style={{
-          background: 'radial-gradient(circle, rgba(168,85,247,0.12), transparent 70%)',
+          background: 'radial-gradient(circle, rgba(251,191,36,0.10), transparent 70%)',
           filter: 'blur(60px)',
         }}
       />
@@ -736,7 +791,7 @@ export default function Home() {
         ref={heroRef}
         id="hero"
         style={{ y: heroY, opacity: heroOpacity, scale: heroScale }}
-        className="relative z-10 min-h-screen flex items-center justify-center px-6"
+        className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-32 pb-20"
       >
         <div className="text-center max-w-4xl">
           {/* Photo placeholder with animated ring */}
@@ -744,7 +799,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0, rotateY: 180 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ delay: 0.2, duration: 1, type: 'spring' }}
-            className="relative w-40 h-40 md:w-48 md:h-48 mx-auto mb-8"
+            className="relative w-36 h-36 md:w-44 md:h-44 mx-auto mb-8"
           >
             {/* Rotating gradient ring */}
             <motion.div
@@ -752,14 +807,14 @@ export default function Home() {
               animate={{ rotate: 360 }}
               transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
               style={{
-                background: 'conic-gradient(from 0deg, #6366f1, #a855f7, #ec4899, #06b6d4, #6366f1)',
+                background: 'conic-gradient(from 0deg, #14b8a6, #fbbf24, #a855f7, #f97316, #14b8a6)',
                 padding: 4,
               }}
             >
               <div className="w-full h-full rounded-full bg-[#0a0a0f]" />
             </motion.div>
             {/* Inner photo placeholder */}
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-teal-500/20 to-amber-500/20 backdrop-blur-xl border border-white/10 flex items-center justify-center overflow-hidden">
               {/* Replace this div with <img src="/photo.jpg" /> when you have your photo */}
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
@@ -774,7 +829,7 @@ export default function Home() {
               className="absolute inset-0 rounded-full blur-2xl -z-10"
               animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
               transition={{ duration: 3, repeat: Infinity }}
-              style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.4), transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(20,184,166,0.4), transparent 70%)' }}
             />
           </motion.div>
 

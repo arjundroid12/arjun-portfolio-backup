@@ -1,0 +1,1460 @@
+     1→'use client'
+     2→
+     3→import { useRef, useState, useEffect, Suspense, useMemo, type ReactNode } from 'react'
+     4→import { Canvas, useFrame } from '@react-three/fiber'
+     5→import { Float, Icosahedron, Sphere, Stars, OrbitControls } from '@react-three/drei'
+     6→import type * as THREE from 'three'
+     7→import {
+     8→  motion,
+     9→  useScroll,
+    10→  useSpring,
+    11→  useInView,
+    12→  AnimatePresence,
+    13→  type Variants,
+    14→} from 'framer-motion'
+    15→import { Button } from '@/components/ui/button'
+    16→import {
+    17→  Github,
+    18→  Mail,
+    19→  Phone,
+    20→  MapPin,
+    21→  ExternalLink,
+    22→  ArrowRight,
+    23→  ArrowLeft,
+    24→  Sparkles,
+    25→  Send,
+    26→  Code2,
+    27→  Bot,
+    28→  Brain,
+    29→  Database,
+    30→  Terminal,
+    31→  X,
+    32→} from 'lucide-react'
+    33→
+    34→// ============ TYPES ============
+    35→interface Agent {
+    36→  id: string
+    37→  number: string
+    38→  icon: ReactNode
+    39→  title: string
+    40→  tagline: string
+    41→  description: string
+    42→  tech: string[]
+    43→  demo: string
+    44→  code: string
+    45→}
+    46→
+    47→interface Project {
+    48→  id: string
+    49→  title: string
+    50→  category: 'AI/ML' | 'Frontend' | 'Full-stack' | 'Backend'
+    51→  description: string
+    52→  longDescription: string
+    53→  tech: string[]
+    54→  repo: string
+    55→  demo: string
+    56→  emoji: string
+    57→}
+    58→
+    59→interface Testimonial {
+    60→  id: string
+    61→  name: string
+    62→  role: string
+    63→  company: string
+    64→  quote: string
+    65→  initials: string
+    66→}
+    67→
+    68→// ============ 3D BACKGROUND ============
+    69→function GlassShape({
+    70→  position,
+    71→  scale = 1,
+    72→  speed = 0.2,
+    73→}: {
+    74→  position: [number, number, number]
+    75→  scale?: number
+    76→  speed?: number
+    77→}) {
+    78→  const ref = useRef<THREE.Mesh>(null)
+    79→  useFrame((state) => {
+    80→    if (ref.current) {
+    81→      ref.current.rotation.y = state.clock.elapsedTime * speed
+    82→      ref.current.rotation.x = state.clock.elapsedTime * speed * 0.5
+    83→    }
+    84→  })
+    85→  return (
+    86→    <Float speed={1} rotationIntensity={0.3} floatIntensity={0.8}>
+    87→      <Icosahedron ref={ref} args={[1, 0]} position={position} scale={scale}>
+    88→        <meshStandardMaterial
+    89→          color="#8A2BE2"
+    90→          metalness={0.8}
+    91→          roughness={0.2}
+    92→          wireframe
+    93→          transparent
+    94→          opacity={0.35}
+    95→        />
+    96→      </Icosahedron>
+    97→    </Float>
+    98→  )
+    99→}
+   100→
+   101→function CenterSphere() {
+   102→  const ref = useRef<THREE.Mesh>(null)
+   103→  useFrame((state) => {
+   104→    if (ref.current) ref.current.rotation.y = state.clock.elapsedTime * 0.05
+   105→  })
+   106→  return (
+   107→    <Float speed={0.5} rotationIntensity={0.1} floatIntensity={0.3}>
+   108→      <Sphere ref={ref} args={[1.5, 24, 24]}>
+   109→        <meshStandardMaterial
+   110→          color="#9370DB"
+   111→          metalness={0.9}
+   112→          roughness={0.1}
+   113→          wireframe
+   114→          transparent
+   115→          opacity={0.2}
+   116→        />
+   117→      </Sphere>
+   118→    </Float>
+   119→  )
+   120→}
+   121→
+   122→function Scene3D() {
+   123→  return (
+   124→    <>
+   125→      <ambientLight intensity={0.4} />
+   126→      <directionalLight position={[5, 5, 5]} intensity={0.5} color="#8A2BE2" />
+   127→      <pointLight position={[-5, -3, -5]} intensity={0.3} color="#9370DB" />
+   128→      <CenterSphere />
+   129→      <GlassShape position={[-4, 2, -2]} scale={0.8} speed={0.2} />
+   130→      <GlassShape position={[4, -1, -3]} scale={0.6} speed={0.3} />
+   131→      <GlassShape position={[3, 2.5, -4]} scale={0.5} speed={0.25} />
+   132→      <GlassShape position={[-3.5, -2, -2]} scale={0.7} speed={0.18} />
+   133→      <Stars radius={50} depth={50} count={500} factor={4} saturation={0} fade speed={1} />
+   134→      <OrbitControls
+   135→        enableZoom={false}
+   136→        enablePan={false}
+   137→        autoRotate
+   138→        autoRotateSpeed={0.5}
+   139→        enableDamping
+   140→        rotateSpeed={0.4}
+   141→      />
+   142→    </>
+   143→  )
+   144→}
+   145→
+   146→function Background3D() {
+   147→  return (
+   148→    <div className="fixed inset-0 z-0 pointer-events-none">
+   149→      <Canvas
+   150→        camera={{ position: [0, 0, 8], fov: 60 }}
+   151→        gl={{ antialias: true, alpha: true }}
+   152→        style={{ background: 'transparent' }}
+   153→      >
+   154→        <Suspense fallback={null}>
+   155→          <Scene3D />
+   156→        </Suspense>
+   157→      </Canvas>
+   158→    </div>
+   159→  )
+   160→}
+   161→
+   162→// ============ CUSTOM CURSOR ============
+   163→function CustomCursor() {
+   164→  const [position, setPosition] = useState({ x: -100, y: -100 })
+   165→  const [isPointer, setIsPointer] = useState(false)
+   166→
+   167→  useEffect(() => {
+   168→    const move = (e: MouseEvent) => {
+   169→      // eslint-disable-next-line react-hooks/set-state-in-effect
+   170→      setPosition({ x: e.clientX, y: e.clientY })
+   171→      const target = e.target as HTMLElement
+   172→      // eslint-disable-next-line react-hooks/set-state-in-effect
+   173→      setIsPointer(
+   174→        target.tagName === 'A' ||
+   175→          target.tagName === 'BUTTON' ||
+   176→          target.closest('a') !== null ||
+   177→          target.closest('button') !== null ||
+   178→          target.getAttribute('role') === 'button'
+   179→      )
+   180→    }
+   181→    window.addEventListener('mousemove', move)
+   182→    return () => window.removeEventListener('mousemove', move)
+   183→  }, [])
+   184→
+   185→  return (
+   186→    <motion.div
+   187→      className="fixed top-0 left-0 z-[9999] pointer-events-none hidden md:block"
+   188→      animate={{
+   189→        x: position.x - (isPointer ? 12 : 4),
+   190→        y: position.y - (isPointer ? 12 : 4),
+   191→        scale: isPointer ? 3 : 1,
+   192→      }}
+   193→      transition={{ type: 'spring', stiffness: 500, damping: 30, mass: 0.3 }}
+   194→    >
+   195→      <div
+   196→        className="rounded-full"
+   197→        style={{
+   198→          width: isPointer ? '24px' : '8px',
+   199→          height: isPointer ? '24px' : '8px',
+   200→          backgroundColor: '#8A2BE2',
+   201→          opacity: 0.7,
+   202→          boxShadow: '0 0 12px #8A2BE2',
+   203→        }}
+   204→      />
+   205→    </motion.div>
+   206→  )
+   207→}
+   208→
+   209→// ============ SCROLL PROGRESS BAR ============
+   210→function ScrollProgress() {
+   211→  const { scrollYProgress } = useScroll()
+   212→  const scaleX = useSpring(scrollYProgress, {
+   213→    stiffness: 100,
+   214→    damping: 30,
+   215→    restDelta: 0.001,
+   216→  })
+   217→  return (
+   218→    <motion.div
+   219→      className="fixed top-0 left-0 right-0 z-[100] h-[3px] origin-left"
+   220→      style={{
+   221→        scaleX,
+   222→        background: 'linear-gradient(90deg, #8A2BE2, #9370DB, #8A2BE2)',
+   223→      }}
+   224→    />
+   225→  )
+   226→}
+   227→
+   228→// ============ ANIMATED COUNTER ============
+   229→function AnimatedCounter({
+   230→  target,
+   231→  duration = 2,
+   232→}: {
+   233→  target: number
+   234→  duration?: number
+   235→}) {
+   236→  const ref = useRef<HTMLSpanElement>(null)
+   237→  const inView = useInView(ref, { once: true, margin: '-50px' })
+   238→  const [count, setCount] = useState(0)
+   239→
+   240→  useEffect(() => {
+   241→    if (!inView) return
+   242→    let startTime: number | null = null
+   243→    let raf: number
+   244→    const animate = (timestamp: number) => {
+   245→      if (startTime === null) startTime = timestamp
+   246→      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1)
+   247→      const eased = 1 - Math.pow(1 - progress, 3)
+   248→      // eslint-disable-next-line react-hooks/set-state-in-effect
+   249→      setCount(Math.floor(eased * target))
+   250→      if (progress < 1) raf = requestAnimationFrame(animate)
+   251→    }
+   252→    raf = requestAnimationFrame(animate)
+   253→    return () => cancelAnimationFrame(raf)
+   254→  }, [inView, target, duration])
+   255→
+   256→  return <span ref={ref}>{count}</span>
+   257→}
+   258→
+   259→// ============ ANIMATION VARIANTS ============
+   260→const containerStagger: Variants = {
+   261→  hidden: { opacity: 0 },
+   262→  visible: {
+   263→    opacity: 1,
+   264→    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+   265→  },
+   266→}
+   267→
+   268→const fadeUp: Variants = {
+   269→  hidden: { opacity: 0, y: 30 },
+   270→  visible: {
+   271→    opacity: 1,
+   272→    y: 0,
+   273→    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+   274→  },
+   275→}
+   276→
+   277→const sectionHeading: Variants = {
+   278→  hidden: { opacity: 0, y: 40 },
+   279→  visible: {
+   280→    opacity: 1,
+   281→    y: 0,
+   282→    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+   283→  },
+   284→}
+   285→
+   286→// ============ DATA ============
+   287→const STATS = [
+   288→  { label: 'REPOS', value: 20, suffix: '+' },
+   289→  { label: 'AGENTS', value: 4, suffix: '+' },
+   290→  { label: 'PROJECTS', value: 16, suffix: '+' },
+   291→  { label: 'COMMITS', value: 100, suffix: '+' },
+   292→]
+   293→
+   294→const SKILLS = [
+   295→  'Python',
+   296→  'React',
+   297→  'Next.js',
+   298→  'Node.js',
+   299→  'TypeScript',
+   300→  'Cerebras',
+   301→  'Socket.io',
+   302→  'Prisma',
+   303→  'Three.js',
+   304→  'Power BI',
+   305→  'MySQL',
+   306→  'Pandas',
+   307→]
+   308→
+   309→const CURRENT_LEARNING = [
+   310→  'Cerebras – Multi-agent orchestration & inference scaling',
+   311→  'LangGraph – Stateful agent graphs & tool routing',
+   312→  'Three.js / R3F – Real-time 3D for the web',
+   313→  'Rust – Systems programming for blazing-fast APIs',
+   314→  'Vector Databases – pgvector, Pinecone, retrieval pipelines',
+   315→]
+   316→
+   317→const AGENTS: Agent[] = [
+   318→  {
+   319→    id: 'research',
+   320→    number: '01',
+   321→    icon: <Brain className="w-6 h-6" />,
+   322→    title: 'Research Agent',
+   323→    tagline: 'Autonomous deep-research synthesizer',
+   324→    description:
+   325→      'Spins up parallel sub-agents that scrape, summarize and cross-verify sources — returning a cited, structured brief in minutes.',
+   326→    tech: ['Python', 'Cerebras', 'LangGraph', 'Playwright'],
+   327→    demo: 'https://github.com/arjunvashishtha',
+   328→    code: 'https://github.com/arjunvashishtha',
+   329→  },
+   330→  {
+   331→    id: 'multiagent',
+   332→    number: '02',
+   333→    icon: <Bot className="w-6 h-6" />,
+   334→    title: 'Multi-Agent System',
+   335→    tagline: 'Orchestrated crew of specialized agents',
+   336→    description:
+   337→      'A graph-based orchestrator routes tasks across planner, coder, reviewer and executor agents — each with isolated memory and tool access.',
+   338→    tech: ['Python', 'Cerebras', 'FastAPI', 'Redis'],
+   339→    demo: 'https://github.com/arjunvashishtha',
+   340→    code: 'https://github.com/arjunvashishtha',
+   341→  },
+   342→  {
+   343→    id: 'analyst',
+   344→    number: '03',
+   345→    icon: <Database className="w-6 h-6" />,
+   346→    title: 'Data Analyst Agent',
+   347→    tagline: 'Conversational BI over your warehouse',
+   348→    description:
+   349→      'Connects to SQL & CSV sources, writes queries in natural language, then renders interactive charts with provenance and confidence scores.',
+   350→    tech: ['Python', 'Pandas', 'Power BI', 'LangChain'],
+   351→    demo: 'https://github.com/arjunvashishtha',
+   352→    code: 'https://github.com/arjunvashishtha',
+   353→  },
+   354→  {
+   355→    id: 'coding',
+   356→    number: '04',
+   357→    icon: <Code2 className="w-6 h-6" />,
+   358→    title: 'Coding Agent',
+   359→    tagline: 'Repo-aware pair programmer',
+   360→    description:
+   361→      'Indexes your repository, follows your conventions and ships PRs with passing tests — autonomously handling feature tickets end-to-end.',
+   362→    tech: ['TypeScript', 'Node.js', 'OpenAI', 'Docker'],
+   363→    demo: 'https://github.com/arjunvashishtha',
+   364→    code: 'https://github.com/arjunvashishtha',
+   365→  },
+   366→]
+   367→
+   368→const PROJECTS: Project[] = [
+   369→  {
+   370→    id: 'smartagro',
+   371→    title: 'SmartAgro',
+   372→    category: 'AI/ML',
+   373→    description: 'ML-driven crop-yield predictor with satellite + weather data fusion.',
+   374→    longDescription:
+   375→      'SmartAgro fuses NDVI satellite imagery, soil sensors and weather feeds into a gradient-boosted yield-forecast model served behind a Next.js dashboard. Farmers see 7-day yield and irrigation recommendations per plot.',
+   376→    tech: ['Python', 'XGBoost', 'Next.js', 'Power BI'],
+   377→    repo: 'https://github.com/arjunvashishtha',
+   378→    demo: 'https://github.com/arjunvashishtha',
+   379→    emoji: '🌾',
+   380→  },
+   381→  {
+   382→    id: 'chat',
+   383→    title: 'Realtime Chat',
+   384→    category: 'Full-stack',
+   385→    description: 'Socket.io chat with rooms, typing indicators & presence.',
+   386→    longDescription:
+   387→      'A low-latency realtime chat platform built on Socket.io with typed rooms, presence, typing indicators, message reactions and end-to-end message persistence in MySQL.',
+   388→    tech: ['Node.js', 'Socket.io', 'MySQL', 'React'],
+   389→    repo: 'https://github.com/arjunvashishtha',
+   390→    demo: 'https://github.com/arjunvashishtha',
+   391→    emoji: '💬',
+   392→  },
+   393→  {
+   394→    id: 'calculator',
+   395→    title: 'Calculator',
+   396→    category: 'Frontend',
+   397→    description: 'Keyboard-driven calculator with history & theming.',
+   398→    longDescription:
+   399→      'A keyboard-first calculator with persistent history tape, dark/light themes, percentage & memory ops — built in pure React with zero dependencies.',
+   400→    tech: ['React', 'TypeScript', 'CSS'],
+   401→    repo: 'https://github.com/arjunvashishtha',
+   402→    demo: 'https://github.com/arjunvashishtha',
+   403→    emoji: '🧮',
+   404→  },
+   405→  {
+   406→    id: 'notes',
+   407→    title: 'Notes',
+   408→    category: 'Frontend',
+   409→    description: 'Markdown notes app with live preview & tags.',
+   410→    longDescription:
+   411→      'A offline-first markdown notes editor with live preview, tag-based search and localStorage sync — supports code blocks, tables and math.',
+   412→    tech: ['React', 'TypeScript', 'IndexedDB'],
+   413→    repo: 'https://github.com/arjunvashishtha',
+   414→    demo: 'https://github.com/arjunvashishtha',
+   415→    emoji: '📝',
+   416→  },
+   417→  {
+   418→    id: 'weather',
+   419→    title: 'Weather',
+   420→    category: 'Frontend',
+   421→    description: '7-day forecast with animated conditions & geolocation.',
+   422→    longDescription:
+   423→      'A weather PWA pulling OpenWeather data, with animated condition icons, geolocation, hourly + 7-day forecasts and saved locations.',
+   424→    tech: ['React', 'OpenWeather API', 'PWA'],
+   425→    repo: 'https://github.com/arjunvashishtha',
+   426→    demo: 'https://github.com/arjunvashishtha',
+   427→    emoji: '⛅',
+   428→  },
+   429→  {
+   430→    id: 'kanban',
+   431→    title: 'Kanban',
+   432→    category: 'Full-stack',
+   433→    description: 'Drag-and-drop board with realtime sync & auth.',
+   434→    longDescription:
+   435→      'A Trello-style kanban board with @dnd-kit drag-and-drop, realtime sync across sessions, JWT auth and per-card activity logs.',
+   436→    tech: ['Next.js', 'Prisma', '@dnd-kit', 'Socket.io'],
+   437→    repo: 'https://github.com/arjunvashishtha',
+   438→    demo: 'https://github.com/arjunvashishtha',
+   439→    emoji: '📋',
+   440→  },
+   441→  {
+   442→    id: 'movies',
+   443→    title: 'Movies',
+   444→    category: 'Frontend',
+   445→    description: 'TMDB-powered explorer with infinite scroll & search.',
+   446→    longDescription:
+   447→      'A cinematic movie explorer powered by TMDB — infinite scroll, debounced search, genre filters, watchlist and detail views with trailers.',
+   448→    tech: ['React', 'TMDB API', 'Framer Motion'],
+   449→    repo: 'https://github.com/arjunvashishtha',
+   450→    demo: 'https://github.com/arjunvashishtha',
+   451→    emoji: '🎬',
+   452→  },
+   453→  {
+   454→    id: 'pomodoro',
+   455→    title: 'Pomodoro',
+   456→    category: 'Frontend',
+   457→    description: 'Focus timer with stats, sounds & task queue.',
+   458→    longDescription:
+   459→      'A Pomodoro timer with configurable work/break cycles, ambient focus sounds, daily stats charts and a task queue that auto-rotates.',
+   460→    tech: ['React', 'Recharts', 'Web Audio'],
+   461→    repo: 'https://github.com/arjunvashishtha',
+   462→    demo: 'https://github.com/arjunvashishtha',
+   463→    emoji: '🍅',
+   464→  },
+   465→  {
+   466→    id: 'ghsearch',
+   467→    title: 'GitHub Search',
+   468→    category: 'Frontend',
+   469→    description: 'GitHub user & repo explorer with rich profiles.',
+   470→    longDescription:
+   471→      'A polished GitHub search client with typeahead, repo sorting, user profile cards, language breakdown charts and rate-limit handling.',
+   472→    tech: ['React', 'GitHub API', 'Recharts'],
+   473→    repo: 'https://github.com/arjunvashishtha',
+   474→    demo: 'https://github.com/arjunvashishtha',
+   475→    emoji: '🐙',
+   476→  },
+   477→  {
+   478→    id: 'shortener',
+   479→    title: 'URL Shortener',
+   480→    category: 'Backend',
+   481→    description: 'High-throughput shortener with analytics & QR.',
+   482→    longDescription:
+   483→      'A URL shortener service with base62 slugs, Redis cache layer, click analytics dashboard, custom aliases and QR-code generation.',
+   484→    tech: ['Node.js', 'Redis', 'MySQL', 'Express'],
+   485→    repo: 'https://github.com/arjunvashishtha',
+   486→    demo: 'https://github.com/arjunvashishtha',
+   487→    emoji: '🔗',
+   488→  },
+   489→  {
+   490→    id: 'jwtauth',
+   491→    title: 'JWT Auth',
+   492→    category: 'Backend',
+   493→    description: 'Production-ready auth: JWT, refresh, RBAC.',
+   494→    longDescription:
+   495→      'A drop-in auth service with access/refresh JWT rotation, role-based access control, email verification, password reset and rate limiting.',
+   496→    tech: ['Node.js', 'JWT', 'Prisma', 'Bcrypt'],
+   497→    repo: 'https://github.com/arjunvashishtha',
+   498→    demo: 'https://github.com/arjunvashishtha',
+   499→    emoji: '🔐',
+   500→  },
+   501→  {
+   502→    id: 'todo',
+   503→    title: 'React Todo',
+   504→    category: 'Frontend',
+   505→    description: 'Filterable todos with persistence & dark mode.',
+   506→    longDescription:
+   507→      'A clean todo app with filter views (all/active/done), localStorage persistence, dark mode, drag-to-reorder and completion stats.',
+   508→    tech: ['React', 'TypeScript', 'Zustand'],
+   509→    repo: 'https://github.com/arjunvashishtha',
+   510→    demo: 'https://github.com/arjunvashishtha',
+   511→    emoji: '✅',
+   512→  },
+   513→]
+   514→
+   515→const TESTIMONIALS: Testimonial[] = [
+   516→  {
+   517→    id: 't1',
+   518→    name: 'Maintainer',
+   519→    role: 'Open-Source Collaborator',
+   520→    company: 'GitHub',
+   521→    quote:
+   522→      "Arjun ships like a senior — clean PRs, real tests, and architecture thinking that most devs reach years later. His agent work is genuinely ahead of the curve.",
+   523→    initials: 'GH',
+   524→  },
+   525→  {
+   526→    id: 't2',
+   527→    name: 'Product Lead',
+   528→    role: 'Engineering Manager',
+   529→    company: 'Techify Inc.',
+   530→    quote:
+   531→      "We handed Arjun a fuzzy brief on a multi-agent system and he came back in a week with a working orchestration graph, docs and a demo. Rare combination of speed and rigor.",
+   532→    initials: 'TF',
+   533→  },
+   534→  {
+   535→    id: 't3',
+   536→    name: 'Faculty Mentor',
+   537→    role: 'CSE Project Guide',
+   538→    company: 'VIT Bhopal',
+   539→    quote:
+   540→      "Among the strongest undergrad engineers I have supervised. Arjun pairs deep ML fundamentals with full-stack execution — his SmartAgro project rivaled M.Tech work.",
+   541→    initials: 'VB',
+   542→  },
+   543→]
+   544→
+   545→const NAV_LINKS = [
+   546→  { label: 'HOME', href: '#home' },
+   547→  { label: 'ABOUT', href: '#about' },
+   548→  { label: 'PROJECTS', href: '#projects' },
+   549→  { label: 'AGENTS', href: '#agents' },
+   550→  { label: 'CONTACT', href: '#contact' },
+   551→]
+   552→
+   553→// ============ HEADER ============
+   554→function Header() {
+   555→  const [scrolled, setScrolled] = useState(false)
+   556→  useEffect(() => {
+   557→    const onScroll = () => {
+   558→      // eslint-disable-next-line react-hooks/set-state-in-effect
+   559→      setScrolled(window.scrollY > 20)
+   560→    }
+   561→    window.addEventListener('scroll', onScroll, { passive: true })
+   562→    return () => window.removeEventListener('scroll', onScroll)
+   563→  }, [])
+   564→
+   565→  return (
+   566→    <motion.header
+   567→      initial={{ y: -80, opacity: 0 }}
+   568→      animate={{ y: 0, opacity: 1 }}
+   569→      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+   570→      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+   571→        scrolled
+   572→          ? 'bg-[#121212]/80 backdrop-blur-xl border-b border-[#8A2BE2]/20'
+   573→          : 'bg-transparent'
+   574→      }`}
+   575→    >
+   576→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   577→        <div className="flex items-center justify-between h-16 sm:h-20">
+   578→          {/* Logo */}
+   579→          <a href="#home" className="group flex items-center gap-2">
+   580→            <span className="text-lg sm:text-xl font-black tracking-tight text-white">
+   581→              YOUR <span className="text-[#8A2BE2]">ARJUN</span>
+   582→            </span>
+   583→          </a>
+   584→
+   585→          {/* Nav */}
+   586→          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+   587→            {NAV_LINKS.map((link) => (
+   588→              <a
+   589→                key={link.href}
+   590→                href={link.href}
+   591→                className="text-xs font-semibold tracking-widest text-white/70 hover:text-[#8A2BE2] transition-colors duration-200"
+   592→              >
+   593→                {link.label}
+   594→              </a>
+   595→            ))}
+   596→          </nav>
+   597→
+   598→          {/* Github button */}
+   599→          <a
+   600→            href="https://github.com/arjunvashishtha"
+   601→            target="_blank"
+   602→            rel="noopener noreferrer"
+   603→            className="inline-flex items-center gap-2 px-4 py-2 border border-[#8A2BE2]/60 text-white text-xs font-semibold tracking-wider rounded-full hover:bg-[#8A2BE2] hover:border-[#8A2BE2] transition-all duration-300"
+   604→          >
+   605→            <Github className="w-4 h-4" />
+   606→            <span className="hidden sm:inline">GITHUB</span>
+   607→          </a>
+   608→        </div>
+   609→      </div>
+   610→    </motion.header>
+   611→  )
+   612→}
+   613→
+   614→// ============ HERO ============
+   615→function Hero() {
+   616→  return (
+   617→    <section
+   618→      id="home"
+   619→      className="relative min-h-screen flex items-center pt-24 sm:pt-28 pb-16 px-4 sm:px-6 lg:px-8"
+   620→    >
+   621→      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+   622→        {/* Left */}
+   623→        <motion.div
+   624→          variants={containerStagger}
+   625→          initial="hidden"
+   626→          animate="visible"
+   627→          className="flex flex-col gap-6 sm:gap-8"
+   628→        >
+   629→          <motion.div variants={fadeUp}>
+   630→            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#8A2BE2]/50 bg-[#8A2BE2]/10 text-[#8A2BE2] text-xs font-bold tracking-widest">
+   631→              <Sparkles className="w-3.5 h-3.5" />
+   632→              EDITION 2026
+   633→            </span>
+   634→          </motion.div>
+   635→
+   636→          <motion.h1
+   637→            variants={fadeUp}
+   638→            className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-[0.85]"
+   639→          >
+   640→            <span className="block text-white">ARJUN</span>
+   641→            <span className="block text-[#8A2BE2]">VASHISH-</span>
+   642→            <span className="block text-[#8A2BE2]">THA</span>
+   643→          </motion.h1>
+   644→
+   645→          <motion.p
+   646→            variants={fadeUp}
+   647→            className="text-base sm:text-lg text-white/70 max-w-xl leading-relaxed"
+   648→          >
+   649→            4th-year B.Tech CSE student at VIT Bhopal. I build autonomous AI agents,
+   650→            full-stack apps and data-driven products — turning fuzzy ideas into
+   651→            shipped, tested software.
+   652→          </motion.p>
+   653→
+   654→          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
+   655→            <Button
+   656→              asChild
+   657→              className="bg-[#8A2BE2] hover:bg-[#7a26c7] text-white font-bold tracking-wider rounded-full px-7 py-6 text-sm hover:scale-105 transition-transform duration-300"
+   658→            >
+   659→              <a href="#contact" className="flex items-center gap-2">
+   660→                LET&apos;S START
+   661→                <ArrowRight className="w-4 h-4" />
+   662→              </a>
+   663→            </Button>
+   664→            <a
+   665→              href="#about"
+   666→              className="inline-flex items-center gap-2 text-white/70 hover:text-[#8A2BE2] text-sm font-semibold tracking-wider transition-colors duration-300 group"
+   667→            >
+   668→              READ MORE
+   669→              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+   670→            </a>
+   671→          </motion.div>
+   672→        </motion.div>
+   673→
+   674→        {/* Right — photo placeholder */}
+   675→        <motion.div
+   676→          initial={{ opacity: 0, scale: 0.8 }}
+   677→          animate={{ opacity: 1, scale: 1 }}
+   678→          transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+   679→          className="relative flex items-center justify-center order-first lg:order-last"
+   680→        >
+   681→          <div className="relative w-[280px] h-[280px] sm:w-[380px] sm:h-[380px] lg:w-[460px] lg:h-[460px]">
+   682→            {/* Purple circle backdrop */}
+   683→            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A2BE2]/30 via-[#9370DB]/20 to-transparent blur-2xl" />
+   684→            <motion.div
+   685→              animate={{ rotate: 360 }}
+   686→              transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+   687→              className="absolute inset-0 rounded-full border border-dashed border-[#8A2BE2]/40"
+   688→            />
+   689→            <div className="absolute inset-6 rounded-full border border-[#8A2BE2]/30" />
+   690→            <div className="absolute inset-0 flex items-center justify-center">
+   691→              <motion.div
+   692→                animate={{ y: [0, -10, 0] }}
+   693→                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+   694→                className="text-[120px] sm:text-[180px] lg:text-[220px] leading-none"
+   695→              >
+   696→                👨‍💻
+   697→              </motion.div>
+   698→            </div>
+   699→
+   700→            {/* EDITION badge floating */}
+   701→            <motion.div
+   702→              animate={{ y: [0, -8, 0] }}
+   703→              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+   704→              className="absolute -top-2 -right-2 sm:top-4 sm:right-4 px-4 py-2 rounded-full bg-[#8A2BE2] text-white text-xs font-black tracking-widest shadow-lg shadow-[#8A2BE2]/40"
+   705→            >
+   706→              EDITION 2026
+   707→            </motion.div>
+   708→          </div>
+   709→        </motion.div>
+   710→      </div>
+   711→    </section>
+   712→  )
+   713→}
+   714→
+   715→// ============ STATS BAR ============
+   716→function StatsBar() {
+   717→  return (
+   718→    <section className="relative py-12 sm:py-16 px-4 sm:px-6 lg:px-8 border-y border-[#8A2BE2]/15 bg-[#121212]/60 backdrop-blur-sm">
+   719→      <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+   720→        {STATS.map((stat, i) => (
+   721→          <motion.div
+   722→            key={stat.label}
+   723→            initial={{ opacity: 0, y: 30 }}
+   724→            whileInView={{ opacity: 1, y: 0 }}
+   725→            viewport={{ once: true, margin: '-50px' }}
+   726→            transition={{ duration: 0.5, delay: i * 0.1 }}
+   727→            className="flex flex-col items-center text-center group"
+   728→          >
+   729→            <div className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#8A2BE2] tracking-tight">
+   730→              <AnimatedCounter target={stat.value} />
+   731→              <span className="text-[#8A2BE2]">{stat.suffix}</span>
+   732→            </div>
+   733→            <div className="mt-2 text-xs sm:text-sm font-semibold tracking-widest text-white/60">
+   734→              {stat.label}
+   735→            </div>
+   736→          </motion.div>
+   737→        ))}
+   738→      </div>
+   739→    </section>
+   740→  )
+   741→}
+   742→
+   743→// ============ SECTION HEADING ============
+   744→function SectionHeading({
+   745→  kicker,
+   746→  highlight,
+   747→  rest,
+   748→  align = 'left',
+   749→}: {
+   750→  kicker: string
+   751→  highlight: string
+   752→  rest: string
+   753→  align?: 'left' | 'center'
+   754→}) {
+   755→  return (
+   756→    <motion.div
+   757→      variants={sectionHeading}
+   758→      initial="hidden"
+   759→      whileInView="visible"
+   760→      viewport={{ once: true, margin: '-80px' }}
+   761→      className={`flex flex-col gap-2 ${
+   762→        align === 'center' ? 'items-center text-center' : 'items-start text-left'
+   763→      }`}
+   764→    >
+   765→      <span className="text-xs font-bold tracking-[0.3em] text-[#8A2BE2]">
+   766→        {kicker}
+   767→      </span>
+   768→      <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white">
+   769→        {rest} <span className="text-[#8A2BE2]">{highlight}</span>
+   770→      </h2>
+   771→    </motion.div>
+   772→  )
+   773→}
+   774→
+   775→// ============ ABOUT ============
+   776→function About() {
+   777→  return (
+   778→    <section id="about" className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+   779→      <div className="max-w-7xl mx-auto">
+   780→        <SectionHeading kicker="WHO" highlight="am I?" rest="" />
+   781→
+   782→        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+   783→          {/* Left: bio + skills */}
+   784→          <motion.div
+   785→            initial={{ opacity: 0, x: -30 }}
+   786→            whileInView={{ opacity: 1, x: 0 }}
+   787→            viewport={{ once: true, margin: '-50px' }}
+   788→            transition={{ duration: 0.6 }}
+   789→            className="flex flex-col gap-6"
+   790→          >
+   791→            <p className="text-base sm:text-lg text-white/75 leading-relaxed">
+   792→              I&apos;m Arjun — a full-stack engineer and AI builder in my 4th year of
+   793→              B.Tech CSE at VIT Bhopal. My obsession is shipping autonomous agents
+   794→              that actually do work: research, code, analyze, orchestrate. Between
+   795→              classes I&apos;ve shipped 16+ projects spanning ML, realtime systems and
+   796→              developer tooling.
+   797→            </p>
+   798→            <p className="text-base sm:text-lg text-white/75 leading-relaxed">
+   799→              I care about clean architecture, fast feedback loops and the
+   800→              unglamorous parts — tests, docs, observability. When I&apos;m not coding
+   801→              I&apos;m reading agent papers or breaking apart the latest LLM release.
+   802→            </p>
+   803→
+   804→            <div>
+   805→              <h3 className="text-xs font-bold tracking-[0.25em] text-white/50 mb-4">
+   806→                SKILLS
+   807→              </h3>
+   808→              <div className="flex flex-wrap gap-2">
+   809→                {SKILLS.map((skill, i) => (
+   810→                  <motion.span
+   811→                    key={skill}
+   812→                    initial={{ opacity: 0, scale: 0.8 }}
+   813→                    whileInView={{ opacity: 1, scale: 1 }}
+   814→                    viewport={{ once: true }}
+   815→                    transition={{ duration: 0.3, delay: i * 0.04 }}
+   816→                    whileHover={{ y: -2, borderColor: '#8A2BE2' }}
+   817→                    className="px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/80 text-xs font-semibold hover:text-[#8A2BE2] transition-colors duration-200 cursor-default"
+   818→                  >
+   819→                    {skill}
+   820→                  </motion.span>
+   821→                ))}
+   822→              </div>
+   823→            </div>
+   824→          </motion.div>
+   825→
+   826→          {/* Right: Currently Learning card */}
+   827→          <motion.div
+   828→            initial={{ opacity: 0, x: 30 }}
+   829→            whileInView={{ opacity: 1, x: 0 }}
+   830→            viewport={{ once: true, margin: '-50px' }}
+   831→            transition={{ duration: 0.6 }}
+   832→            whileHover={{ y: -4 }}
+   833→            className="rounded-2xl border border-[#8A2BE2]/25 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-6 sm:p-8 backdrop-blur-sm"
+   834→          >
+   835→            <div className="flex items-center gap-3 mb-6">
+   836→              <div className="w-10 h-10 rounded-xl bg-[#8A2BE2]/20 flex items-center justify-center">
+   837→                <Terminal className="w-5 h-5 text-[#8A2BE2]" />
+   838→              </div>
+   839→              <h3 className="text-sm font-black tracking-widest text-white">
+   840→                CURRENTLY LEARNING
+   841→              </h3>
+   842→            </div>
+   843→            <ul className="flex flex-col gap-4">
+   844→              {CURRENT_LEARNING.map((item, i) => (
+   845→                <motion.li
+   846→                  key={i}
+   847→                  initial={{ opacity: 0, y: 10 }}
+   848→                  whileInView={{ opacity: 1, y: 0 }}
+   849→                  viewport={{ once: true }}
+   850→                  transition={{ duration: 0.4, delay: i * 0.08 }}
+   851→                  className="flex items-start gap-3 text-sm text-white/75 leading-relaxed"
+   852→                >
+   853→                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#8A2BE2] flex-shrink-0" />
+   854→                  {item}
+   855→                </motion.li>
+   856→              ))}
+   857→            </ul>
+   858→          </motion.div>
+   859→        </div>
+   860→      </div>
+   861→    </section>
+   862→  )
+   863→}
+   864→
+   865→// ============ AI AGENTS ============
+   866→function AgentsSection() {
+   867→  return (
+   868→    <section id="agents" className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+   869→      <div className="max-w-7xl mx-auto">
+   870→        <SectionHeading kicker="FIND" highlight="my AI agents." rest="" />
+   871→
+   872→        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+   873→          {AGENTS.map((agent, i) => (
+   874→            <motion.div
+   875→              key={agent.id}
+   876→              initial={{ opacity: 0, y: 30 }}
+   877→              whileInView={{ opacity: 1, y: 0 }}
+   878→              viewport={{ once: true, margin: '-50px' }}
+   879→              transition={{ duration: 0.5, delay: i * 0.1 }}
+   880→              whileHover={{ y: -4, borderColor: 'rgba(138, 43, 226, 0.6)' }}
+   881→              className="group relative rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.05]"
+   882→            >
+   883→              {/* Number watermark */}
+   884→              <span className="absolute top-4 right-5 text-5xl sm:text-6xl font-black text-[#8A2BE2]/10 group-hover:text-[#8A2BE2]/20 transition-colors">
+   885→                {agent.number}
+   886→              </span>
+   887→
+   888→              <div className="relative flex flex-col gap-4">
+   889→                <div className="w-12 h-12 rounded-xl bg-[#8A2BE2]/15 text-[#8A2BE2] flex items-center justify-center group-hover:bg-[#8A2BE2] group-hover:text-white transition-colors duration-300">
+   890→                  {agent.icon}
+   891→                </div>
+   892→
+   893→                <div>
+   894→                  <h3 className="text-xl sm:text-2xl font-black text-white">
+   895→                    {agent.title}
+   896→                  </h3>
+   897→                  <p className="text-sm text-[#8A2BE2] font-semibold mt-1">
+   898→                    {agent.tagline}
+   899→                  </p>
+   900→                </div>
+   901→
+   902→                <p className="text-sm text-white/70 leading-relaxed">
+   903→                  {agent.description}
+   904→                </p>
+   905→
+   906→                <div className="flex flex-wrap gap-2">
+   907→                  {agent.tech.map((t) => (
+   908→                    <span
+   909→                      key={t}
+   910→                      className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[11px] font-mono text-white/60"
+   911→                    >
+   912→                      {t}
+   913→                    </span>
+   914→                  ))}
+   915→                </div>
+   916→
+   917→                <div className="flex items-center gap-3 pt-2">
+   918→                  <a
+   919→                    href={agent.demo}
+   920→                    target="_blank"
+   921→                    rel="noopener noreferrer"
+   922→                    className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider text-white/80 hover:text-[#8A2BE2] transition-colors"
+   923→                  >
+   924→                    LEARN MORE <ArrowRight className="w-3.5 h-3.5" />
+   925→                  </a>
+   926→                  <span className="w-1 h-1 rounded-full bg-white/20" />
+   927→                  <a
+   928→                    href={agent.code}
+   929→                    target="_blank"
+   930→                    rel="noopener noreferrer"
+   931→                    className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider text-white/80 hover:text-[#8A2BE2] transition-colors"
+   932→                  >
+   933→                    <Github className="w-3.5 h-3.5" /> CODE
+   934→                  </a>
+   935→                </div>
+   936→              </div>
+   937→            </motion.div>
+   938→          ))}
+   939→        </div>
+   940→      </div>
+   941→    </section>
+   942→  )
+   943→}
+   944→
+   945→// ============ PROJECTS ============
+   946→function ProjectsSection() {
+   947→  const [filter, setFilter] = useState<Project['category'] | 'All'>('All')
+   948→  const [selected, setSelected] = useState<Project | null>(null)
+   949→
+   950→  const filters: (Project['category'] | 'All')[] = useMemo(
+   951→    () => ['All', 'AI/ML', 'Frontend', 'Full-stack', 'Backend'],
+   952→    []
+   953→  )
+   954→
+   955→  const filtered = useMemo(
+   956→    () =>
+   957→      filter === 'All' ? PROJECTS : PROJECTS.filter((p) => p.category === filter),
+   958→    [filter]
+   959→  )
+   960→
+   961→  return (
+   962→    <section id="projects" className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+   963→      <div className="max-w-7xl mx-auto">
+   964→        <SectionHeading kicker="EXPLORE" highlight="my projects." rest="" />
+   965→
+   966→        {/* Filters */}
+   967→        <motion.div
+   968→          initial={{ opacity: 0, y: 20 }}
+   969→          whileInView={{ opacity: 1, y: 0 }}
+   970→          viewport={{ once: true }}
+   971→          transition={{ duration: 0.5 }}
+   972→          className="mt-8 flex flex-wrap gap-2"
+   973→        >
+   974→          {filters.map((f) => (
+   975→            <button
+   976→              key={f}
+   977→              onClick={() => setFilter(f)}
+   978→              className={`px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all duration-300 ${
+   979→                filter === f
+   980→                  ? 'bg-[#8A2BE2] text-white border border-[#8A2BE2]'
+   981→                  : 'bg-transparent text-white/60 border border-white/15 hover:border-[#8A2BE2]/60 hover:text-white'
+   982→              }`}
+   983→            >
+   984→              {f.toUpperCase()}
+   985→            </button>
+   986→          ))}
+   987→        </motion.div>
+   988→
+   989→        {/* Grid */}
+   990→        <motion.div
+   991→          layout
+   992→          className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+   993→        >
+   994→          <AnimatePresence mode="popLayout">
+   995→            {filtered.map((project, i) => (
+   996→              <motion.button
+   997→                key={project.id}
+   998→                layout
+   999→                initial={{ opacity: 0, scale: 0.9 }}
+  1000→                animate={{ opacity: 1, scale: 1 }}
+  1001→                exit={{ opacity: 0, scale: 0.9 }}
+  1002→                transition={{ duration: 0.4, delay: i * 0.05 }}
+  1003→                whileHover={{ y: -6, borderColor: 'rgba(138, 43, 226, 0.6)' }}
+  1004→                onClick={() => setSelected(project)}
+  1005→                className="group relative text-left rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.06] overflow-hidden"
+  1006→              >
+  1007→                <div className="absolute -top-6 -right-6 text-7xl opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-500">
+  1008→                  {project.emoji}
+  1009→                </div>
+  1010→                <div className="relative flex flex-col gap-3">
+  1011→                  <div className="flex items-center justify-between">
+  1012→                    <span className="text-[10px] font-bold tracking-widest text-[#8A2BE2] px-2 py-1 rounded-md bg-[#8A2BE2]/10">
+  1013→                      {project.category.toUpperCase()}
+  1014→                    </span>
+  1015→                    <span className="text-2xl">{project.emoji}</span>
+  1016→                  </div>
+  1017→                  <h3 className="text-lg font-black text-white group-hover:text-[#8A2BE2] transition-colors">
+  1018→                    {project.title}
+  1019→                  </h3>
+  1020→                  <p className="text-xs text-white/65 leading-relaxed line-clamp-2">
+  1021→                    {project.description}
+  1022→                  </p>
+  1023→                  <div className="flex items-center gap-1.5 pt-2 text-[11px] font-bold tracking-wider text-white/40 group-hover:text-[#8A2BE2] transition-colors">
+  1024→                    VIEW CASE
+  1025→                    <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+  1026→                  </div>
+  1027→                </div>
+  1028→              </motion.button>
+  1029→            ))}
+  1030→          </AnimatePresence>
+  1031→        </motion.div>
+  1032→      </div>
+  1033→
+  1034→      {/* Modal */}
+  1035→      <AnimatePresence>
+  1036→        {selected && (
+  1037→          <motion.div
+  1038→            initial={{ opacity: 0 }}
+  1039→            animate={{ opacity: 1 }}
+  1040→            exit={{ opacity: 0 }}
+  1041→            onClick={() => setSelected(null)}
+  1042→            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+  1043→          >
+  1044→            <motion.div
+  1045→              initial={{ opacity: 0, scale: 0.85, y: 30 }}
+  1046→              animate={{ opacity: 1, scale: 1, y: 0 }}
+  1047→              exit={{ opacity: 0, scale: 0.85, y: 30 }}
+  1048→              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+  1049→              onClick={(e) => e.stopPropagation()}
+  1050→              className="relative w-full max-w-lg rounded-3xl border border-[#8A2BE2]/30 bg-[#1a1a1a] p-6 sm:p-8 max-h-[90vh] overflow-y-auto"
+  1051→            >
+  1052→              <button
+  1053→                onClick={() => setSelected(null)}
+  1054→                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/5 hover:bg-[#8A2BE2] text-white/70 hover:text-white flex items-center justify-center transition-colors"
+  1055→                aria-label="Close"
+  1056→              >
+  1057→                <X className="w-4 h-4" />
+  1058→              </button>
+  1059→
+  1060→              <div className="flex flex-col gap-4">
+  1061→                <div className="flex items-center gap-4">
+  1062→                  <div className="w-16 h-16 rounded-2xl bg-[#8A2BE2]/15 flex items-center justify-center text-4xl">
+  1063→                    {selected.emoji}
+  1064→                  </div>
+  1065→                  <div>
+  1066→                    <span className="text-[10px] font-bold tracking-widest text-[#8A2BE2]">
+  1067→                      {selected.category.toUpperCase()}
+  1068→                    </span>
+  1069→                    <h3 className="text-2xl sm:text-3xl font-black text-white">
+  1070→                      {selected.title}
+  1071→                    </h3>
+  1072→                  </div>
+  1073→                </div>
+  1074→
+  1075→                <p className="text-sm text-white/75 leading-relaxed">
+  1076→                  {selected.longDescription}
+  1077→                </p>
+  1078→
+  1079→                <div className="flex flex-wrap gap-2">
+  1080→                  {selected.tech.map((t) => (
+  1081→                    <span
+  1082→                      key={t}
+  1083→                      className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-[11px] font-mono text-white/60"
+  1084→                    >
+  1085→                      {t}
+  1086→                    </span>
+  1087→                  ))}
+  1088→                </div>
+  1089→
+  1090→                <div className="flex items-center gap-3 pt-2">
+  1091→                  <a
+  1092→                    href={selected.demo}
+  1093→                    target="_blank"
+  1094→                    rel="noopener noreferrer"
+  1095→                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#8A2BE2] hover:bg-[#7a26c7] text-white text-xs font-bold tracking-wider transition-colors"
+  1096→                  >
+  1097→                    LIVE DEMO <ExternalLink className="w-3.5 h-3.5" />
+  1098→                  </a>
+  1099→                  <a
+  1100→                    href={selected.repo}
+  1101→                    target="_blank"
+  1102→                    rel="noopener noreferrer"
+  1103→                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/20 hover:border-[#8A2BE2] text-white text-xs font-bold tracking-wider transition-colors"
+  1104→                  >
+  1105→                    <Github className="w-3.5 h-3.5" /> SOURCE
+  1106→                  </a>
+  1107→                </div>
+  1108→              </div>
+  1109→            </motion.div>
+  1110→          </motion.div>
+  1111→        )}
+  1112→      </AnimatePresence>
+  1113→    </section>
+  1114→  )
+  1115→}
+  1116→
+  1117→// ============ TESTIMONIALS ============
+  1118→function TestimonialsSection() {
+  1119→  const [index, setIndex] = useState(0)
+  1120→  const [direction, setDirection] = useState(0)
+  1121→
+  1122→  const paginate = (dir: number) => {
+  1123→    setDirection(dir)
+  1124→    setIndex((prev) => (prev + dir + TESTIMONIALS.length) % TESTIMONIALS.length)
+  1125→  }
+  1126→
+  1127→  const current = TESTIMONIALS[index]
+  1128→
+  1129→  return (
+  1130→    <section className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+  1131→      <div className="max-w-4xl mx-auto">
+  1132→        <SectionHeading kicker="WHAT" highlight="they say." rest="" align="center" />
+  1133→
+  1134→        <div className="mt-12 relative">
+  1135→          <div className="relative min-h-[280px] sm:min-h-[240px] flex items-center justify-center">
+  1136→            <AnimatePresence mode="wait" custom={direction}>
+  1137→              <motion.div
+  1138→                key={current.id}
+  1139→                custom={direction}
+  1140→                initial={{ opacity: 0, x: direction > 0 ? 60 : -60 }}
+  1141→                animate={{ opacity: 1, x: 0 }}
+  1142→                exit={{ opacity: 0, x: direction > 0 ? -60 : 60 }}
+  1143→                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+  1144→                className="flex flex-col items-center text-center gap-5 px-4"
+  1145→              >
+  1146→                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#8A2BE2] to-[#9370DB] flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-lg shadow-[#8A2BE2]/30">
+  1147→                  {current.initials}
+  1148→                </div>
+  1149→                <p className="text-base sm:text-lg text-white/85 leading-relaxed max-w-2xl italic">
+  1150→                  &ldquo;{current.quote}&rdquo;
+  1151→                </p>
+  1152→                <div>
+  1153→                  <div className="text-sm font-black text-white">{current.name}</div>
+  1154→                  <div className="text-xs text-[#8A2BE2] font-semibold mt-0.5">
+  1155→                    {current.role} · {current.company}
+  1156→                  </div>
+  1157→                </div>
+  1158→              </motion.div>
+  1159→            </AnimatePresence>
+  1160→          </div>
+  1161→
+  1162→          {/* Arrows */}
+  1163→          <div className="mt-8 flex items-center justify-center gap-4">
+  1164→            <button
+  1165→              onClick={() => paginate(-1)}
+  1166→              className="w-11 h-11 rounded-full border border-white/15 hover:border-[#8A2BE2] hover:bg-[#8A2BE2] text-white/70 hover:text-white flex items-center justify-center transition-all duration-300"
+  1167→              aria-label="Previous testimonial"
+  1168→            >
+  1169→              <ArrowLeft className="w-4 h-4" />
+  1170→            </button>
+  1171→            <div className="flex items-center gap-2">
+  1172→              {TESTIMONIALS.map((_, i) => (
+  1173→                <button
+  1174→                  key={i}
+  1175→                  onClick={() => {
+  1176→                    setDirection(i > index ? 1 : -1)
+  1177→                    setIndex(i)
+  1178→                  }}
+  1179→                  className={`h-2 rounded-full transition-all duration-300 ${
+  1180→                    i === index ? 'w-6 bg-[#8A2BE2]' : 'w-2 bg-white/20'
+  1181→                  }`}
+  1182→                  aria-label={`Go to testimonial ${i + 1}`}
+  1183→                />
+  1184→              ))}
+  1185→            </div>
+  1186→            <button
+  1187→              onClick={() => paginate(1)}
+  1188→              className="w-11 h-11 rounded-full border border-white/15 hover:border-[#8A2BE2] hover:bg-[#8A2BE2] text-white/70 hover:text-white flex items-center justify-center transition-all duration-300"
+  1189→              aria-label="Next testimonial"
+  1190→            >
+  1191→              <ArrowRight className="w-4 h-4" />
+  1192→            </button>
+  1193→          </div>
+  1194→        </div>
+  1195→      </div>
+  1196→    </section>
+  1197→  )
+  1198→}
+  1199→
+  1200→// ============ CONTACT ============
+  1201→function ContactSection() {
+  1202→  const [form, setForm] = useState({ name: '', email: '', message: '' })
+  1203→  const [sent, setSent] = useState(false)
+  1204→
+  1205→  const handleSubmit = (e: React.FormEvent) => {
+  1206→    e.preventDefault()
+  1207→    setSent(true)
+  1208→    setTimeout(() => setSent(false), 4000)
+  1209→    setForm({ name: '', email: '', message: '' })
+  1210→  }
+  1211→
+  1212→  return (
+  1213→    <section id="contact" className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+  1214→      <div className="max-w-7xl mx-auto">
+  1215→        <SectionHeading kicker="SUBSCRIBE" highlight="or reach out." rest="" />
+  1216→
+  1217→        <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+  1218→          {/* Form */}
+  1219→          <motion.form
+  1220→            initial={{ opacity: 0, x: -30 }}
+  1221→            whileInView={{ opacity: 1, x: 0 }}
+  1222→            viewport={{ once: true, margin: '-50px' }}
+  1223→            transition={{ duration: 0.6 }}
+  1224→            onSubmit={handleSubmit}
+  1225→            className="flex flex-col gap-5"
+  1226→          >
+  1227→            <div className="flex flex-col gap-2">
+  1228→              <label className="text-xs font-bold tracking-widest text-white/60">
+  1229→                NAME
+  1230→              </label>
+  1231→              <input
+  1232→                type="text"
+  1233→                required
+  1234→                value={form.name}
+  1235→                onChange={(e) => setForm({ ...form, name: e.target.value })}
+  1236→                placeholder="Your name"
+  1237→                className="px-4 py-3 rounded-xl bg-white/[0.03] border border-[#8A2BE2]/30 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8A2BE2] focus:bg-[#8A2BE2]/5 transition-colors"
+  1238→              />
+  1239→            </div>
+  1240→            <div className="flex flex-col gap-2">
+  1241→              <label className="text-xs font-bold tracking-widest text-white/60">
+  1242→                EMAIL
+  1243→              </label>
+  1244→              <input
+  1245→                type="email"
+  1246→                required
+  1247→                value={form.email}
+  1248→                onChange={(e) => setForm({ ...form, email: e.target.value })}
+  1249→                placeholder="you@example.com"
+  1250→                className="px-4 py-3 rounded-xl bg-white/[0.03] border border-[#8A2BE2]/30 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8A2BE2] focus:bg-[#8A2BE2]/5 transition-colors"
+  1251→              />
+  1252→            </div>
+  1253→            <div className="flex flex-col gap-2">
+  1254→              <label className="text-xs font-bold tracking-widest text-white/60">
+  1255→                MESSAGE
+  1256→              </label>
+  1257→              <textarea
+  1258→                required
+  1259→                rows={5}
+  1260→                value={form.message}
+  1261→                onChange={(e) => setForm({ ...form, message: e.target.value })}
+  1262→                placeholder="Tell me about your project..."
+  1263→                className="px-4 py-3 rounded-xl bg-white/[0.03] border border-[#8A2BE2]/30 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8A2BE2] focus:bg-[#8A2BE2]/5 transition-colors resize-none"
+  1264→              />
+  1265→            </div>
+  1266→            <Button
+  1267→              type="submit"
+  1268→              className="bg-[#8A2BE2] hover:bg-[#7a26c7] text-white font-bold tracking-wider rounded-full px-6 py-6 text-sm hover:scale-[1.02] transition-all duration-300 w-full sm:w-auto"
+  1269→            >
+  1270→              {sent ? 'MESSAGE SENT ✓' : 'SEND MESSAGE'}
+  1271→              {!sent && <Send className="w-4 h-4 ml-2" />}
+  1272→            </Button>
+  1273→          </motion.form>
+  1274→
+  1275→          {/* Contact info cards */}
+  1276→          <motion.div
+  1277→            initial={{ opacity: 0, x: 30 }}
+  1278→            whileInView={{ opacity: 1, x: 0 }}
+  1279→            viewport={{ once: true, margin: '-50px' }}
+  1280→            transition={{ duration: 0.6 }}
+  1281→            className="flex flex-col gap-4"
+  1282→          >
+  1283→            {[
+  1284→              {
+  1285→                icon: <Mail className="w-5 h-5" />,
+  1286→                label: 'EMAIL',
+  1287→                value: 'arjun.vashishtha@example.com',
+  1288→                href: 'mailto:arjun.vashishtha@example.com',
+  1289→              },
+  1290→              {
+  1291→                icon: <Phone className="w-5 h-5" />,
+  1292→                label: 'PHONE',
+  1293→                value: '+91 98765 43210',
+  1294→                href: 'tel:+919876543210',
+  1295→              },
+  1296→              {
+  1297→                icon: <MapPin className="w-5 h-5" />,
+  1298→                label: 'LOCATION',
+  1299→                value: 'VIT Bhopal, M.P., India',
+  1300→                href: 'https://maps.google.com',
+  1301→              },
+  1302→              {
+  1303→                icon: <Github className="w-5 h-5" />,
+  1304→                label: 'GITHUB',
+  1305→                value: 'github.com/arjunvashishtha',
+  1306→                href: 'https://github.com/arjunvashishtha',
+  1307→              },
+  1308→            ].map((card, i) => (
+  1309→              <motion.a
+  1310→                key={card.label}
+  1311→                href={card.href}
+  1312→                target="_blank"
+  1313→                rel="noopener noreferrer"
+  1314→                initial={{ opacity: 0, y: 20 }}
+  1315→                whileInView={{ opacity: 1, y: 0 }}
+  1316→                viewport={{ once: true }}
+  1317→                transition={{ duration: 0.4, delay: i * 0.1 }}
+  1318→                whileHover={{ y: -4, borderColor: 'rgba(138, 43, 226, 0.6)' }}
+  1319→                className="flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.05] group"
+  1320→              >
+  1321→                <div className="w-11 h-11 rounded-xl bg-[#8A2BE2]/15 text-[#8A2BE2] flex items-center justify-center group-hover:bg-[#8A2BE2] group-hover:text-white transition-colors">
+  1322→                  {card.icon}
+  1323→                </div>
+  1324→                <div className="flex flex-col">
+  1325→                  <span className="text-[10px] font-bold tracking-widest text-white/50">
+  1326→                    {card.label}
+  1327→                  </span>
+  1328→                  <span className="text-sm font-semibold text-white/90">
+  1329→                    {card.value}
+  1330→                  </span>
+  1331→                </div>
+  1332→                <ArrowRight className="w-4 h-4 text-white/30 ml-auto group-hover:text-[#8A2BE2] group-hover:translate-x-1 transition-all" />
+  1333→              </motion.a>
+  1334→            ))}
+  1335→          </motion.div>
+  1336→        </div>
+  1337→      </div>
+  1338→    </section>
+  1339→  )
+  1340→}
+  1341→
+  1342→// ============ FOOTER ============
+  1343→function Footer() {
+  1344→  const aboutLinks = ['Home', 'About', 'Projects', 'Agents', 'Contact']
+  1345→  const whatLinks = ['AI Agents', 'Full-Stack Apps', 'ML Models', 'Data Analysis', 'Open Source']
+  1346→  const socials = [
+  1347→    { label: 'GitHub', icon: <Github className="w-4 h-4" />, href: 'https://github.com/arjunvashishtha' },
+  1348→    { label: 'Email', icon: <Mail className="w-4 h-4" />, href: 'mailto:arjun.vashishtha@example.com' },
+  1349→    { label: 'Phone', icon: <Phone className="w-4 h-4" />, href: 'tel:+919876543210' },
+  1350→    { label: 'Location', icon: <MapPin className="w-4 h-4" />, href: 'https://maps.google.com' },
+  1351→  ]
+  1352→
+  1353→  return (
+  1354→    <footer className="relative z-10 mt-auto" style={{ background: '#8A2BE2' }}>
+  1355→      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+  1356→        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12">
+  1357→          {/* About */}
+  1358→          <div>
+  1359→            <h4 className="text-xs font-black tracking-widest text-white/80 mb-5">
+  1360→              ABOUT
+  1361→            </h4>
+  1362→            <ul className="flex flex-col gap-3">
+  1363→              {aboutLinks.map((l) => (
+  1364→                <li key={l}>
+  1365→                  <a
+  1366→                    href={`#${l.toLowerCase()}`}
+  1367→                    className="text-sm text-white/90 hover:text-white hover:underline transition-colors"
+  1368→                  >
+  1369→                    {l}
+  1370→                  </a>
+  1371→                </li>
+  1372→              ))}
+  1373→            </ul>
+  1374→          </div>
+  1375→
+  1376→          {/* What I Do */}
+  1377→          <div>
+  1378→            <h4 className="text-xs font-black tracking-widest text-white/80 mb-5">
+  1379→              WHAT I DO
+  1380→            </h4>
+  1381→            <ul className="flex flex-col gap-3">
+  1382→              {whatLinks.map((l) => (
+  1383→                <li key={l}>
+  1384→                  <a
+  1385→                    href="#projects"
+  1386→                    className="text-sm text-white/90 hover:text-white hover:underline transition-colors"
+  1387→                  >
+  1388→                    {l}
+  1389→                  </a>
+  1390→                </li>
+  1391→              ))}
+  1392→            </ul>
+  1393→          </div>
+  1394→
+  1395→          {/* Follow Me */}
+  1396→          <div>
+  1397→            <h4 className="text-xs font-black tracking-widest text-white/80 mb-5">
+  1398→              FOLLOW ME
+  1399→            </h4>
+  1400→            <div className="flex flex-wrap gap-3">
+  1401→              {socials.map((s) => (
+  1402→                <a
+  1403→                  key={s.label}
+  1404→                  href={s.href}
+  1405→                  target="_blank"
+  1406→                  rel="noopener noreferrer"
+  1407→                  aria-label={s.label}
+  1408→                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white text-white hover:text-[#8A2BE2] flex items-center justify-center transition-all duration-300 hover:scale-110"
+  1409→                >
+  1410→                  {s.icon}
+  1411→                </a>
+  1412→              ))}
+  1413→            </div>
+  1414→            <p className="mt-5 text-sm text-white/80 leading-relaxed">
+  1415→              Always open to collaborating on agents, ML and ambitious full-stack
+  1416→              builds.
+  1417→            </p>
+  1418→          </div>
+  1419→        </div>
+  1420→
+  1421→        <div className="mt-10 pt-6 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+  1422→          <p className="text-xs text-white/80">
+  1423→            © {new Date().getFullYear()} Arjun Vashishtha. All rights reserved.
+  1424→          </p>
+  1425→          <p className="text-xs text-white/80">
+  1426→            Built with Next.js, Three.js & Framer Motion.
+  1427→          </p>
+  1428→        </div>
+  1429→      </div>
+  1430→    </footer>
+  1431→  )
+  1432→}
+  1433→
+  1434→// ============ PAGE ============
+  1435→export default function Home() {
+  1436→  return (
+  1437→    <div
+  1438→      className="relative min-h-screen flex flex-col"
+  1439→      style={{ background: '#121212' }}
+  1440→    >
+  1441→      <Background3D />
+  1442→      <CustomCursor />
+  1443→      <ScrollProgress />
+  1444→      <Header />
+  1445→
+  1446→      <main className="relative z-10 flex-1">
+  1447→        <Hero />
+  1448→        <StatsBar />
+  1449→        <About />
+  1450→        <AgentsSection />
+  1451→        <ProjectsSection />
+  1452→        <TestimonialsSection />
+  1453→        <ContactSection />
+  1454→      </main>
+  1455→
+  1456→      <Footer />
+  1457→    </div>
+  1458→  )
+  1459→}
+  1460→

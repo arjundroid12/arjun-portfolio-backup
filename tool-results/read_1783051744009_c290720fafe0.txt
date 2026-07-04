@@ -1,0 +1,905 @@
+     1→'use client'
+     2→
+     3→import { useEffect, useState } from 'react'
+     4→import {
+     5→  motion,
+     6→  useScroll,
+     7→  useSpring,
+     8→  type Variants,
+     9→} from 'framer-motion'
+    10→import {
+    11→  ArrowLeft,
+    12→  ArrowRight,
+    13→  Menu,
+    14→  Star,
+    15→  Send,
+    16→  Facebook,
+    17→  Instagram,
+    18→  Twitter,
+    19→  Linkedin,
+    20→} from 'lucide-react'
+    21→
+    22→/* ============================================================
+    23→   COLOR TOKENS (exact per spec)
+    24→   - bg: #121212
+    25→   - card: #1E1E1E
+    26→   - border: #333
+    27→   - purple: #8A2BE2
+    28→   - lighter purple: #9370DB
+    29→   - text: white
+    30→   - secondary text: gray (white/50)
+    31→   - footer: solid #8A2BE2
+    32→   ============================================================ */
+    33→
+    34→const PURPLE = '#8A2BE2'
+    35→const PURPLE_LIGHT = '#9370DB'
+    36→
+    37→/* ============================================================
+    38→   ANIMATION VARIANTS
+    39→   ============================================================ */
+    40→
+    41→const fadeUp: Variants = {
+    42→  hidden: { opacity: 0, y: 24 },
+    43→  visible: {
+    44→    opacity: 1,
+    45→    y: 0,
+    46→    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    47→  },
+    48→}
+    49→
+    50→const fadeIn: Variants = {
+    51→  hidden: { opacity: 0 },
+    52→  visible: { opacity: 1, transition: { duration: 0.8, ease: 'easeOut' } },
+    53→}
+    54→
+    55→const staggerContainer: Variants = {
+    56→  hidden: {},
+    57→  visible: {
+    58→    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+    59→  },
+    60→}
+    61→
+    62→const heroItem: Variants = {
+    63→  hidden: { opacity: 0, y: 28 },
+    64→  visible: {
+    65→    opacity: 1,
+    66→    y: 0,
+    67→    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    68→  },
+    69→}
+    70→
+    71→const cardHover = {
+    72→  initial: { y: 0, borderColor: '#333333' },
+    73→  whileHover: {
+    74→    y: -4,
+    75→    borderColor: PURPLE,
+    76→    transition: { duration: 0.25, ease: 'easeOut' },
+    77→  },
+    78→}
+    79→
+    80→const buttonHover = {
+    81→  whileHover: { scale: 1.05 },
+    82→  whileTap: { scale: 0.97 },
+    83→  transition: { duration: 0.2, ease: 'easeOut' },
+    84→}
+    85→
+    86→/* ============================================================
+    87→   DATA
+    88→   ============================================================ */
+    89→
+    90→const NAV_LINKS = ['HOME', 'ABOUT', 'COURSES', 'BLOG']
+    91→
+    92→const STATS = [
+    93→  { value: '+150', label: 'HAPPY STUDENTS' },
+    94→  { value: '+50', label: 'CERTIFIED COURSES' },
+    95→  { value: '+1000', label: 'AWARDS RECEIVED' },
+    96→]
+    97→
+    98→const COURSES = [
+    99→  {
+   100→    num: 'COURSE 01',
+   101→    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   102→  },
+   103→  {
+   104→    num: 'COURSE 02',
+   105→    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   106→  },
+   107→  {
+   108→    num: 'COURSE 03',
+   109→    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   110→  },
+   111→  {
+   112→    num: 'COURSE 04',
+   113→    desc: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   114→  },
+   115→]
+   116→
+   117→const TESTIMONIALS = [
+   118→  {
+   119→    name: 'Laura Smith',
+   120→    initial: 'L',
+   121→    color: '#9370DB',
+   122→    quote:
+   123→      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   124→  },
+   125→  {
+   126→    name: 'Jhon Smith',
+   127→    initial: 'J',
+   128→    color: '#8A2BE2',
+   129→    quote:
+   130→      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   131→  },
+   132→  {
+   133→    name: 'Sara Smith',
+   134→    initial: 'S',
+   135→    color: '#7B2CBF',
+   136→    quote:
+   137→      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+   138→  },
+   139→]
+   140→
+   141→const FOOTER_ABOUT = [
+   142→  'History',
+   143→  'Our Team',
+   144→  'Mission Statement',
+   145→  'Terms & Condition',
+   146→  'Privacy Policy',
+   147→]
+   148→const FOOTER_WHAT = [
+   149→  'News and stories',
+   150→  'Publications',
+   151→  'Take action',
+   152→  'Recommendations',
+   153→  'Help',
+   154→]
+   155→const SOCIALS = [
+   156→  { Icon: Facebook, label: 'Facebook' },
+   157→  { Icon: Instagram, label: 'Instagram' },
+   158→  { Icon: Twitter, label: 'Twitter' },
+   159→  { Icon: Linkedin, label: 'LinkedIn' },
+   160→]
+   161→
+   162→/* ============================================================
+   163→   SCROLL PROGRESS BAR (thin purple line at top)
+   164→   ============================================================ */
+   165→
+   166→function ScrollProgress() {
+   167→  const { scrollYProgress } = useScroll()
+   168→  const scaleX = useSpring(scrollYProgress, {
+   169→    stiffness: 120,
+   170→    damping: 30,
+   171→    restDelta: 0.001,
+   172→  })
+   173→  return (
+   174→    <motion.div
+   175→      style={{ scaleX }}
+   176→      className="fixed top-0 left-0 right-0 h-[3px] origin-left z-[60]"
+   177→    >
+   178→      <div className="h-full w-full" style={{ background: PURPLE }} />
+   179→    </motion.div>
+   180→  )
+   181→}
+   182→
+   183→/* ============================================================
+   184→   HEADER
+   185→   ============================================================ */
+   186→
+   187→function Header() {
+   188→  const [scrolled, setScrolled] = useState(false)
+   189→
+   190→  useEffect(() => {
+   191→    const onScroll = () => setScrolled(window.scrollY > 20)
+   192→    window.addEventListener('scroll', onScroll, { passive: true })
+   193→    onScroll()
+   194→    return () => window.removeEventListener('scroll', onScroll)
+   195→  }, [])
+   196→
+   197→  return (
+   198→    <header
+   199→      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+   200→      style={{
+   201→        background: '#121212',
+   202→        borderBottom: '1px solid #333333',
+   203→        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.5)' : 'none',
+   204→      }}
+   205→    >
+   206→      <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
+   207→        {/* Left: Logo */}
+   208→        <div className="text-white text-sm font-semibold tracking-wider">
+   209→          YOUR LOGO
+   210→        </div>
+   211→
+   212→        {/* Center: Nav */}
+   213→        <nav className="hidden md:flex items-center gap-10">
+   214→          {NAV_LINKS.map((link) => (
+   215→            <motion.a
+   216→              key={link}
+   217→              href="#"
+   218→              className="text-white text-sm font-medium tracking-wide uppercase hover:text-[#9370DB] transition-colors"
+   219→              whileHover={{ scale: 1.05 }}
+   220→              transition={{ duration: 0.2 }}
+   221→            >
+   222→              {link}
+   223→            </motion.a>
+   224→          ))}
+   225→        </nav>
+   226→
+   227→        {/* Right: Sign in + Hamburger */}
+   228→        <div className="flex items-center gap-4">
+   229→          <motion.button
+   230→            {...buttonHover}
+   231→            className="hidden sm:inline-flex items-center px-5 py-2 text-white text-sm font-medium border border-white rounded transition-colors hover:bg-white hover:text-[#121212]"
+   232→          >
+   233→            SIGN IN
+   234→          </motion.button>
+   235→          <button
+   236→            aria-label="Open menu"
+   237→            className="text-white p-1.5 hover:text-[#9370DB] transition-colors"
+   238→          >
+   239→            <Menu className="w-5 h-5" />
+   240→          </button>
+   241→        </div>
+   242→      </div>
+   243→    </header>
+   244→  )
+   245→}
+   246→
+   247→/* ============================================================
+   248→   HERO
+   249→   ============================================================ */
+   250→
+   251→function Hero() {
+   252→  return (
+   253→    <section className="relative min-h-screen pt-16 overflow-hidden">
+   254→      <div
+   255→        className="max-w-7xl mx-auto px-6 lg:px-10 relative"
+   256→        style={{ background: '#121212' }}
+   257→      >
+   258→        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-6 items-center min-h-[calc(100vh-4rem)] py-12">
+   259→          {/* Far left: BEGINNER'S rotated */}
+   260→          <div className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 items-center justify-center">
+   261→            <span
+   262→              className="text-white text-base font-semibold tracking-[0.3em] whitespace-nowrap"
+   263→              style={{
+   264→                writingMode: 'vertical-rl',
+   265→                transform: 'rotate(180deg)',
+   266→              }}
+   267→            >
+   268→              BEGINNER&apos;S
+   269→            </span>
+   270→          </div>
+   271→
+   272→          {/* Left column: text */}
+   273→          <motion.div
+   274→            variants={staggerContainer}
+   275→            initial="hidden"
+   276→            animate="visible"
+   277→            className="lg:pl-16 flex flex-col gap-6 z-10"
+   278→          >
+   279→            <motion.h1
+   280→              variants={heroItem}
+   281→              className="text-white font-bold leading-none"
+   282→              style={{ fontSize: '72px' }}
+   283→            >
+   284→              UI.
+   285→              <span
+   286→                className="inline-block ml-1 align-bottom"
+   287→                style={{
+   288→                  width: '14px',
+   289→                  height: '14px',
+   290→                  borderRadius: '9999px',
+   291→                  background: PURPLE,
+   292→                  display: 'inline-block',
+   293→                }}
+   294→              />
+   295→            </motion.h1>
+   296→
+   297→            <motion.h2
+   298→              variants={heroItem}
+   299→              className="text-white text-base font-semibold tracking-wide"
+   300→            >
+   301→              START GUIDE FOR BEGINNER DESIGNERS
+   302→            </motion.h2>
+   303→
+   304→            <motion.p
+   305→              variants={heroItem}
+   306→              className="text-white/50 text-sm leading-relaxed max-w-md"
+   307→            >
+   308→              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+   309→              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+   310→              ad minim veniam, quis nostrud exercitation.
+   311→            </motion.p>
+   312→
+   313→            <motion.div variants={heroItem} className="flex flex-wrap gap-4 pt-2">
+   314→              <motion.button
+   315→                {...buttonHover}
+   316→                className="px-6 py-3 text-white text-sm font-semibold rounded"
+   317→                style={{ background: PURPLE }}
+   318→              >
+   319→                LET&apos;S START
+   320→              </motion.button>
+   321→              <motion.button
+   322→                {...buttonHover}
+   323→                className="px-6 py-3 text-white text-sm font-semibold rounded border border-white bg-transparent"
+   324→              >
+   325→                READ MORE
+   326→              </motion.button>
+   327→            </motion.div>
+   328→          </motion.div>
+   329→
+   330→          {/* Right column: person + circle + badge */}
+   331→          <motion.div
+   332→            variants={fadeIn}
+   333→            initial="hidden"
+   334→            animate="visible"
+   335→            className="relative h-[420px] lg:h-[520px] flex items-center justify-center"
+   336→          >
+   337→            {/* Large purple circle behind at 30% opacity */}
+   338→            <div
+   339→              className="absolute rounded-full"
+   340→              style={{
+   341→                width: '90%',
+   342→                height: '90%',
+   343→                background: PURPLE,
+   344→                opacity: 0.3,
+   345→                filter: 'blur(2px)',
+   346→              }}
+   347→            />
+   348→
+   349→            {/* Person image */}
+   350→            <div className="relative z-10 w-[280px] h-[360px] lg:w-[340px] lg:h-[440px] overflow-hidden rounded-lg shadow-2xl">
+   351→              <img
+   352→                src="/images/hero-person.png"
+   353→                alt="Beginner designer wearing headphones"
+   354→                className="w-full h-full object-cover"
+   355→              />
+   356→            </div>
+   357→
+   358→            {/* EDITION 2022 badge top-right */}
+   359→            <div
+   360→              className="absolute top-6 right-2 lg:right-6 z-20 px-4 py-2 text-white text-xs font-semibold tracking-widest rounded border border-white bg-[#121212]/60 backdrop-blur-sm"
+   361→            >
+   362→              EDITION 2022
+   363→            </div>
+   364→          </motion.div>
+   365→
+   366→          {/* Left / right navigation arrows at edges */}
+   367→          <button
+   368→            aria-label="Previous slide"
+   369→            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+   370→          >
+   371→            <ArrowLeft className="w-5 h-5" />
+   372→          </button>
+   373→          <button
+   374→            aria-label="Next slide"
+   375→            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-30 w-10 h-10 items-center justify-center text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+   376→          >
+   377→            <ArrowRight className="w-5 h-5" />
+   378→          </button>
+   379→        </div>
+   380→      </div>
+   381→    </section>
+   382→  )
+   383→}
+   384→
+   385→/* ============================================================
+   386→   STATS
+   387→   ============================================================ */
+   388→
+   389→function Stats() {
+   390→  return (
+   391→    <section
+   392→      className="border-y"
+   393→      style={{
+   394→        background: '#121212',
+   395→        borderColor: '#333333',
+   396→      }}
+   397→    >
+   398→      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10">
+   399→        <motion.div
+   400→          variants={staggerContainer}
+   401→          initial="hidden"
+   402→          whileInView="visible"
+   403→          viewport={{ once: true, amount: 0.3 }}
+   404→          className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#333333]"
+   405→        >
+   406→          {STATS.map((s) => (
+   407→            <motion.div
+   408→              key={s.label}
+   409→              variants={fadeUp}
+   410→              className="flex flex-col items-center text-center py-6 md:py-4 gap-2"
+   411→            >
+   412→              <span
+   413→                className="font-bold leading-none"
+   414→                style={{ color: PURPLE, fontSize: '24px' }}
+   415→              >
+   416→                {s.value}
+   417→              </span>
+   418→              <span className="text-white text-sm font-medium tracking-wide">
+   419→                {s.label}
+   420→              </span>
+   421→            </motion.div>
+   422→          ))}
+   423→        </motion.div>
+   424→      </div>
+   425→    </section>
+   426→  )
+   427→}
+   428→
+   429→/* ============================================================
+   430→   CTA SECTION
+   431→   ============================================================ */
+   432→
+   433→function CTA() {
+   434→  return (
+   435→    <section className="py-24 lg:py-32" style={{ background: '#121212' }}>
+   436→      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+   437→        <div className="grid grid-cols-3 items-center gap-4">
+   438→          <motion.span
+   439→            variants={fadeUp}
+   440→            initial="hidden"
+   441→            whileInView="visible"
+   442→            viewport={{ once: true }}
+   443→            className="text-white/50 text-sm font-medium tracking-widest text-left"
+   444→          >
+   445→            EXPLORE
+   446→          </motion.span>
+   447→
+   448→          <motion.h2
+   449→            variants={fadeUp}
+   450→            initial="hidden"
+   451→            whileInView="visible"
+   452→            viewport={{ once: true }}
+   453→            className="text-white font-bold text-center leading-tight col-span-1"
+   454→            style={{ fontSize: '48px' }}
+   455→          >
+   456→            ACCEPT NEW CHALLENGES
+   457→          </motion.h2>
+   458→
+   459→          <motion.span
+   460→            variants={fadeUp}
+   461→            initial="hidden"
+   462→            whileInView="visible"
+   463→            viewport={{ once: true }}
+   464→            className="text-white/50 text-sm font-medium tracking-widest text-right"
+   465→          >
+   466→            ABOUT
+   467→          </motion.span>
+   468→        </div>
+   469→
+   470→        {/* Elliptical design element: thin line with purple dots */}
+   471→        <motion.div
+   472→          variants={fadeIn}
+   473→          initial="hidden"
+   474→          whileInView="visible"
+   475→          viewport={{ once: true }}
+   476→          className="mt-12 flex items-center justify-center"
+   477→        >
+   478→          <div className="flex items-center gap-3 w-full max-w-3xl">
+   479→            <span
+   480→              className="block w-2 h-2 rounded-full shrink-0"
+   481→              style={{ background: PURPLE }}
+   482→            />
+   483→            <span className="flex-1 h-px bg-white/20" />
+   484→            <span
+   485→              className="block w-3 h-3 rounded-full shrink-0"
+   486→              style={{ background: PURPLE_LIGHT }}
+   487→            />
+   488→            <span className="flex-1 h-px bg-white/20" />
+   489→            <span
+   490→              className="block w-2 h-2 rounded-full shrink-0"
+   491→              style={{ background: PURPLE }}
+   492→            />
+   493→          </div>
+   494→        </motion.div>
+   495→      </div>
+   496→    </section>
+   497→  )
+   498→}
+   499→
+   500→/* ============================================================
+   501→   COURSES
+   502→   ============================================================ */
+   503→
+   504→function Courses() {
+   505→  return (
+   506→    <section className="py-20 lg:py-24" style={{ background: '#121212' }}>
+   507→      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+   508→        {/* Heading row with EDITION 2022 badge */}
+   509→        <div className="relative flex items-start justify-between mb-12">
+   510→          <motion.div
+   511→            variants={staggerContainer}
+   512→            initial="hidden"
+   513→            whileInView="visible"
+   514→            viewport={{ once: true, amount: 0.4 }}
+   515→            className="flex flex-col gap-2"
+   516→          >
+   517→            <motion.h2
+   518→              variants={fadeUp}
+   519→              className="text-white font-bold leading-none"
+   520→              style={{ fontSize: '36px' }}
+   521→            >
+   522→              FIND
+   523→            </motion.h2>
+   524→            <motion.h3
+   525→              variants={fadeUp}
+   526→              className="text-white font-light leading-none"
+   527→              style={{ fontSize: '36px', color: '#9370DB' }}
+   528→            >
+   529→              Your Course.
+   530→            </motion.h3>
+   531→          </motion.div>
+   532→
+   533→          <div className="px-4 py-2 text-white text-xs font-semibold tracking-widest rounded border border-white">
+   534→            EDITION 2022
+   535→          </div>
+   536→        </div>
+   537→
+   538→        {/* 4 cards in a row */}
+   539→        <motion.div
+   540→          variants={staggerContainer}
+   541→          initial="hidden"
+   542→          whileInView="visible"
+   543→          viewport={{ once: true, amount: 0.2 }}
+   544→          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+   545→        >
+   546→          {COURSES.map((c, i) => (
+   547→            <motion.div
+   548→              key={c.num}
+   549→              variants={fadeUp}
+   550→              {...cardHover}
+   551→              className="flex flex-col gap-4 p-5 rounded"
+   552→              style={{
+   553→                background: '#1E1E1E',
+   554→                border: '1px solid #333333',
+   555→              }}
+   556→            >
+   557→              <div className="flex items-center gap-2">
+   558→                <span
+   559→                  className="text-xs font-bold tracking-widest"
+   560→                  style={{ color: PURPLE_LIGHT }}
+   561→                >
+   562→                  0{i + 1}
+   563→                </span>
+   564→                <h3 className="text-white text-lg font-bold">{c.num}</h3>
+   565→              </div>
+   566→              <p className="text-white/50 text-sm leading-relaxed flex-1">
+   567→                {c.desc}
+   568→              </p>
+   569→              <motion.button
+   570→                {...buttonHover}
+   571→                className="self-start px-4 py-2 text-white text-xs font-semibold rounded"
+   572→                style={{ background: PURPLE }}
+   573→              >
+   574→                READ MORE
+   575→              </motion.button>
+   576→            </motion.div>
+   577→          ))}
+   578→        </motion.div>
+   579→      </div>
+   580→    </section>
+   581→  )
+   582→}
+   583→
+   584→/* ============================================================
+   585→   TESTIMONIALS
+   586→   ============================================================ */
+   587→
+   588→function Testimonials() {
+   589→  return (
+   590→    <section className="py-20 lg:py-24" style={{ background: '#121212' }}>
+   591→      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+   592→        {/* Heading */}
+   593→        <motion.div
+   594→          variants={staggerContainer}
+   595→          initial="hidden"
+   596→          whileInView="visible"
+   597→          viewport={{ once: true, amount: 0.5 }}
+   598→          className="flex flex-col items-center text-center mb-12 gap-2"
+   599→        >
+   600→          <motion.h2
+   601→            variants={fadeUp}
+   602→            className="text-white font-bold leading-none"
+   603→            style={{ fontSize: '36px' }}
+   604→          >
+   605→            WHAT
+   606→          </motion.h2>
+   607→          <motion.h3
+   608→            variants={fadeUp}
+   609→            className="font-light leading-none"
+   610→            style={{ fontSize: '36px', color: PURPLE_LIGHT }}
+   611→          >
+   612→            users think.
+   613→          </motion.h3>
+   614→        </motion.div>
+   615→
+   616→        {/* Cards + arrows */}
+   617→        <div className="relative">
+   618→          <motion.div
+   619→            variants={staggerContainer}
+   620→            initial="hidden"
+   621→            whileInView="visible"
+   622→            viewport={{ once: true, amount: 0.2 }}
+   623→            className="grid grid-cols-1 md:grid-cols-3 gap-6 px-10 md:px-12"
+   624→          >
+   625→            {TESTIMONIALS.map((t) => (
+   626→              <motion.div
+   627→                key={t.name}
+   628→                variants={fadeUp}
+   629→                {...cardHover}
+   630→                className="flex flex-col items-center text-center gap-4 p-6 rounded"
+   631→                style={{
+   632→                  background: '#1E1E1E',
+   633→                  border: '1px solid #333333',
+   634→                }}
+   635→              >
+   636→                <div
+   637→                  className="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold shrink-0"
+   638→                  style={{ background: t.color }}
+   639→                >
+   640→                  {t.initial}
+   641→                </div>
+   642→                <h3 className="text-white text-base font-bold">{t.name}</h3>
+   643→                <div className="flex items-center gap-1">
+   644→                  {Array.from({ length: 5 }).map((_, idx) => (
+   645→                    <Star
+   646→                      key={idx}
+   647→                      className="w-3.5 h-3.5"
+   648→                      fill={PURPLE}
+   649→                      stroke={PURPLE}
+   650→                      strokeWidth={1}
+   651→                    />
+   652→                  ))}
+   653→                </div>
+   654→                <p className="text-white/50 text-sm leading-relaxed">
+   655→                  {t.quote}
+   656→                </p>
+   657→              </motion.div>
+   658→            ))}
+   659→          </motion.div>
+   660→
+   661→          {/* Left/right navigation arrows */}
+   662→          <button
+   663→            aria-label="Previous testimonials"
+   664→            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center text-white/60 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+   665→          >
+   666→            <ArrowLeft className="w-5 h-5" />
+   667→          </button>
+   668→          <button
+   669→            aria-label="Next testimonials"
+   670→            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center text-white/60 hover:text-white hover:bg-white/5 rounded-full transition-colors"
+   671→          >
+   672→            <ArrowRight className="w-5 h-5" />
+   673→          </button>
+   674→        </div>
+   675→      </div>
+   676→    </section>
+   677→  )
+   678→}
+   679→
+   680→/* ============================================================
+   681→   NEWSLETTER
+   682→   ============================================================ */
+   683→
+   684→function Newsletter() {
+   685→  return (
+   686→    <section className="py-20 lg:py-24" style={{ background: '#121212' }}>
+   687→      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+   688→        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+   689→          {/* Left: person image */}
+   690→          <motion.div
+   691→            variants={fadeIn}
+   692→            initial="hidden"
+   693→            whileInView="visible"
+   694→            viewport={{ once: true, amount: 0.3 }}
+   695→            className="relative h-[420px] lg:h-[500px] flex items-center justify-center"
+   696→          >
+   697→            <div
+   698→              className="absolute rounded-full"
+   699→              style={{
+   700→                width: '85%',
+   701→                height: '85%',
+   702→                background: PURPLE,
+   703→                opacity: 0.3,
+   704→                filter: 'blur(2px)',
+   705→              }}
+   706→            />
+   707→            <div className="relative z-10 w-[280px] h-[360px] lg:w-[340px] lg:h-[440px] overflow-hidden rounded-lg shadow-2xl">
+   708→              <img
+   709→                src="/images/newsletter-person.png"
+   710→                alt="Newsletter subscriber wearing sunglasses"
+   711→                className="w-full h-full object-cover"
+   712→              />
+   713→            </div>
+   714→          </motion.div>
+   715→
+   716→          {/* Right: form */}
+   717→          <motion.div
+   718→            variants={staggerContainer}
+   719→            initial="hidden"
+   720→            whileInView="visible"
+   721→            viewport={{ once: true, amount: 0.3 }}
+   722→            className="flex flex-col gap-5"
+   723→          >
+   724→            <motion.div variants={heroItem} className="flex items-baseline gap-3 flex-wrap">
+   725→              <h2
+   726→                className="text-white font-bold leading-none"
+   727→                style={{ fontSize: '24px' }}
+   728→              >
+   729→                SUBSCRIBE
+   730→              </h2>
+   731→              <span
+   732→                className="text-base font-light"
+   733→                style={{ color: PURPLE_LIGHT }}
+   734→              >
+   735→                to our newsletter
+   736→              </span>
+   737→            </motion.div>
+   738→
+   739→            <motion.p
+   740→              variants={heroItem}
+   741→              className="text-white/50 text-sm leading-relaxed max-w-md"
+   742→            >
+   743→              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+   744→              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+   745→            </motion.p>
+   746→
+   747→            <motion.form
+   748→              variants={heroItem}
+   749→              onSubmit={(e) => e.preventDefault()}
+   750→              className="flex flex-col gap-4 mt-2"
+   751→            >
+   752→              <input
+   753→                type="text"
+   754→                placeholder="NAME"
+   755→                className="w-full px-4 py-3 text-white text-sm placeholder:text-white/40 rounded outline-none transition-colors"
+   756→                style={{
+   757→                  background: '#1E1E1E',
+   758→                  border: '1px solid #8A2BE2',
+   759→                }}
+   760→              />
+   761→              <input
+   762→                type="email"
+   763→                placeholder="MAIL"
+   764→                className="w-full px-4 py-3 text-white text-sm placeholder:text-white/40 rounded outline-none transition-colors"
+   765→                style={{
+   766→                  background: '#1E1E1E',
+   767→                  border: '1px solid #8A2BE2',
+   768→                }}
+   769→              />
+   770→              <textarea
+   771→                rows={3}
+   772→                placeholder="MESSAGE"
+   773→                className="w-full px-4 py-3 text-white text-sm placeholder:text-white/40 rounded outline-none transition-colors resize-none"
+   774→                style={{
+   775→                  background: '#1E1E1E',
+   776→                  border: '1px solid #8A2BE2',
+   777→                }}
+   778→              />
+   779→              <motion.button
+   780→                {...buttonHover}
+   781→                type="submit"
+   782→                className="self-start px-6 py-3 text-white text-sm font-semibold rounded inline-flex items-center gap-2"
+   783→                style={{ background: PURPLE }}
+   784→              >
+   785→                <Send className="w-4 h-4" />
+   786→                SEND MESSAGE
+   787→              </motion.button>
+   788→            </motion.form>
+   789→          </motion.div>
+   790→        </div>
+   791→      </div>
+   792→    </section>
+   793→  )
+   794→}
+   795→
+   796→/* ============================================================
+   797→   FOOTER (solid #8A2BE2)
+   798→   ============================================================ */
+   799→
+   800→function Footer() {
+   801→  return (
+   802→    <footer
+   803→      className="mt-auto"
+   804→      style={{ background: PURPLE }}
+   805→    >
+   806→      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-14 lg:py-16">
+   807→        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+   808→          {/* Column 1: About */}
+   809→          <div className="flex flex-col gap-4">
+   810→            <h3 className="text-white text-base font-bold">About</h3>
+   811→            <ul className="flex flex-col gap-3">
+   812→              {FOOTER_ABOUT.map((link) => (
+   813→                <li key={link}>
+   814→                  <a
+   815→                    href="#"
+   816→                    className="text-white/80 text-sm hover:text-white transition-colors"
+   817→                  >
+   818→                    {link}
+   819→                  </a>
+   820→                </li>
+   821→              ))}
+   822→            </ul>
+   823→          </div>
+   824→
+   825→          {/* Column 2: What we do */}
+   826→          <div className="flex flex-col gap-4">
+   827→            <h3 className="text-white text-base font-bold">What we do</h3>
+   828→            <ul className="flex flex-col gap-3">
+   829→              {FOOTER_WHAT.map((link) => (
+   830→                <li key={link}>
+   831→                  <a
+   832→                    href="#"
+   833→                    className="text-white/80 text-sm hover:text-white transition-colors"
+   834→                  >
+   835→                    {link}
+   836→                  </a>
+   837→                </li>
+   838→              ))}
+   839→            </ul>
+   840→          </div>
+   841→
+   842→          {/* Column 3: Newsletter + socials */}
+   843→          <div className="flex flex-col gap-4">
+   844→            <h3 className="text-white text-base font-bold">
+   845→              Sign Up To Receive Our Newsletter
+   846→            </h3>
+   847→            <input
+   848→              type="email"
+   849→              placeholder="Your email address"
+   850→              className="w-full px-4 py-3 text-[#121212] text-sm placeholder:text-[#121212]/60 rounded outline-none bg-white"
+   851→              style={{ border: '2px solid #8A2BE2' }}
+   852→            />
+   853→            <p className="text-white text-sm font-medium pt-2">Follow us!</p>
+   854→            <div className="flex items-center gap-3">
+   855→              {SOCIALS.map(({ Icon, label }) => (
+   856→                <motion.a
+   857→                  key={label}
+   858→                  href="#"
+   859→                  aria-label={label}
+   860→                  whileHover={{ scale: 1.1 }}
+   861→                  whileTap={{ scale: 0.95 }}
+   862→                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center"
+   863→                  style={{ color: PURPLE }}
+   864→                >
+   865→                  <Icon className="w-4 h-4" />
+   866→                </motion.a>
+   867→              ))}
+   868→            </div>
+   869→          </div>
+   870→        </div>
+   871→
+   872→        {/* Bottom bar */}
+   873→        <div className="mt-12 pt-6 border-t border-white/20 text-center">
+   874→          <p className="text-white/80 text-xs">
+   875→            © {new Date().getFullYear()} Your Logo. All rights reserved.
+   876→          </p>
+   877→        </div>
+   878→      </div>
+   879→    </footer>
+   880→  )
+   881→}
+   882→
+   883→/* ============================================================
+   884→   PAGE
+   885→   ============================================================ */
+   886→
+   887→export default function Page() {
+   888→  return (
+   889→    <main
+   890→      className="min-h-screen flex flex-col"
+   891→      style={{ background: '#121212' }}
+   892→    >
+   893→      <ScrollProgress />
+   894→      <Header />
+   895→      <Hero />
+   896→      <Stats />
+   897→      <CTA />
+   898→      <Courses />
+   899→      <Testimonials />
+   900→      <Newsletter />
+   901→      <Footer />
+   902→    </main>
+   903→  )
+   904→}
+   905→

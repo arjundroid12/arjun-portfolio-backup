@@ -1170,11 +1170,11 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
   )
 }
 
-// ============ HORIZONTAL PINNED SCROLL SHOWCASE ============
+// ============ HORIZONTAL PINNED AGENTS SHOWCASE ============
 // Vertical scroll → horizontal card movement (Lenis-style).
-// Section is pinned while cards slide from right to left.
+// Section is pinned while the 4 AI agent cards slide from right to left.
 
-function HorizontalShowcase() {
+function AgentsShowcase({ sound }: { sound: any }) {
   const sectionRef = useRef<HTMLElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [progress, setProgress] = useState(0)
@@ -1187,16 +1187,12 @@ function HorizontalShowcase() {
     const handleScroll = () => {
       const rect = section.getBoundingClientRect()
       const windowHeight = window.innerHeight
-      // Section is pinned from when its top hits top of viewport
-      // until its bottom passes bottom of viewport.
       const sectionHeight = section.offsetHeight
       const scrollable = sectionHeight - windowHeight
-      // How far we've scrolled into the pinned section (0 → 1)
       const scrolled = Math.max(0, Math.min(scrollable, -rect.top))
       const p = scrollable > 0 ? scrolled / scrollable : 0
       setProgress(p)
 
-      // Translate the track horizontally
       const trackWidth = track.scrollWidth - window.innerWidth
       if (trackWidth > 0) {
         const x = -p * trackWidth
@@ -1209,76 +1205,141 @@ function HorizontalShowcase() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const showcaseCards = [
-    { title: 'AI Research Agent', subtitle: 'Autonomous • LLMs • RAG', bg: 'linear-gradient(135deg, #8A2BE2, #4B0082)', accent: '#C8A2FF' },
-    { title: 'Gesture Particle Painter', subtitle: 'MediaPipe • WebGL • CV', bg: 'linear-gradient(135deg, #14b8a6, #047857)', accent: '#5eead4' },
-    { title: 'Premium Portfolio Suite', subtitle: 'Three.js • Framer • Sound', bg: 'linear-gradient(135deg, #fbbf24, #d97706)', accent: '#fde68a' },
-    { title: 'Realtime Chat', subtitle: 'WebSocket • Socket.io', bg: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', accent: '#93c5fd' },
-    { title: 'Movie Explorer', subtitle: 'OMDB • React • Tailwind', bg: 'linear-gradient(135deg, #ef4444, #b91c1c)', accent: '#fca5a5' },
-    { title: 'SmartAgro', subtitle: 'CNN • Plant Disease ML', bg: 'linear-gradient(135deg, #22c55e, #15803d)', accent: '#86efac' },
-    { title: 'FIOLA Voice App', subtitle: 'Web Speech API • NLP', bg: 'linear-gradient(135deg, #ec4899, #be185d)', accent: '#f9a8d4' },
-  ]
+  // Gradient backgrounds for each agent (matches their original gradients)
+  const agentGradients: Record<string, string> = {
+    'AI Research Agent': 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    'Multi-Agent System': 'linear-gradient(135deg, #3b82f6, #10b981)',
+    'Data Analyst Agent': 'linear-gradient(135deg, #10b981, #14b8a6)',
+    'Coding Agent': 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+  }
+
+  const agentAccents: Record<string, string> = {
+    'AI Research Agent': '#a5b4fc',
+    'Multi-Agent System': '#93c5fd',
+    'Data Analyst Agent': '#6ee7b7',
+    'Coding Agent': '#d8b4fe',
+  }
 
   return (
     <section
       ref={sectionRef}
+      id="agents"
       className="relative z-10"
-      style={{ height: `${showcaseCards.length * 80}vh` }}
+      style={{ height: `${AI_AGENTS.length * 90}vh` }}
     >
-      {/* Sticky container — stays pinned while track scrolls horizontally */}
+      {/* Sticky container — pinned while track scrolls horizontally */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
         {/* Section heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="absolute top-20 left-0 right-0 text-center z-20 pointer-events-none"
+          className="absolute top-16 left-0 right-0 text-center z-20 pointer-events-none px-6"
         >
-          <Badge variant="secondary" className="mb-3 bg-purple-500/10 text-purple-300 border-purple-500/30 font-mono">{"// showcase"}</Badge>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
-            Selected Work
+          <motion.div
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="inline-block mb-3"
+          >
+            <Badge variant="secondary" className="bg-teal-500/10 text-teal-400 border-teal-500/30 font-mono">{"// ai engineering"}</Badge>
+          </motion.div>
+          <h2
+            className="text-4xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent"
+            style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+          >
+            AI Agents
           </h2>
-          <p className="text-white/40 text-sm mt-2">Scroll to explore →</p>
+          <p className="text-white/40 text-sm">Scroll to explore →</p>
         </motion.div>
 
-        {/* Horizontal track */}
+        {/* Horizontal track of agent cards */}
         <div
           ref={trackRef}
           className="flex gap-6 px-6 will-change-transform"
           style={{ width: 'max-content' }}
         >
-          {showcaseCards.map((card, i) => (
+          {AI_AGENTS.map((agent, i) => (
             <div
-              key={i}
-              className="relative shrink-0 w-[80vw] md:w-[50vw] lg:w-[40vw] h-[60vh] rounded-3xl overflow-hidden flex flex-col justify-end p-10"
+              key={agent.name}
+              className="relative shrink-0 w-[85vw] md:w-[55vw] lg:w-[42vw] h-[58vh] rounded-3xl overflow-hidden flex flex-col justify-between p-10 group"
               style={{
-                background: card.bg,
+                background: agentGradients[agent.name] || 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                 boxShadow: '0 25px 80px rgba(0,0,0,0.5)',
               }}
+              onMouseEnter={() => sound.playHover()}
             >
               {/* Glow accent */}
               <div
                 className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-40"
-                style={{ background: card.accent }}
+                style={{ background: agentAccents[agent.name] || '#a5b4fc' }}
               />
 
-              {/* Card number */}
-              <div className="absolute top-8 right-8 text-white/40 text-sm font-mono">
-                {String(i + 1).padStart(2, '0')} / {String(showcaseCards.length).padStart(2, '0')}
+              {/* Card number + difficulty */}
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="text-white/50 text-sm font-mono">
+                  {String(i + 1).padStart(2, '0')} / {String(AI_AGENTS.length).padStart(2, '0')}
+                </div>
+                <span className="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-semibold bg-white/15 text-white backdrop-blur-sm border border-white/20">
+                  {agent.difficulty}
+                </span>
               </div>
 
-              {/* Content */}
+              {/* Icon */}
               <div className="relative z-10">
-                <p className="text-white/70 text-xs uppercase tracking-[0.3em] mb-3">{card.subtitle}</p>
+                <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center mb-6">
+                  <agent.icon className="w-8 h-8 text-white" />
+                </div>
+
+                {/* Title */}
                 <h3
-                  className="text-white text-3xl md:text-4xl font-bold mb-4"
+                  className="text-white text-3xl md:text-4xl font-bold mb-3"
                   style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
                 >
-                  {card.title}
+                  {agent.name}
                 </h3>
-                <div className="flex items-center gap-2 text-white/80 text-sm">
-                  <span>View case study</span>
-                  <span>→</span>
+
+                {/* Tagline */}
+                <p className="text-white/80 text-sm mb-4 italic">{agent.tagline}</p>
+
+                {/* Description */}
+                <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-md">
+                  {agent.description}
+                </p>
+
+                {/* Tech tags */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {agent.tech.map((t: string) => (
+                    <span
+                      key={t}
+                      className="text-[11px] px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-white/90 font-mono"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Links */}
+                <div className="flex gap-3">
+                  {agent.demo && agent.demo !== '#' && (
+                    <a
+                      href={agent.demo}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={() => sound.playClick()}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+                    >
+                      Live Demo →
+                    </a>
+                  )}
+                  <a
+                    href={agent.repo}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={() => sound.playClick()}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/10 border border-white/25 text-white text-sm font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm"
+                  >
+                    <Github className="w-4 h-4" /> Code
+                  </a>
                 </div>
               </div>
             </div>
@@ -1286,7 +1347,7 @@ function HorizontalShowcase() {
         </div>
 
         {/* Progress bar */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-none"
             style={{
@@ -1625,96 +1686,8 @@ export default function Home() {
 
       </motion.section>
 
-      {/* ============ AI AGENTS SECTION — HOLOGRAPHIC ============ */}
-      <section id="agents" className="relative z-10 py-24 px-6 overflow-hidden">
-        {/* Floating background particles for this section */}
-        <div className="absolute inset-0 pointer-events-none">
-          {Array.from({ length: 12 }).map((_, i) => {
-            const left = (i * 37) % 100
-            const top = (i * 53) % 100
-            const delay = (i * 0.7) % 3
-            const duration = 3 + (i % 3)
-            return (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 rounded-full bg-teal-400/30"
-                style={{ left: `${left}%`, top: `${top}%` }}
-                animate={{ y: [0, -30, 0], opacity: [0.2, 0.6, 0.2] }}
-                transition={{ duration, repeat: Infinity, delay }}
-              />
-            )
-          })}
-        </div>
-
-        <div className="max-w-7xl mx-auto relative">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <motion.div
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-block mb-4"
-            >
-              <Badge variant="secondary" className="bg-teal-500/10 text-teal-400 border-teal-500/30 font-mono">{"// ai engineering"}</Badge>
-            </motion.div>
-            <h2 className="text-4xl md:text-6xl font-bold mb-4">
-              <GradientText>AI Agents</GradientText>
-            </h2>
-            <p className="text-white/50 max-w-2xl mx-auto">
-              Autonomous AI systems — each demonstrating a different agent pattern
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {AI_AGENTS.map((agent, i) => (
-              <HoloCard key={agent.name} agent={agent} index={i} sound={sound} />
-            ))}
-          </div>
-
-          {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {[
-              { label: 'AI Agents Built', value: '4', color: 'text-teal-400' },
-              { label: 'Agent Patterns', value: '3', color: 'text-amber-400' },
-              { label: 'API Cost', value: '$0', color: 'text-purple-400' },
-              { label: 'Free Stack', value: '100%', color: 'text-orange-400' },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ scale: 1.05, y: -4 }}
-                onMouseEnter={() => sound.playPop()}
-              >
-                <Card className="liquid-glass text-center">
-                  <CardContent className="pt-6">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 + 0.3, type: 'spring' }}
-                      className={`text-4xl font-bold ${stat.color} font-mono`}
-                    >
-                      {stat.value}
-                    </motion.div>
-                    <div className="text-xs text-white/50 uppercase tracking-wider mt-1">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      {/* ============ AI AGENTS SECTION — HORIZONTAL PINNED SCROLL ============ */}
+      <AgentsShowcase sound={sound} />
 
       {/* ============ PROJECTS SECTION ============ */}
       <section id="projects" className="relative z-10 py-24 px-6">
@@ -1774,9 +1747,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
-      {/* ============ HORIZONTAL PINNED SHOWCASE ============ */}
-      <HorizontalShowcase />
 
       {/* ============ ABOUT SECTION ============ */}
       <section id="about" className="relative z-10 py-24 px-6">

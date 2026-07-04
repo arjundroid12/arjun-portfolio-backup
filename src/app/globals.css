@@ -134,6 +134,24 @@ body, p, span, a, li, button, input, textarea, select, label, div {
   color: #ffffff;
 }
 
+/* ============ LENIS SMOOTH SCROLL ============ */
+/* Prevent layout shift & ensure html/body take full scroll height */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 /* Subtle opacity for secondary/muted text — premium white-on-dark */
 .text-muted, .text-secondary,
 [class*="text-gray-300"], [class*="text-gray-400"],

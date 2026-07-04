@@ -1012,6 +1012,45 @@ function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => 
   )
 }
 
+// ============ LENIS SMOOTH SCROLL PROVIDER ============
+// Wraps the app with Lenis for buttery-smooth inertia scrolling.
+// Syncs with Framer Motion's useScroll via the 'scroll' event so
+// parallax / scroll-progress animations stay perfectly in sync.
+
+import Lenis from 'lenis'
+
+function SmoothScroll({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Skip on mobile / touch devices (native momentum scroll is better there)
+    if (window.matchMedia('(hover: none)').matches) return
+
+    const lenis = new Lenis({
+      duration: 1.15,              // smoothness vs responsiveness (1.0–1.4 is the sweet spot)
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // expo-out
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
+      infinite: false,
+    })
+
+    // Drive Lenis with requestAnimationFrame
+    let rafId: number
+    const raf = (time: number) => {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+    rafId = requestAnimationFrame(raf)
+
+    // Cleanup
+    return () => {
+      cancelAnimationFrame(rafId)
+      lenis.destroy()
+    }
+  }, [])
+
+  return <>{children}</>
+}
+
 // ============ MAIN PAGE ============
 
 export default function Home() {
@@ -1052,6 +1091,7 @@ export default function Home() {
   const filteredProjects = activeFilter === 'All' ? PROJECTS : PROJECTS.filter(p => p.category === activeFilter)
 
   return (
+    <SmoothScroll>
     <div className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
       {/* ============ FUN POPUPS ============ */}
       <FunPopups enabled={sound.enabled} />
@@ -1721,5 +1761,6 @@ export default function Home() {
         )}
       </AnimatePresence>
     </div>
+    </SmoothScroll>
   )
 }

@@ -1,5 +1,8 @@
 'use client'
 
+// Arjun Vashishtha — Premium 3D Portfolio
+// Last updated: EDITION 2026 — splash screen, horizontal agents scroll, red/black theme shift
+
 import { useRef, useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center } from '@react-three/drei'
@@ -1937,7 +1940,7 @@ export default function Home() {
       <footer className="relative z-10 border-t border-white/5 py-8 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-white/40 text-sm font-mono">
-            Built with Next.js · Three.js · Framer Motion · © {new Date().getFullYear()} Arjun Vashishtha
+            Built with Next.js · Three.js · Framer Motion · Lenis · © {new Date().getFullYear()} Arjun Vashishtha
           </p>
           <motion.p
             initial={{ opacity: 0 }}

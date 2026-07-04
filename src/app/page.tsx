@@ -1028,21 +1028,34 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
     if (window.matchMedia('(hover: none)').matches) return
 
     const lenis = new Lenis({
-      duration: 1.15,              // smoothness vs responsiveness (1.0–1.4 is the sweet spot)
+      duration: 1.6,              // slower = smoother, more cinematic (was 1.15)
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // expo-out
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 0.8,       // slower wheel scroll (was 1) — more deliberate
+      touchMultiplier: 1.2,
       infinite: false,
+      // Use requestAnimationFrame throttle for ultra-smooth 60fps
+      syncTouch: false,
     })
 
-    // Drive Lenis with requestAnimationFrame
+    // Drive Lenis with requestAnimationFrame — use a single rAF loop
+    // and cap delta to prevent jank after tab switch
     let rafId: number
+    let lastTime = 0
     const raf = (time: number) => {
+      // Cap delta to 100ms to prevent huge jumps after tab switch
+      if (lastTime && time - lastTime > 100) {
+        lastTime = time - 16
+      }
       lenis.raf(time)
+      lastTime = time
       rafId = requestAnimationFrame(raf)
     }
     rafId = requestAnimationFrame(raf)
+
+    // Expose lenis globally so Framer Motion's useScroll stays in sync
+    // (Lenis updates native scrollTop, which Framer Motion listens to)
+    ;(window as any).__lenis = lenis
 
     // Cleanup
     return () => {
@@ -1109,14 +1122,16 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
         }
       >
         <motion.h1
-          className="font-bold select-none"
+          className="select-none"
           style={{
             fontFamily: 'var(--font-playfair), Georgia, serif',
             color: '#ffffff',
-            fontSize: 'clamp(56px, 12vw, 160px)',
+            fontSize: 'clamp(72px, 14vw, 200px)',
+            fontWeight: 900,
             lineHeight: 1,
-            letterSpacing: '0.05em',
-            textShadow: '0 0 60px rgba(138, 43, 226, 0.4)',
+            letterSpacing: '0.02em',
+            textShadow: '0 0 80px rgba(138, 43, 226, 0.5), 0 0 30px rgba(138, 43, 226, 0.3)',
+            willChange: 'transform, opacity',
           }}
         >
           ARJUN

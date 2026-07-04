@@ -152,6 +152,51 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
+/* ============ ULTRA-SMOOTH PERFORMANCE OPTIMIZATIONS ============ */
+/* GPU-accelerate all transformed elements — prevents 30fps jank */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Canvas (Three.js) — promote to GPU layer for smoother 3D */
+canvas {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Fixed elements — always GPU-accelerated (nav, overlays, splash) */
+.fixed, [class*="fixed"] {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Reduce paint on scroll — contain layout/paint to viewport */
+section, header, footer, main {
+  contain: layout style;
+}
+
+/* Animated cards — promote to GPU on hover for smooth lift */
+[class*="liquid-glass"], [class*="hover:scale"], [class*="group-hover"] {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Disable smooth scroll CSS (Lenis handles it) — prevents double-easing jank */
+html {
+  scroll-behavior: auto !important;
+}
+
+/* Optimize transition rendering — premium ease curve */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 /* Subtle opacity for secondary/muted text — premium white-on-dark */
 .text-muted, .text-secondary,
 [class*="text-gray-300"], [class*="text-gray-400"],

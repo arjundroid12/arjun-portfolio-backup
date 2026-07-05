@@ -935,9 +935,9 @@ function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => 
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full overflow-hidden group relative">
+      <Card className="h-full overflow-hidden group relative bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300">
         {/* Glow effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/10 group-hover:via-purple-500/5 group-hover:to-pink-500/10 transition-all duration-500 pointer-events-none" />
         
         <CardHeader style={{ transform: 'translateZ(40px)' }}>
           <div className="flex items-center justify-between">
@@ -1107,12 +1107,13 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
         <motion.h1
           className="select-none"
           style={{
-            fontFamily: 'var(--font-playfair), Georgia, serif',
+            fontFamily: '"Merinda", "Bebas Neue", sans-serif',
             color: '#ffffff',
-            fontSize: 'clamp(72px, 14vw, 200px)',
-            fontWeight: 900,
-            lineHeight: 1,
-            letterSpacing: '0.02em',
+            fontSize: 'clamp(56px, 10vw, 140px)',
+            fontWeight: 400,
+            lineHeight: 0.9,
+            letterSpacing: '-0.02em',
+            textTransform: 'uppercase',
             textShadow: '0 0 80px rgba(138, 43, 226, 0.5), 0 0 30px rgba(138, 43, 226, 0.3)',
             willChange: 'transform, opacity',
           }}
@@ -1162,20 +1163,40 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
   const sectionRef = useRef<HTMLElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [trackWidth, setTrackWidth] = useState(0)
+  const [measured, setMeasured] = useState(false)
 
   // Measure the track width after mount + on resize
+  // This is critical — if trackWidth is 0, the section would take vertical
+  // space but the track wouldn't move (creating an "empty section" glitch).
   useEffect(() => {
     const measure = () => {
       if (trackRef.current) {
-        setTrackWidth(trackRef.current.scrollWidth - window.innerWidth)
+        const w = trackRef.current.scrollWidth - window.innerWidth
+        setTrackWidth(Math.max(0, w))
+        setMeasured(true)
       }
     }
+    // Measure immediately, after 200ms, after 500ms, and after 1s
+    // (fonts/layout/images may shift the width)
     measure()
+    const t1 = setTimeout(measure, 200)
+    const t2 = setTimeout(measure, 500)
+    const t3 = setTimeout(measure, 1000)
     window.addEventListener('resize', measure)
-    // Re-measure after a tick (fonts/layout may shift)
-    const t = setTimeout(measure, 500)
-    return () => { window.removeEventListener('resize', measure); clearTimeout(t) }
+    return () => {
+      window.removeEventListener('resize', measure)
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
+    }
   }, [])
+
+  // Section height: only add extra scroll room if we have a real trackWidth.
+  // If trackWidth is 0 (not yet measured or only 1 card), use minimal height
+  // to avoid the "empty section" glitch.
+  // Formula: viewport height (for the pinned view) + trackWidth converted to vh
+  // This ensures the scroll distance matches the horizontal distance exactly.
+  const sectionHeight = measured && trackWidth > 0
+    ? `calc(100vh + ${trackWidth}px)`
+    : '100vh'
 
   // Framer Motion scroll tracking — target the section, map start→end to 0→1
   // offset: ["start start", "end end"] means progress goes 0 when the section's
@@ -1225,120 +1246,191 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
       ref={sectionRef}
       id="agents"
       className="relative z-10"
-      style={{ height: `${AI_AGENTS.length * 100}vh` }}
+      style={{ height: sectionHeight }}
     >
       {/* Sticky container — pinned while track scrolls horizontally */}
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
-        {/* Section heading */}
+      <div className="sticky top-0 h-screen overflow-hidden flex flex-col justify-center pt-40 pb-8">
+        {/* Section heading — positioned at top with clear gap above cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="absolute top-16 left-0 right-0 text-center z-20 pointer-events-none px-6"
+          className="absolute top-6 left-0 right-0 text-center z-20 pointer-events-none px-6"
         >
           <motion.div
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="inline-block mb-3"
+            className="inline-block mb-2"
           >
             <Badge variant="secondary" className="bg-teal-500/10 text-teal-400 border-teal-500/30 font-mono">{"// ai engineering"}</Badge>
           </motion.div>
           <h2
-            className="text-4xl md:text-6xl font-bold mb-2 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-1 bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent"
             style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
           >
             AI Agents
           </h2>
-          <p className="text-white/40 text-sm">Scroll to explore →</p>
+          <p className="text-white/40 text-xs">Scroll to explore →</p>
         </motion.div>
 
         {/* Horizontal track — driven by Framer Motion useTransform */}
+        {/* Padding centers the first and last card in the viewport */}
         <motion.div
           ref={trackRef}
           style={{ x, width: 'max-content' }}
-          className="flex gap-6 px-6 will-change-transform"
+          className="agents-track flex gap-10 will-change-transform"
         >
-          {AI_AGENTS.map((agent, i) => (
-            <div
-              key={agent.name}
-              className="relative shrink-0 w-[85vw] md:w-[55vw] lg:w-[42vw] h-[58vh] rounded-3xl overflow-hidden flex flex-col justify-between p-10 group"
-              style={{
-                background: agentGradients[agent.name] || 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                boxShadow: '0 25px 80px rgba(0,0,0,0.5)',
-              }}
-              onMouseEnter={() => sound.playHover()}
-            >
-              {/* Glow accent */}
+          {AI_AGENTS.map((agent, i) => {
+            // Distinct solid background per agent (Lenis-style opaque cards)
+            const cardBgs: Record<string, string> = {
+              'AI Research Agent': 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)',
+              'Multi-Agent System': 'linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0c4a6e 100%)',
+              'Data Analyst Agent': 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #064e3b 100%)',
+              'Coding Agent': 'linear-gradient(135deg, #581c87 0%, #6b21a8 50%, #581c87 100%)',
+            }
+            const cardAccents: Record<string, string> = {
+              'AI Research Agent': '#818cf8',
+              'Multi-Agent System': '#38bdf8',
+              'Data Analyst Agent': '#34d399',
+              'Coding Agent': '#c084fc',
+            }
+            const bg = cardBgs[agent.name] || '#1e1b4b'
+            const accent = cardAccents[agent.name] || '#818cf8'
+
+            return (
               <div
-                className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-40"
-                style={{ background: agentAccents[agent.name] || '#a5b4fc' }}
-              />
+                key={agent.name}
+                className="relative shrink-0 w-[85vw] md:w-[55vw] lg:w-[42vw] h-[56vh] rounded-3xl overflow-hidden flex flex-col"
+                style={{
+                  background: bg,
+                  boxShadow: '0 25px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+                }}
+                onMouseEnter={() => sound.playHover()}
+              >
+                {/* Subtle glow accent in corner */}
+                <div
+                  style={{
+                    position: 'absolute', top: '-60px', right: '-60px',
+                    width: '200px', height: '200px', borderRadius: '50%',
+                    background: `radial-gradient(circle, ${accent}33, transparent 70%)`,
+                    pointerEvents: 'none',
+                  }}
+                />
 
-              {/* Card number + difficulty */}
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="text-white/50 text-sm font-mono">
-                  {String(i + 1).padStart(2, '0')} / {String(AI_AGENTS.length).padStart(2, '0')}
-                </div>
-                <span className="px-3 py-1 rounded-full text-[10px] uppercase tracking-widest font-semibold bg-white/15 text-white backdrop-blur-sm border border-white/20">
-                  {agent.difficulty}
-                </span>
-              </div>
-
-              {/* Icon + content */}
-              <div className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center mb-6">
-                  <agent.icon className="w-8 h-8 text-white" />
-                </div>
-
-                <h3
-                  className="text-white text-3xl md:text-4xl font-bold mb-3"
-                  style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
-                >
-                  {agent.name}
-                </h3>
-
-                <p className="text-white/80 text-sm mb-4 italic">{agent.tagline}</p>
-
-                <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-md">
-                  {agent.description}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {agent.tech.map((t: string) => (
-                    <span
-                      key={t}
-                      className="text-[11px] px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-white/90 font-mono"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                {/* Top row: card number (left) + difficulty badge (right) */}
+                <div className="relative z-10 flex items-center justify-between p-7 pb-0">
+                  <span
+                    style={{
+                      font: '600 13px JetBrains Mono, monospace',
+                      letterSpacing: '0.16em', color: 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    {String(i + 1).padStart(2, '0')} / {String(AI_AGENTS.length).padStart(2, '0')}
+                  </span>
+                  <span
+                    style={{
+                      font: '600 10px JetBrains Mono, monospace',
+                      letterSpacing: '0.26em', padding: '6px 14px',
+                      borderRadius: '999px', color: accent,
+                      background: `${accent}15`, border: `1px solid ${accent}30`,
+                    }}
+                  >
+                    {agent.difficulty}
+                  </span>
                 </div>
 
-                <div className="flex gap-3">
-                  {agent.demo && agent.demo !== '#' && (
+                {/* Center: large icon visual */}
+                <div className="relative z-10 flex-1 flex items-center justify-center">
+                  <div
+                    style={{
+                      width: '96px', height: '96px', borderRadius: '24px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: `linear-gradient(135deg, ${accent}25, ${accent}08)`,
+                      border: `1px solid ${accent}30`,
+                      boxShadow: `0 20px 40px ${accent}20, inset 0 1px 0 rgba(255,255,255,0.1)`,
+                    }}
+                  >
+                    <agent.icon style={{ width: '44px', height: '44px', color: '#fff' }} />
+                  </div>
+                </div>
+
+                {/* Bottom: title + tagline + tech + buttons */}
+                <div className="relative z-10 p-7 pt-0">
+                  <h3
+                    style={{
+                      margin: '0 0 6px',
+                      font: '700 28px/1.1 var(--font-playfair), Playfair Display, serif',
+                      color: '#fff', letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {agent.name}
+                  </h3>
+                  <p
+                    style={{
+                      margin: '0 0 14px',
+                      font: '400 13px/1.4 var(--font-inter), sans-serif',
+                      color: 'rgba(255,255,255,0.55)',
+                    }}
+                  >
+                    {agent.tagline}
+                  </p>
+
+                  {/* Tech tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {agent.tech.map((t: string) => (
+                      <span
+                        key={t}
+                        style={{
+                          font: '500 10px JetBrains Mono, monospace',
+                          padding: '3px 8px', borderRadius: '6px',
+                          background: 'rgba(255,255,255,0.06)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: 'rgba(255,255,255,0.7)',
+                        }}
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-2">
+                    {agent.demo && agent.demo !== '#' && (
+                      <a
+                        href={agent.demo}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={() => sound.playClick()}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '6px',
+                          padding: '8px 16px', borderRadius: '10px',
+                          background: accent, color: '#0a0a0f',
+                          font: '600 12px var(--font-inter), sans-serif',
+                        }}
+                      >
+                        Live Demo →
+                      </a>
+                    )}
                     <a
-                      href={agent.demo}
+                      href={agent.repo}
                       target="_blank"
                       rel="noopener"
                       onClick={() => sound.playClick()}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-black text-sm font-semibold hover:bg-white/90 transition-colors"
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        padding: '8px 16px', borderRadius: '10px',
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: '#fff', font: '600 12px var(--font-inter), sans-serif',
+                      }}
                     >
-                      Live Demo →
+                      <Github style={{ width: '14px', height: '14px' }} /> Code
                     </a>
-                  )}
-                  <a
-                    href={agent.repo}
-                    target="_blank"
-                    rel="noopener"
-                    onClick={() => sound.playClick()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/10 border border-white/25 text-white text-sm font-semibold hover:bg-white/20 transition-colors backdrop-blur-sm"
-                  >
-                    <Github className="w-4 h-4" /> Code
-                  </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </motion.div>
 
         {/* Progress bar — driven by Framer Motion */}
@@ -1355,6 +1447,238 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
         </div>
       </div>
     </section>
+  )
+}
+
+// ============ STAR FIELD (CSS box-shadow stars) ============
+// Generates scattered star specks using box-shadow for GPU performance.
+// Uses seeded pseudo-random so stars don't move between renders.
+
+function StarField() {
+  const stars = useMemo(() => {
+    const arr: { x: number; y: number; size: number; opacity: number; delay: number }[] = []
+    let seed = 42
+    const rand = () => {
+      seed = (seed * 9301 + 49297) % 233280
+      return seed / 233280
+    }
+    // 80 stars scattered across the viewport
+    for (let i = 0; i < 80; i++) {
+      arr.push({
+        x: rand() * 100,           // 0-100% horizontal
+        y: rand() * 100,           // 0-100% vertical
+        size: rand() * 2 + 0.5,    // 0.5px to 2.5px
+        opacity: rand() * 0.6 + 0.2, // 0.2 to 0.8
+        delay: rand() * 4,         // twinkle delay 0-4s
+      })
+    }
+    return arr
+  }, [])
+
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      {stars.map((star, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: `${star.x}%`,
+            top: `${star.y}%`,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            borderRadius: '50%',
+            background: '#fff',
+            opacity: star.opacity,
+            animation: `twinkle ${3 + star.delay}s ease-in-out infinite`,
+            animationDelay: `${star.delay}s`,
+            boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,0.5)`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ============ PROJECTS TRANSITION (zoom + theme change) ============
+// Cinematic transition inspired by Lenis website:
+// Phase 1 (0 → 0.25): "Liked my agents?" moves from center → upper-left corner
+// Phase 2 (0.15 → 0.40): "Here's some more" fades in at bottom-right corner
+// Phase 3 (0.30 → 0.55): Corner text fades out
+// Phase 4 (0.40 → 0.90): "PROJECTS" zooms slowly from tiny to massive (bold TBJ font)
+// Phase 5 (0.70 → 0.95): Background transitions dark → white
+// Whole section is 400vh for very slow, cinematic scrolling
+
+function ProjectsTransition() {
+  const sectionRef = useRef<HTMLElement>(null)
+  const [whiteTheme, setWhiteTheme] = useState(false)
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  })
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 40,
+    damping: 25,
+    restDelta: 0.001,
+  })
+
+  // Phase 1: "Liked my agents?" — center → upper-LEFT corner, big/bold
+  // Stays visible until 0.55, then fades out
+  // X stops at 12% (with padding) so text doesn't go off-screen when scaled up
+  const likedX = useTransform(smoothProgress, [0, 0.30], ['50%', '12%'])
+  const likedY = useTransform(smoothProgress, [0, 0.30], ['50%', '15%'])
+  const likedScale = useTransform(smoothProgress, [0, 0.30], [1, 1.5])
+  const likedOpacity = useTransform(smoothProgress, [0, 0.25, 0.50, 0.60], [1, 1, 1, 0])
+
+  // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, stays visible
+  // Fades in at 0.20, stays until 0.65, then fades out
+  const moreOpacity = useTransform(smoothProgress, [0.20, 0.35, 0.60, 0.70], [0, 1, 1, 0])
+  const moreY = useTransform(smoothProgress, [0.20, 0.35], [20, 0])
+
+  // Phase 3: "PROJECTS" — very slow fade + zoom in
+  // Initial scaling is VERY slow (0.55 → 0.75 only goes from 0.05 to 0.5)
+  // Then accelerates (0.75 → 0.95 goes from 0.5 to 30)
+  const projectsScale = useTransform(
+    smoothProgress,
+    [0.55, 0.75, 0.95],
+    [0.05, 0.5, 30]
+  )
+  const projectsOpacity = useTransform(smoothProgress, [0.55, 0.75, 0.90, 0.96], [0, 1, 1, 0])
+
+  // Phase 4: Background dark → white (starts at 70%, completes at 95%)
+  const bgOpacity = useTransform(smoothProgress, [0.70, 0.95], [0, 1])
+
+  useEffect(() => {
+    return smoothProgress.on('change', (v) => {
+      setWhiteTheme(v > 0.9)
+    })
+  }, [smoothProgress])
+
+  const tbjFont = '"TBJ Epic Cube", "Anton", sans-serif'
+
+  return (
+    <>
+      <section
+        ref={sectionRef}
+        className="relative z-10"
+        style={{ height: '500vh' }}
+      >
+        <div className="sticky top-0 h-screen overflow-hidden">
+          {/* Dark background */}
+          <motion.div
+            className="absolute inset-0 z-0"
+            style={{ background: '#0a0a0f' }}
+          />
+
+          {/* White background (fades in slowly) */}
+          <motion.div
+            className="absolute inset-0 z-0"
+            style={{ background: '#ffffff', opacity: bgOpacity }}
+          />
+
+          {/* Phase 1: "Liked my agents?" — moves from center to upper-LEFT, big/bold */}
+          <motion.div
+            style={{
+              left: likedX,
+              top: likedY,
+              transform: 'translate(0, -50%)',
+              scale: likedScale,
+              opacity: likedOpacity,
+            }}
+            className="absolute z-20 pointer-events-none text-left"
+          >
+            <p style={{
+              fontFamily: tbjFont,
+              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              textShadow: '0 0 40px rgba(138, 43, 226, 0.3)',
+            }}>
+              Liked my
+            </p>
+            <p style={{
+              fontFamily: tbjFont,
+              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontWeight: 800,
+              color: '#8A2BE2',
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+            }}>
+              agents?
+            </p>
+          </motion.div>
+
+          {/* Phase 2: "Here's more" — bottom-RIGHT corner, stays visible, then fades out */}
+          <motion.div
+            style={{ opacity: moreOpacity, y: moreY }}
+            className="absolute bottom-12 right-12 z-20 pointer-events-none text-right"
+          >
+            <p style={{
+              fontFamily: tbjFont,
+              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+            }}>
+              Here's
+            </p>
+            <p style={{
+              fontFamily: tbjFont,
+              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontWeight: 800,
+              color: '#ec4899',
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+            }}>
+              more →
+            </p>
+          </motion.div>
+
+          {/* Phase 3: "PROJECTS" — bold, zooms very slowly */}
+          <motion.div
+            style={{
+              scale: projectsScale,
+              opacity: projectsOpacity,
+            }}
+            className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+          >
+            <h2 style={{
+              fontFamily: tbjFont,
+              fontSize: 'clamp(80px, 15vw, 220px)',
+              fontWeight: 800,
+              color: '#ffffff',
+              lineHeight: 0.9,
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              textShadow: '0 0 80px rgba(138, 43, 226, 0.4), 0 0 30px rgba(138, 43, 226, 0.2)',
+            }}>
+              PROJECTS
+            </h2>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* White theme overlay for projects section */}
+      {whiteTheme && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[-1] pointer-events-none"
+          style={{ background: '#ffffff' }}
+        />
+      )}
+    </>
   )
 }
 
@@ -1416,7 +1740,7 @@ export default function Home() {
 
   return (
     <SmoothScroll>
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0f] text-white" style={{ overflowX: 'clip' }}>
       {/* ============ SPLASH SCREEN (white + purple, click to enter) ============ */}
       <AnimatePresence>
         {!entered && (
@@ -1432,24 +1756,20 @@ export default function Home() {
         <MorphTransition onMorph={(type) => { if (type === 'warp') sound.playWarp(); else sound.playPop() }} />
       </AnimatePresence>
 
-      {/* ============ DYNAMIC COLOR AURORA BACKGROUND ============ */}
-      <motion.div
+      {/* ============ STARRY SPACE BACKGROUND ============ */}
+      {/* Deep dark background matching the original #0a0a0f + scattered star specks */}
+      <div
         className="fixed inset-0 z-0 pointer-events-none"
-        animate={{
-          background: [
-            'radial-gradient(ellipse at 20% 20%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(251,191,36,0.10), transparent 50%)',
-            'radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.10), transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(249,115,22,0.08), transparent 50%)',
-            'radial-gradient(ellipse at 50% 50%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(251,191,36,0.08), transparent 50%)',
-            'radial-gradient(ellipse at 20% 20%, rgba(20,184,166,0.12), transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(251,191,36,0.10), transparent 50%)',
-          ],
+        style={{
+          background: '#0a0a0f',
         }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
       />
+      {/* Star field — generated via box-shadow for performance */}
+      <StarField />
 
       {/* ============ RED/BLACK THEME OVERLAY (agents section) ============ */}
       {/* Fades in a deep crimson + pure black background when the agents
-          section is in view, fades out when scrolled past. Sits above the
-          normal aurora but below content/cards. */}
+          section is in view, fades out when scrolled past. */}
       <motion.div
         className="fixed inset-0 z-[1] pointer-events-none"
         initial={{ opacity: 0 }}
@@ -1463,7 +1783,7 @@ export default function Home() {
           `,
         }}
       />
-      {/* Subtle red vignette + starry texture for the red theme */}
+      {/* Subtle red vignette for the red theme */}
       <motion.div
         className="fixed inset-0 z-[1] pointer-events-none"
         initial={{ opacity: 0 }}
@@ -1471,51 +1791,6 @@ export default function Home() {
         transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
         style={{
           background: 'radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.6) 100%)',
-        }}
-      />
-
-      {/* ============ 3D BACKGROUND CANVAS ============ */}
-      <div className="fixed inset-0 z-0">
-        {mounted && (
-          <Canvas
-            camera={{ position: [0, 0, 8], fov: 60 }}
-            gl={{ antialias: true, alpha: true }}
-            style={{ background: 'transparent' }}
-          >
-            <Suspense fallback={null}>
-              <Scene3D />
-              <OrbitControls
-                enableZoom={false}
-                enablePan={false}
-                autoRotate
-                autoRotateSpeed={0.5}
-                enableDamping
-                dampingFactor={0.05}
-              />
-            </Suspense>
-          </Canvas>
-        )}
-      </div>
-
-      {/* ============ ANIMATED GRID OVERLAY ============ */}
-      <div className="fixed inset-0 z-0 pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* ============ GRADIENT GLOWS ============ */}
-      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, rgba(20,184,166,0.12), transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, rgba(251,191,36,0.10), transparent 70%)',
-          filter: 'blur(60px)',
         }}
       />
 
@@ -1720,8 +1995,11 @@ export default function Home() {
       {/* ============ AI AGENTS SECTION — HORIZONTAL PINNED SCROLL ============ */}
       <AgentsShowcase sound={sound} onThemeChange={handleThemeChange} />
 
+      {/* ============ TRANSITION: ZOOM INTO "PROJECTS" + THEME CHANGE ============ */}
+      <ProjectsTransition />
+
       {/* ============ PROJECTS SECTION ============ */}
-      <section id="projects" className="relative z-10 py-24 px-6">
+      <section id="projects" className="relative z-10 py-24 px-6" style={{ background: '#ffffff' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -1729,11 +2007,11 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="secondary" className="mb-4 bg-purple-500/10 text-purple-400 border-purple-500/30 font-mono">{"// portfolio"}</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+            <Badge variant="secondary" className="mb-4 bg-purple-100 text-purple-700 border-purple-300 font-mono">{"// portfolio"}</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-500 bg-clip-text text-transparent" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               Projects
             </h2>
-            <p className="text-white/50">{PROJECTS.length}+ projects built</p>
+            <p className="text-gray-500">{PROJECTS.length}+ projects built</p>
           </motion.div>
 
           {/* Filter buttons */}
@@ -1747,8 +2025,8 @@ export default function Home() {
                 onMouseEnter={() => sound.playNavHover()}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeFilter === cat
-                    ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
-                    : 'bg-white/5 text-white/60 border border-white/10 hover:bg-white/10 backdrop-blur-md'
+                    ? 'bg-teal-500 text-white border border-teal-600'
+                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
                 }`}
               >
                 {cat}
@@ -1780,7 +2058,7 @@ export default function Home() {
       </section>
 
       {/* ============ ABOUT SECTION ============ */}
-      <section id="about" className="relative z-10 py-24 px-6">
+      <section id="about" className="relative z-10 py-24 px-6" style={{ background: '#ffffff' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -1788,8 +2066,8 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge variant="secondary" className="mb-4 bg-cyan-500/10 text-cyan-400 border-cyan-500/30 font-mono">{"// about me"}</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+            <Badge variant="secondary" className="mb-4 bg-cyan-100 text-cyan-700 border-cyan-300 font-mono">{"// about me"}</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-500 bg-clip-text text-transparent" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               About Me
             </h2>
           </motion.div>
@@ -1801,17 +2079,17 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <h3 className="text-2xl font-bold mb-6">👋 Hey, I'm Arjun</h3>
-              <div className="space-y-4 text-white/60 leading-relaxed">
+              <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
                   I'm a 4th-year B.Tech Computer Science & Engineering student at{' '}
-                  <span className="text-indigo-400 font-semibold">VIT Bhopal University</span>,
+                  <span className="text-indigo-600 font-semibold">VIT Bhopal University</span>,
                   currently working in Software Management & Marketing at{' '}
-                  <span className="text-indigo-400 font-semibold">Techify Inc.</span>
+                  <span className="text-indigo-600 font-semibold">Techify Inc.</span>
                 </p>
                 <p>
-                  My foundation is in <span className="text-indigo-400 font-semibold">Python, machine learning, and data analytics</span>,
+                  My foundation is in <span className="text-indigo-600 font-semibold">Python, machine learning, and data analytics</span>,
                   with hands-on experience building AI/ML projects. Recently, I've been diving deep into{' '}
-                  <span className="text-indigo-400 font-semibold">AI engineering</span> — building 4 production-ready AI agents.
+                  <span className="text-indigo-600 font-semibold">AI engineering</span> — building 4 production-ready AI agents.
                 </p>
                 <p>
                   When I'm not coding, I'm creating UGC content, editing videos, and exploring music
@@ -1829,14 +2107,14 @@ export default function Home() {
               <div className="space-y-5">
                 {Object.entries(SKILLS).map(([category, skills]) => (
                   <div key={category}>
-                    <div className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wider">{category}</div>
+                    <div className="text-xs font-mono text-indigo-600 mb-2 uppercase tracking-wider">{category}</div>
                     <div className="flex flex-wrap gap-2">
                       {skills.map((skill) => (
                         <motion.span
                           key={skill}
                           whileHover={{ scale: 1.1, y: -2 }}
                           onMouseEnter={() => sound.playPop()}
-                          className="px-3 py-1 text-sm bg-white/5 border border-white/10 rounded-lg font-mono text-white/70 cursor-default"
+                          className="px-3 py-1 text-sm bg-gray-100 border border-gray-200 rounded-lg font-mono text-gray-700 cursor-default"
                         >
                           {skill}
                         </motion.span>
@@ -1851,7 +2129,7 @@ export default function Home() {
       </section>
 
       {/* ============ CONTACT SECTION ============ */}
-      <section id="contact" className="relative z-10 py-24 px-6">
+      <section id="contact" className="relative z-10 py-24 px-6" style={{ background: '#ffffff' }}>
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -1859,11 +2137,11 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <Badge variant="secondary" className="mb-4 bg-purple-500/10 text-purple-400 border-purple-500/30 font-mono">{"// let's connect"}</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+            <Badge variant="secondary" className="mb-4 bg-purple-100 text-purple-700 border-purple-300 font-mono">{"// let's connect"}</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-500 bg-clip-text text-transparent" style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}>
               Get In Touch
             </h2>
-            <p className="text-white/50">Open to opportunities, collaborations, and AI conversations</p>
+            <p className="text-gray-500">Open to opportunities, collaborations, and AI conversations</p>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
@@ -1886,11 +2164,11 @@ export default function Home() {
                 onMouseEnter={() => sound.playPop()}
                 onClick={() => sound.playClick()}
               >
-                <Card className="liquid-glass text-center h-full">
+                <Card className="bg-white border border-gray-200 shadow-lg text-center h-full">
                   <CardContent className="pt-6 pb-4">
-                    <contact.icon className="w-6 h-6 mx-auto mb-3 text-indigo-400" />
-                    <div className="text-xs text-white/50 uppercase tracking-wider mb-1">{contact.label}</div>
-                    <div className="text-sm text-white/70 font-mono truncate">{contact.value}</div>
+                    <contact.icon className="w-6 h-6 mx-auto mb-3 text-indigo-600" />
+                    <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">{contact.label}</div>
+                    <div className="text-sm text-gray-700 font-mono truncate">{contact.value}</div>
                   </CardContent>
                 </Card>
               </motion.a>
@@ -1902,10 +2180,10 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="liquid-glass text-center p-8">
-              <Sparkles className="w-8 h-8 mx-auto mb-4 text-purple-400" />
+            <Card className="bg-white border border-gray-200 shadow-lg text-center p-8">
+              <Sparkles className="w-8 h-8 mx-auto mb-4 text-purple-600" />
               <h3 className="text-xl font-bold mb-3">Have a project in mind?</h3>
-              <p className="text-white/50 mb-6">I'm always interested in hearing about new ideas and AI collaborations.</p>
+              <p className="text-gray-500 mb-6">I'm always interested in hearing about new ideas and AI collaborations.</p>
               <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 border-0" asChild onClick={() => sound.playSuccess()}>
                 <a href="mailto:arjunvashishtha2004@gmail.com" onMouseEnter={() => sound.playHover()}>
                   <Mail className="w-4 h-4 mr-2" /> Send me an email
@@ -1917,9 +2195,9 @@ export default function Home() {
       </section>
 
       {/* ============ FOOTER ============ */}
-      <footer className="relative z-10 border-t border-white/5 py-8 px-6">
+      <footer className="relative z-10 border-t border-gray-200 py-8 px-6" style={{ background: '#ffffff' }}>
         <div className="max-w-7xl mx-auto text-center">
-          <p className="text-white/40 text-sm font-mono">
+          <p className="text-gray-400 text-sm font-mono">
             Built with Next.js · Three.js · Framer Motion · Lenis · © {new Date().getFullYear()} Arjun Vashishtha
           </p>
           <motion.p

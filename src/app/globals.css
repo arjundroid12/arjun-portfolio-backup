@@ -263,3 +263,83 @@ html {
   -webkit-backdrop-filter: blur(40px) saturate(1.5);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
+
+/* ============ 3a WATER DROPLET CARD ANIMATIONS ============ */
+@keyframes orbDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -20px) scale(1.08); }
+}
+@keyframes blobMorph {
+  0%, 100% { border-radius: 38px 44px 40px 46px / 42px 38px 46px 40px; }
+  25% { border-radius: 46px 38px 46px 38px / 38px 46px 38px 46px; }
+  50% { border-radius: 40px 46px 38px 44px / 46px 40px 44px 38px; }
+  75% { border-radius: 44px 40px 44px 40px / 40px 44px 40px 44px; }
+}
+@keyframes wobble {
+  0%, 100% { transform: scale(1, 1); }
+  30% { transform: scale(1.008, 0.994); }
+  60% { transform: scale(0.995, 1.006); }
+}
+@keyframes waveSweep {
+  0% { transform: translateX(-60%) skewX(-18deg); }
+  100% { transform: translateX(160%) skewX(-18deg); }
+}
+
+/* ============ AGENTS TRACK — responsive centering padding ============ */
+/* First card starts centered, last card ends centered */
+/* Card widths: 85vw mobile, 55vw tablet, 42vw desktop */
+/* Padding = 50vw - halfCardWidth */
+.agents-track {
+  padding-left: calc(50vw - 42.5vw);   /* mobile: 85vw card → half = 42.5vw */
+  padding-right: calc(50vw - 42.5vw);
+}
+@media (min-width: 768px) {
+  .agents-track {
+    padding-left: calc(50vw - 27.5vw);  /* tablet: 55vw card → half = 27.5vw */
+    padding-right: calc(50vw - 27.5vw);
+  }
+}
+@media (min-width: 1024px) {
+  .agents-track {
+    padding-left: calc(50vw - 21vw);    /* desktop: 42vw card → half = 21vw */
+    padding-right: calc(50vw - 21vw);
+  }
+}
+
+/* ============ STAR TWINKLE ============ */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.2); }
+}
+
+/* ============ TBJ EPIC CUBE DEMO — Custom Font ============ */
+@font-face {
+  font-family: 'TBJ Epic Cube';
+  src: url('/fonts/TBJEpicCubeDemo-BoldExpanded.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TBJ Epic Cube';
+  src: url('/fonts/TBJEpicCubeDemo-ExtraExpanded.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'TBJ Epic Cube';
+  src: url('/fonts/TBJEpicCubeDemo-UltraExpanded.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============ MERINDA — Custom Font for Splash Screen ============ */
+@font-face {
+  font-family: 'Merinda';
+  src: url('/fonts/Merinda.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

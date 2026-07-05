@@ -2231,35 +2231,35 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
       >
         <div
           style={{
-            width: '260px',
-            background: 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(76, 175, 80, 0.25)',
-            borderRadius: '14px',
-            padding: '16px',
-            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.08)',
+            width: '340px',
+            background: 'rgba(255, 255, 255, 0.96)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(76, 175, 80, 0.3)',
+            borderRadius: '16px',
+            padding: '18px 20px',
+            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.1)',
             cursor: 'pointer',
             transition: 'box-shadow 0.3s ease',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '32px' }}>{project.icon}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '40px' }}>{project.icon}</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#1a1a2e' }}>{project.name}</h3>
-              <span style={{ fontSize: '10px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{project.category}</span>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: '#1a1a2e', fontFamily: '"Array", sans-serif' }}>{project.name}</h3>
+              <span style={{ fontSize: '11px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{project.category}</span>
             </div>
           </div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#555', lineHeight: 1.4, maxHeight: '3.6em', overflow: 'hidden' }}>
+          <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#555', lineHeight: 1.5, maxHeight: '4.5em', overflow: 'hidden' }}>
             {project.desc}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-            {project.tech.slice(0, 3).map((t: string) => (
-              <span key={t} style={{ fontSize: '10px', padding: '2px 7px', background: '#e8f5e9', borderRadius: '4px', color: '#2e7d32', fontFamily: 'monospace', border: '1px solid #c8e6c9' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+            {project.tech.slice(0, 4).map((t: string) => (
+              <span key={t} style={{ fontSize: '11px', padding: '3px 8px', background: '#e8f5e9', borderRadius: '5px', color: '#2e7d32', fontFamily: 'monospace', border: '1px solid #c8e6c9' }}>
                 {t}
               </span>
             ))}
-            {project.tech.length > 3 && (
-              <span style={{ fontSize: '10px', padding: '2px 7px', color: '#999', fontFamily: 'monospace' }}>+{project.tech.length - 3}</span>
+            {project.tech.length > 4 && (
+              <span style={{ fontSize: '11px', padding: '3px 8px', color: '#999', fontFamily: 'monospace' }}>+{project.tech.length - 4}</span>
             )}
           </div>
         </div>
@@ -2274,7 +2274,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const smoothRotation = useSpring(rotation, { stiffness: 120, damping: 20 })
   const [progress, setProgress] = useState(0)
 
-  const radius = 650
+  const radius = 380
   const cardAngle = 360 / projects.length
 
   // Wheel listener — must stop Lenis AND preventDefault when hovering
@@ -2324,17 +2324,16 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
     })
   }, [smoothRotation, cardAngle, projects.length])
 
-  // Container fits ONLY the visible right half of the wheel + small buffer.
-  // Wheel is centered at the container's left edge, so only the right
-  // semicircle is visible. This keeps the scroll-capture area precise
-  // (just the wheel itself) so the rest of the page scrolls normally.
-  //
-  // containerH = 2 * radius so the FULL wheel is visible vertically
-  // (no top/bottom clipping). This expands the section vertically so
-  // the bigger wheel has room — but capture stays precise because the
-  // listener is only on this container, not the surrounding section.
-  const containerW = radius + 60   // visible right semicircle + buffer
-  const containerH = radius * 2    // full vertical diameter (no clipping)
+  // Container fits ONLY the visible right half of the wheel + space for the
+  // cards (which extend beyond the rim). Wheel is centered at the container's
+  // left edge so only the right semicircle is visible. The container is sized
+  // precisely to the cards' bounding box so:
+  //   - No card is ever clipped (top/bottom/left/right)
+  //   - The scroll-capture area is exactly the wheel + cards, nothing else
+  const cardHalfW = 180  // half of card width (340) + small buffer
+  const cardHalfH = 110  // half of card height (~200) + small buffer
+  const containerW = radius + cardHalfW + 20   // = 580px (precise)
+  const containerH = (radius + cardHalfH) * 2  // = 980px (precise, no clipping)
 
   return (
     <div

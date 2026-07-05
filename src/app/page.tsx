@@ -1902,8 +1902,8 @@ function AIChatWidget({ sound }: { sound: any }) {
           position: 'relative',
           bottom: '0',
           right: '0',
-          width: '140px',
-          height: '180px',
+          width: '120px',
+          height: '160px',
           border: 'none',
           cursor: 'pointer',
           pointerEvents: 'auto',
@@ -1914,7 +1914,7 @@ function AIChatWidget({ sound }: { sound: any }) {
         aria-label="Talk to the Goddess Guide"
       >
         <img
-          src="/character/npc-full.png"
+          src="/character/npc-animated.gif"
           alt="Goddess Guide"
           style={{
             width: '100%',

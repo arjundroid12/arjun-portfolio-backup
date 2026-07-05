@@ -2865,23 +2865,6 @@ export default function Home() {
           }}
         />
 
-            pointerEvents: 'none', zIndex: 0,
-          }}
-        />
-        <motion.div
-          animate={{ y: [0, 20, 0], rotate: [0, -2, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          style={{
-            position: 'absolute', bottom: '10%', left: '3%',
-            width: '100px', height: '100px',
-            backgroundImage: 'url(/forest/preview2.jpg)',
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            borderRadius: '16px', opacity: 0.1,
-            filter: 'blur(1px)',
-            pointerEvents: 'none', zIndex: 0,
-          }}
-        />
-
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 40 }}

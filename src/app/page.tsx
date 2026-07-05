@@ -1523,13 +1523,12 @@ function ProjectsTransition() {
     restDelta: 0.001,
   })
 
-  // Phase 1: "Liked my agents?" — center → upper-LEFT corner, big/bold
-  // Stays visible until 0.55, then fades out
+  // Phase 1: "Liked my agents?" — center → upper-LEFT corner, starts EARLY
   // X stops at 12% (with padding) so text doesn't go off-screen when scaled up
-  const likedX = useTransform(smoothProgress, [0, 0.30], ['50%', '12%'])
-  const likedY = useTransform(smoothProgress, [0, 0.30], ['50%', '15%'])
-  const likedScale = useTransform(smoothProgress, [0, 0.30], [1, 1.5])
-  const likedOpacity = useTransform(smoothProgress, [0, 0.25, 0.50, 0.60], [1, 1, 1, 0])
+  const likedX = useTransform(smoothProgress, [0, 0.15], ['50%', '12%'])
+  const likedY = useTransform(smoothProgress, [0, 0.15], ['50%', '15%'])
+  const likedScale = useTransform(smoothProgress, [0, 0.15], [1, 1.5])
+  const likedOpacity = useTransform(smoothProgress, [0, 0.10, 0.35, 0.45], [1, 1, 1, 0])
 
   // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, stays visible
   // Fades in at 0.20, stays until 0.65, then fades out
@@ -1594,9 +1593,9 @@ function ProjectsTransition() {
             className="absolute z-20 pointer-events-none text-left"
           >
             <p style={{
-              fontFamily: tbjFont,
+              fontFamily: '"Array", "TBJ Epic Cube", sans-serif',
               fontSize: 'clamp(36px, 6vw, 80px)',
-              fontWeight: 800,
+              fontWeight: 700,
               color: '#ffffff',
               lineHeight: 0.9,
               letterSpacing: '-0.02em',
@@ -1607,9 +1606,9 @@ function ProjectsTransition() {
               Liked my
             </p>
             <p style={{
-              fontFamily: tbjFont,
+              fontFamily: '"Array", "TBJ Epic Cube", sans-serif',
               fontSize: 'clamp(36px, 6vw, 80px)',
-              fontWeight: 800,
+              fontWeight: 700,
               color: '#8A2BE2',
               lineHeight: 0.9,
               letterSpacing: '-0.02em',

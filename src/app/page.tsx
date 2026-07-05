@@ -5,7 +5,7 @@
 
 import { useRef, useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center } from '@react-three/drei'
+import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center, useGLTF } from '@react-three/drei'
 import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -1553,6 +1553,93 @@ function StarField() {
   )
 }
 
+// ============ 3D FOREST SCENE (KayKit Nature Pack) ============
+// Low-poly 3D trees, rocks, grass, and flowers floating in the projects section
+// Uses actual glTF models from the KayKit Forest Nature Pack
+
+function ForestModel({ url, position, scale = 1, rotation = 0 }: { url: string; position: [number, number, number]; scale?: number; rotation?: number }) {
+  const { scene } = useGLTF(url)
+  const ref = useRef<any>(null)
+
+  useFrame((state) => {
+    if (ref.current) {
+      ref.current.rotation.y = rotation + state.clock.elapsedTime * 0.05
+    }
+  })
+
+  return (
+    <primitive
+      ref={ref}
+      object={scene}
+      position={position}
+      scale={scale}
+    />
+  )
+}
+
+function ForestScene3D() {
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      right: '0',
+      height: '100%',
+      pointerEvents: 'none',
+      zIndex: 0,
+      opacity: 0.6,
+    }}>
+      <Canvas
+        camera={{ position: [0, 2, 8], fov: 50 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: 'transparent' }}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.8} />
+          <directionalLight position={[5, 10, 5]} intensity={1.2} castShadow />
+
+          {/* Trees */}
+          <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+            <ForestModel url="/forest/3d/CommonTree_1.gltf" position={[-4, 0, -2]} scale={1.2} />
+          </Float>
+          <Float speed={1.2} rotationIntensity={0.2} floatIntensity={0.4}>
+            <ForestModel url="/forest/3d/Pine_1.gltf" position={[4, -0.5, -1]} scale={1} />
+          </Float>
+
+          {/* Rocks */}
+          <Float speed={2} rotationIntensity={0.3} floatIntensity={0.3}>
+            <ForestModel url="/forest/3d/Rock_Medium_1.gltf" position={[3, 1.5, -3]} scale={0.6} />
+          </Float>
+          <Float speed={1.8} rotationIntensity={0.2} floatIntensity={0.3}>
+            <ForestModel url="/forest/3d/Rock_Medium_1.gltf" position={[-3, 2, -2]} scale={0.4} rotation={1.5} />
+          </Float>
+
+          {/* Grass */}
+          <Float speed={3} rotationIntensity={0.4} floatIntensity={0.6}>
+            <ForestModel url="/forest/3d/Grass_Common_Tall.gltf" position={[2, -1, 0]} scale={0.8} />
+          </Float>
+          <Float speed={2.5} rotationIntensity={0.4} floatIntensity={0.5}>
+            <ForestModel url="/forest/3d/Grass_Common_Tall.gltf" position={[-2, -1.5, 1]} scale={0.6} rotation={0.5} />
+          </Float>
+
+          {/* Flowers */}
+          <Float speed={2.5} rotationIntensity={0.5} floatIntensity={0.4}>
+            <ForestModel url="/forest/3d/Flower_3_Single.gltf" position={[1, -1, 2]} scale={0.5} />
+          </Float>
+          <Float speed={3} rotationIntensity={0.5} floatIntensity={0.4}>
+            <ForestModel url="/forest/3d/Flower_3_Single.gltf" position={[-1, -1.2, 1.5]} scale={0.4} rotation={2} />
+          </Float>
+
+          {/* Mushroom */}
+          <Float speed={2} rotationIntensity={0.3} floatIntensity={0.3}>
+            <ForestModel url="/forest/3d/Mushroom_Common.gltf" position={[0, -1.8, 2.5]} scale={0.3} />
+          </Float>
+        </Suspense>
+      </Canvas>
+    </div>
+  )
+}
+
 // ============ FLOATING PLANETS (visual assets) ============
 // Uses the user's planet PNGs (Ice, Lava, Terran, Baren, Black_hole)
 // Floating in the starry background with slow drift animation.
@@ -2562,8 +2649,10 @@ export default function Home() {
       {/* ============ TRANSITION: ZOOM INTO "PROJECTS" + THEME CHANGE ============ */}
       <ProjectsTransition />
 
-      {/* ============ PROJECTS SECTION (Nature-themed) ============ */}
+      {/* ============ PROJECTS SECTION (Nature-themed with 3D forest) ============ */}
       <section id="projects" className="relative z-10 py-24 px-6 overflow-hidden" style={{ background: 'linear-gradient(180deg, #f0f7f0 0%, #e8f5e9 30%, #ffffff 60%)' }}>
+        {/* 3D Forest scene — actual KayKit trees, rocks, grass, flowers */}
+        <ForestScene3D />
         {/* Forest preview as decorative top strip with parallax */}
         <motion.div
           initial={{ opacity: 0 }}

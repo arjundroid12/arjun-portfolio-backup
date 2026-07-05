@@ -1646,28 +1646,23 @@ function ProjectsTransition() {
   // Fade in early, stay visible after pin, then fade out during main scroll
   const likedOpacity = useTransform(smoothProgress, [0, 0.02, 0.20, 0.30], [1, 1, 1, 0])
 
-  // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, stays visible
-  // Fades in at 0.20, stays until 0.65, then fades out
-  const moreOpacity = useTransform(smoothProgress, [0.20, 0.35, 0.60, 0.70], [0, 1, 1, 0])
-  const moreY = useTransform(smoothProgress, [0.20, 0.35], [20, 0])
+  // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, pushed earlier
+  const moreOpacity = useTransform(smoothProgress, [0.05, 0.15, 0.40, 0.50], [0, 1, 1, 0])
+  const moreY = useTransform(smoothProgress, [0.05, 0.15], [20, 0])
 
-  // Phase 3: "PROJECTS" — very slow fade + zoom in
-  // Initial scaling is VERY slow (0.55 → 0.75 only goes from 0.05 to 0.5)
-  // Then accelerates (0.75 → 0.95 goes from 0.5 to 30)
+  // Phase 3: "PROJECTS" — very slow fade + zoom in, pushed earlier
   const projectsScale = useTransform(
     smoothProgress,
-    [0.55, 0.75, 0.95],
+    [0.35, 0.55, 0.88],
     [0.05, 0.5, 30]
   )
-  const projectsOpacity = useTransform(smoothProgress, [0.55, 0.75, 0.90, 0.96], [0, 1, 1, 0])
+  const projectsOpacity = useTransform(smoothProgress, [0.35, 0.55, 0.82, 0.90], [0, 1, 1, 0])
 
-  // Phase 4: Background dark → white (gradual fade for smooth merge)
-  // Starts earlier (50%) and completes later (95%) for a slow blend
-  const bgOpacity = useTransform(smoothProgress, [0.50, 0.95], [0, 1])
+  // Phase 4: Background dark → white, pushed earlier
+  const bgOpacity = useTransform(smoothProgress, [0.30, 0.85], [0, 1])
 
-  // Gradient blend overlay — fades from dark at top to transparent at bottom
-  // Creates a smooth merge between the dark transition and white projects section
-  const blendOpacity = useTransform(smoothProgress, [0.60, 0.95], [1, 0])
+  // Gradient blend overlay, pushed earlier
+  const blendOpacity = useTransform(smoothProgress, [0.40, 0.85], [1, 0])
 
   useEffect(() => {
     return smoothProgress.on('change', (v) => {

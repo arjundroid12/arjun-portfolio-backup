@@ -6,7 +6,7 @@
 import { useRef, useState, useEffect, Suspense, useCallback, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Float, Sphere, MeshDistortMaterial, Stars, OrbitControls, Torus, Icosahedron, Text3D, Center } from '@react-three/drei'
-import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, useInView } from 'framer-motion'
+import { motion, useScroll, useTransform, useVelocity, AnimatePresence, useMotionValue, useSpring, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -967,6 +967,48 @@ function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => 
   )
 }
 
+// ============ VELOCITY EFFECTS ============
+// Premium scroll-velocity effect: elements skew + blur based on scroll speed.
+// Inspired by Lenis/studio-freight velocity effects.
+// Tracks scrollY velocity → maps to skewX + blur → smoothed with spring.
+
+function VelocityEffects({ children }: { children: React.ReactNode }) {
+  const { scrollY } = useScroll()
+
+  // Track scroll velocity (how fast the user is scrolling)
+  const scrollVelocity = useVelocity(scrollY)
+
+  // Smooth the velocity so it doesn't jitter
+  const smoothVelocity = useSpring(scrollVelocity, {
+    damping: 30,
+    stiffness: 200,
+    mass: 0.2,
+  })
+
+  // Map velocity to skew (max ±4 degrees when scrolling fast)
+  const skewX = useTransform(smoothVelocity, [-3000, 0, 3000], [-4, 0, 4], { clamp: true })
+
+  // Map velocity to blur (0px when still, up to 2px when scrolling fast)
+  const blurAmount = useTransform(smoothVelocity, [0, 1500], [0, 2], { clamp: true })
+  const filter = useTransform(blurAmount, (b) => `blur(${b}px)`)
+
+  // Map velocity to slight scale (1.0 still, 0.98 when scrolling fast)
+  const scale = useTransform(smoothVelocity, [-3000, 0, 3000], [0.99, 1, 0.99], { clamp: true })
+
+  return (
+    <motion.div
+      style={{
+        skewX,
+        filter,
+        scale,
+        transformOrigin: 'center center',
+      }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 // ============ LENIS SMOOTH SCROLL PROVIDER ============
 // Wraps the app with Lenis for buttery-smooth inertia scrolling.
 // Syncs with Framer Motion's useScroll via the 'scroll' event so
@@ -1782,6 +1824,7 @@ export default function Home() {
 
   return (
     <SmoothScroll>
+    <VelocityEffects>
     <div className="min-h-screen bg-[#0a0a0f] text-white" style={{ overflowX: 'clip' }}>
       {/* ============ SPLASH SCREEN (white + purple, click to enter) ============ */}
       <AnimatePresence>
@@ -2353,6 +2396,7 @@ export default function Home() {
         )}
       </AnimatePresence>
     </div>
+    </VelocityEffects>
     </SmoothScroll>
   )
 }

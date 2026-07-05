@@ -2274,7 +2274,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const smoothRotation = useSpring(rotation, { stiffness: 120, damping: 20 })
   const [progress, setProgress] = useState(0)
 
-  const radius = 280
+  const radius = 450
   const cardAngle = 360 / projects.length
 
   // Wheel listener on the wheel container element ONLY
@@ -2314,12 +2314,12 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
       style={{
         position: 'relative',
         width: '100%',
-        height: '720px',
+        height: '600px',
         overflow: 'hidden',
         cursor: 'grab',
       }}
     >
-      {/* Wheel container — center near left edge, right half visible */}
+      {/* Wheel container — center at left edge, right half visible */}
       <motion.div
         style={{
           position: 'absolute',
@@ -2330,13 +2330,15 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
           marginLeft: `-${radius}px`,
           marginTop: `-${radius}px`,
           rotate: smoothRotation,
+          background: 'rgba(76, 175, 80, 0.05)',
         }}
       >
-        {/* Wheel rim */}
+        {/* Wheel rim — very visible */}
         <div style={{
           position: 'absolute', inset: '0', borderRadius: '50%',
-          border: '3px solid rgba(76, 175, 80, 0.4)',
-          background: 'radial-gradient(circle, rgba(232, 245, 233, 0.4) 0%, transparent 70%)',
+          border: '4px solid #4caf50',
+          background: 'radial-gradient(circle, rgba(232, 245, 233, 0.5) 0%, transparent 70%)',
+          boxShadow: '0 0 30px rgba(76, 175, 80, 0.2)',
         }} />
         {/* Inner rim */}
         <div style={{

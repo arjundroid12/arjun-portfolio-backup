@@ -31,41 +31,6 @@ function useSoundEffects() {
     return audioCtxRef.current
   }, [])
 
-  // Play a real WAV sound file via Web Audio API
-  const soundBuffers = useRef<Record<string, AudioBuffer>>({})
-  const playSoundFile = useCallback((url: string, volume = 0.3) => {
-    if (!enabled) return
-    try {
-      const ctx = getCtx()
-      // Cache the buffer
-      if (soundBuffers.current[url]) {
-        const source = ctx.createBufferSource()
-        const gain = ctx.createGain()
-        gain.gain.value = volume
-        source.buffer = soundBuffers.current[url]
-        source.connect(gain)
-        gain.connect(ctx.destination)
-        source.start()
-        return
-      }
-      // Fetch and decode
-      fetch(url)
-        .then(res => res.arrayBuffer())
-        .then(data => ctx.decodeAudioData(data))
-        .then(buffer => {
-          soundBuffers.current[url] = buffer
-          const source = ctx.createBufferSource()
-          const gain = ctx.createGain()
-          gain.gain.value = volume
-          source.buffer = buffer
-          source.connect(gain)
-          gain.connect(ctx.destination)
-          source.start()
-        })
-        .catch(() => {})
-    } catch {}
-  }, [enabled, getCtx])
-
   const playTone = useCallback((freq: number, duration: number, type: OscillatorType = 'sine', volume = 0.1) => {
     if (!enabled) return
     try {
@@ -83,18 +48,32 @@ function useSoundEffects() {
     } catch {}
   }, [enabled, getCtx])
 
-  // Real WAV sound effects (from user's SweetSounds SFX pack — 32 sounds)
-  const playHover = useCallback(() => playSoundFile('/sounds/Click.wav', 0.15), [playSoundFile])
-  const playClick = useCallback(() => playSoundFile('/sounds/Confirm.wav', 0.2), [playSoundFile])
-  const playModalOpen = useCallback(() => playSoundFile('/sounds/Door_Slow_Open.wav', 0.25), [playSoundFile])
-  const playModalClose = useCallback(() => playSoundFile('/sounds/Menu_Out.wav', 0.25), [playSoundFile])
-  const playNavHover = useCallback(() => playSoundFile('/sounds/Click.wav', 0.1), [playSoundFile])
-  const playFilter = useCallback(() => playSoundFile('/sounds/Laser_Gun.wav', 0.15), [playSoundFile])
+  // Synthesized sound effects (clean tones via Web Audio API)
+  const playHover = useCallback(() => playTone(880, 0.05, 'sine', 0.03), [playTone])
+  const playClick = useCallback(() => {
+    playTone(523, 0.08, 'sine', 0.05)
+    setTimeout(() => playTone(784, 0.08, 'sine', 0.04), 50)
+  }, [playTone])
+  const playModalOpen = useCallback(() => {
+    playTone(440, 0.1, 'sine', 0.05)
+    setTimeout(() => playTone(659, 0.1, 'sine', 0.04), 80)
+    setTimeout(() => playTone(880, 0.15, 'sine', 0.03), 160)
+  }, [playTone])
+  const playModalClose = useCallback(() => {
+    playTone(880, 0.1, 'sine', 0.04)
+    setTimeout(() => playTone(440, 0.15, 'sine', 0.03), 80)
+  }, [playTone])
+  const playNavHover = useCallback(() => playTone(1200, 0.03, 'sine', 0.02), [playTone])
+  const playFilter = useCallback(() => {
+    playTone(659, 0.06, 'triangle', 0.04)
+    setTimeout(() => playTone(880, 0.06, 'triangle', 0.03), 40)
+  }, [playTone])
   const playScroll = useCallback(() => playTone(300, 0.08, 'sine', 0.015), [playTone])
-  const playPop = useCallback(() => playSoundFile('/sounds/Bump.wav', 0.15), [playSoundFile])
+  const playPop = useCallback(() => {
+    playTone(1047, 0.04, 'sine', 0.04)
+    setTimeout(() => playTone(1319, 0.06, 'sine', 0.03), 30)
+  }, [playTone])
   const playWarp = useCallback(() => {
-    // Warp zoom — use Powerup sound + synthesized sweep layered
-    playSoundFile('/sounds/Powerup.wav', 0.2)
     const ctx = getCtx()
     try {
       const osc = ctx.createOscillator()
@@ -109,15 +88,13 @@ function useSoundEffects() {
       osc.start(ctx.currentTime)
       osc.stop(ctx.currentTime + 0.6)
     } catch {}
-  }, [getCtx, playSoundFile])
-  const playSuccess = useCallback(() => playSoundFile('/sounds/Powerup.wav', 0.3), [playSoundFile])
-  // New sounds for specific actions
-  const playSplash = useCallback(() => playSoundFile('/sounds/Water_Splash.wav', 0.25), [playSoundFile])
-  const playThunder = useCallback(() => playSoundFile('/sounds/Thunder.wav', 0.2), [playSoundFile])
-  const playJump = useCallback(() => playSoundFile('/sounds/Jump.wav', 0.2), [playSoundFile])
-  const playPause = useCallback(() => playSoundFile('/sounds/Pause.wav', 0.2), [playSoundFile])
-  const playSiren = useCallback(() => playSoundFile('/sounds/Siren.wav', 0.15), [playSoundFile])
-  const playExplosion = useCallback(() => playSoundFile('/sounds/Explosion.wav', 0.2), [playSoundFile])
+  }, [getCtx])
+  const playSuccess = useCallback(() => {
+    playTone(523, 0.08, 'sine', 0.05)
+    setTimeout(() => playTone(659, 0.08, 'sine', 0.05), 80)
+    setTimeout(() => playTone(784, 0.08, 'sine', 0.05), 160)
+    setTimeout(() => playTone(1047, 0.2, 'sine', 0.04), 240)
+  }, [playTone])
 
   // ============ SIMPLE AMBIENT MUSIC ============
   const musicNodesRef = useRef<any>(null)
@@ -221,7 +198,7 @@ function useSoundEffects() {
     else stopMusic()
   }, [enabled, startMusic, stopMusic])
 
-  return { enabled, setEnabled, playHover, playClick, playModalOpen, playModalClose, playNavHover, playFilter, playScroll, playWarp, playPop, playSuccess, playSplash, playThunder, playJump, playPause, playSiren, playExplosion }
+  return { enabled, setEnabled, playHover, playClick, playModalOpen, playModalClose, playNavHover, playFilter, playScroll, playWarp, playPop, playSuccess }
 }
 
 // ============ ELEGANT 3D OBJECTS (glass + wireframe) ============
@@ -1870,7 +1847,7 @@ function AIChatWidget({ sound }: { sound: any }) {
         aria-label="Open AI chat"
       >
         <img
-          src="/character/npc-portrait.png"
+          src="/avatar.svg"
           alt="Goddess Guide"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
@@ -1923,7 +1900,7 @@ function AIChatWidget({ sound }: { sound: any }) {
               background: 'linear-gradient(135deg, rgba(138,43,226,0.15), rgba(20,184,166,0.08))',
             }}>
               <img
-                src="/character/npc-portrait.png"
+                src="/avatar.svg"
                 alt="Goddess Guide"
                 style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(138,43,226,0.5)' }}
               />
@@ -2138,7 +2115,7 @@ export default function Home() {
       {/* ============ SPLASH SCREEN (white + purple, click to enter) ============ */}
       <AnimatePresence>
         {!entered && (
-          <SplashScreen onEnter={() => { setEntered(true); sound.playThunder() }} />
+          <SplashScreen onEnter={() => { setEntered(true); sound.playPop() }} />
         )}
       </AnimatePresence>
 
@@ -2147,7 +2124,7 @@ export default function Home() {
 
       {/* ============ SCROLL WARP OVERLAY ============ */}
       <AnimatePresence>
-        <MorphTransition onMorph={(type) => { if (type === 'warp') sound.playExplosion(); else sound.playJump() }} />
+        <MorphTransition onMorph={(type) => { if (type === 'warp') sound.playWarp(); else sound.playPop() }} />
       </AnimatePresence>
 
       {/* ============ STARRY SPACE BACKGROUND ============ */}

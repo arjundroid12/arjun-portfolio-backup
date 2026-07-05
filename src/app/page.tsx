@@ -2051,7 +2051,7 @@ export default function Home() {
             className="text-center mb-12"
           >
             <Badge variant="secondary" className="mb-4 bg-purple-100 text-purple-700 border-purple-300 font-mono">{"// portfolio"}</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900" style={{ fontFamily: '"Array", "TrenchSlab", sans-serif' }}>
+            <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-4 text-gray-900" style={{ fontFamily: '"Array", "TrenchSlab", sans-serif' }}>
               Projects
             </h2>
             <p className="text-gray-500">{PROJECTS.length}+ projects built</p>

@@ -2562,20 +2562,70 @@ export default function Home() {
       {/* ============ TRANSITION: ZOOM INTO "PROJECTS" + THEME CHANGE ============ */}
       <ProjectsTransition />
 
-      {/* ============ PROJECTS SECTION ============ */}
-      <section id="projects" className="relative z-10 py-24 px-6" style={{ background: '#ffffff' }}>
-        <div className="max-w-7xl mx-auto">
+      {/* ============ PROJECTS SECTION (Nature-themed) ============ */}
+      <section id="projects" className="relative z-10 py-24 px-6 overflow-hidden" style={{ background: 'linear-gradient(180deg, #f0f7f0 0%, #e8f5e9 30%, #ffffff 60%)' }}>
+        {/* Forest preview as decorative top strip with parallax */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.15 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.5 }}
+          style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            right: '0',
+            height: '300px',
+            backgroundImage: 'url(/forest/preview1.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            maskImage: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Floating nature decorations */}
+        <motion.div
+          animate={{ y: [0, -15, 0], rotate: [0, 3, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          style={{
+            position: 'absolute', top: '15%', right: '5%',
+            width: '120px', height: '120px',
+            backgroundImage: 'url(/forest/preview3.jpg)',
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            borderRadius: '20px', opacity: 0.12,
+            filter: 'blur(1px)',
+            pointerEvents: 'none', zIndex: 0,
+          }}
+        />
+        <motion.div
+          animate={{ y: [0, 20, 0], rotate: [0, -2, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          style={{
+            position: 'absolute', bottom: '10%', left: '3%',
+            width: '100px', height: '100px',
+            backgroundImage: 'url(/forest/preview2.jpg)',
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            borderRadius: '16px', opacity: 0.1,
+            filter: 'blur(1px)',
+            pointerEvents: 'none', zIndex: 0,
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="secondary" className="mb-4 bg-purple-100 text-purple-700 border-purple-300 font-mono">{"// portfolio"}</Badge>
+            <Badge variant="secondary" className="mb-4 bg-green-100 text-green-700 border-green-300 font-mono">{"// portfolio"}</Badge>
             <h2 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-4 text-gray-900" style={{ fontFamily: '"Array", "TrenchSlab", sans-serif' }}>
               Projects
             </h2>
-            <p className="text-gray-500">{PROJECTS.length}+ projects built</p>
+            <p className="text-gray-600 text-lg">{PROJECTS.length}+ projects built — growing like a forest</p>
           </motion.div>
 
           {/* Filter buttons */}

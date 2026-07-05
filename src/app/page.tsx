@@ -1546,8 +1546,13 @@ function ProjectsTransition() {
   )
   const projectsOpacity = useTransform(smoothProgress, [0.55, 0.75, 0.90, 0.96], [0, 1, 1, 0])
 
-  // Phase 4: Background dark → white (starts at 70%, completes at 95%)
-  const bgOpacity = useTransform(smoothProgress, [0.70, 0.95], [0, 1])
+  // Phase 4: Background dark → white (gradual fade for smooth merge)
+  // Starts earlier (50%) and completes later (95%) for a slow blend
+  const bgOpacity = useTransform(smoothProgress, [0.50, 0.95], [0, 1])
+
+  // Gradient blend overlay — fades from dark at top to transparent at bottom
+  // Creates a smooth merge between the dark transition and white projects section
+  const blendOpacity = useTransform(smoothProgress, [0.60, 0.95], [1, 0])
 
   useEffect(() => {
     return smoothProgress.on('change', (v) => {
@@ -1665,6 +1670,21 @@ function ProjectsTransition() {
             }}>
               PROJECTS
             </h2>
+          </motion.div>
+
+          {/* Gradient blend — fades from dark at top to transparent at bottom */}
+          {/* This creates a smooth merge between dark transition and white projects */}
+          <motion.div
+            style={{ opacity: blendOpacity }}
+            className="absolute bottom-0 left-0 right-0 h-1/2 z-5 pointer-events-none"
+          >
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, transparent 0%, #0a0a0f 50%, #0a0a0f 100%)',
+              }}
+            />
           </motion.div>
         </div>
       </section>
@@ -1999,7 +2019,7 @@ export default function Home() {
       <ProjectsTransition />
 
       {/* ============ PROJECTS SECTION ============ */}
-      <section id="projects" className="relative z-10 py-24 px-6" style={{ background: '#ffffff' }}>
+      <section id="projects" className="relative z-10 py-24 px-6" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 10%, #2a2a4e 20%, #4a4a6e 30%, #8a8aae 45%, #c0c0d8 55%, #ffffff 70%)' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40 }}

@@ -935,30 +935,30 @@ function TiltCard({ project, onClick, onHover }: { project: any; onClick: () => 
       onClick={onClick}
       className="cursor-pointer"
     >
-      <Card className="liquid-glass h-full overflow-hidden group relative">
+      <Card className="bg-white border border-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 h-full overflow-hidden group relative">
         {/* Glow effect on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/10 group-hover:via-purple-500/5 group-hover:to-pink-500/10 transition-all duration-500 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-indigo-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500 pointer-events-none" />
         
         <CardHeader style={{ transform: 'translateZ(40px)' }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-3xl group-hover:scale-110 transition-transform">{project.icon}</span>
               <div>
-                <CardTitle className="text-base text-white">{project.name}</CardTitle>
-                <Badge variant="outline" className="mt-1 text-xs border-white/20 text-white/60">{project.category}</Badge>
+                <CardTitle className="text-base text-gray-900">{project.name}</CardTitle>
+                <Badge variant="outline" className="mt-1 text-xs border-gray-300 text-gray-500">{project.category}</Badge>
               </div>
             </div>
-            <ExternalLink className="w-4 h-4 text-white/40 group-hover:text-indigo-400 transition-colors" />
+            <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
           </div>
         </CardHeader>
         <CardContent style={{ transform: 'translateZ(30px)' }}>
-          <p className="text-sm text-white/60 mb-3 leading-relaxed">{project.desc}</p>
+          <p className="text-sm text-gray-600 mb-3 leading-relaxed">{project.desc}</p>
           <div className="flex flex-wrap gap-1">
             {project.tech.slice(0, 4).map((t: string) => (
-              <span key={t} className="text-xs px-2 py-0.5 bg-white/5 rounded text-white/60 font-mono">{t}</span>
+              <span key={t} className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600 font-mono">{t}</span>
             ))}
             {project.tech.length > 4 && (
-              <span className="text-xs px-2 py-0.5 text-white/40 font-mono">+{project.tech.length - 4}</span>
+              <span className="text-xs px-2 py-0.5 text-gray-400 font-mono">+{project.tech.length - 4}</span>
             )}
           </div>
         </CardContent>

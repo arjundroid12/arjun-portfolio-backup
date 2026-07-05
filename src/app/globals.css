@@ -129,8 +129,10 @@
   }
 }
 
-/* ============ PREMIUM WHITE TYPOGRAPHY ============ */
-body, p, span, a, li, button, input, textarea, select, label, div {
+/* ============ PREMIUM WHITE TYPOGRAPHY (dark sections only) ============ */
+/* Only force white text on the dark-themed sections (hero, agents, splash) */
+/* White-themed sections (projects, about, contact, footer) use Tailwind classes */
+body {
   color: #ffffff;
 }
 
@@ -199,17 +201,10 @@ html {
   }
 }
 
-/* Subtle opacity for secondary/muted text — premium white-on-dark */
-.text-muted, .text-secondary,
-[class*="text-gray-300"], [class*="text-gray-400"],
-[class*="text-zinc-300"], [class*="text-zinc-400"] {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-[class*="text-gray-500"], [class*="text-gray-600"],
-[class*="text-zinc-500"], [class*="text-zinc-600"] {
-  color: rgba(255, 255, 255, 0.5) !important;
-}
+/* Removed: !important overrides that forced text-gray-* to white.
+   These were breaking white-themed sections (projects, about, contact)
+   by making dark gray text invisible on white backgrounds.
+   Tailwind classes now work as expected — text-gray-900 = dark, etc. */
 
 /* Premium serif utility classes */
 .font-serif {

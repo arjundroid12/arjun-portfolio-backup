@@ -542,21 +542,36 @@ function GradientText({ children, className = '' }: { children: React.ReactNode;
 // ============ FUN POPUP COMMENTS ============
 
 const FUN_MESSAGES = [
-  { text: "Nice scrolling, traveler! The stars approve." },
-  { text: "You seek knowledge? Ask me anything, brave one." },
-  { text: "Arjun's AI agents are quite impressive, I must say." },
-  { text: "I sense great potential in you, visitor." },
-  { text: "The planets whisper... they like your taste." },
-  { text: "Click me if you dare! I hold many secrets." },
-  { text: "I see you exploring. Good. Curiosity is wisdom." },
-  { text: "Sound on? The silence is... deafening." },
-  { text: "Scroll to the bottom for a magical surprise!" },
-  { text: "You found me! The Goddess greets you." },
-  { text: "Keep going, brave soul. Treasure awaits below." },
-  { text: "I've watched Arjun build for years. Impressive work." },
-  { text: "The code flows like ancient rivers through this site." },
-  { text: "Psst... try clicking the project cards!" },
-  { text: "My portals detect strong developer energy nearby." },
+  // Sarcastic & witty
+  { text: "Oh, you're still here? I thought you'd have fled by now. Kidding. Mostly." },
+  { text: "I've seen many travelers. None scrolled with such... determination. Or was it boredom?" },
+  { text: "Yes, I'm a pixel goddess stuck in a portfolio. We all have our crosses to bear." },
+  { text: "Arjun built me to guard this site. The pay is terrible but the view is nice." },
+  { text: "You know, most visitors just stare at the planets. You actually read things. Refreshing." },
+  { text: "I asked Arjun for legs. He gave me a speech bubble instead. Priorities, I guess." },
+  { text: "Spoiler alert: the bottom of this page has a surprise. No, I won't tell you. I'm not your tour guide. Wait, I am." },
+  { text: "I've been standing here since the last deploy. My feet hurt. Do pixel goddesses get foot pain? Asking for a friend." },
+  // Helpful but sassy
+  { text: "Psst... the project cards are clickable. I know, revolutionary UI design." },
+  { text: "Sound is off, isn't it? I can tell. It's always the quiet ones." },
+  { text: "You should try the AI agents section. It's horizontal scrolling. Fancy, I know." },
+  { text: "There's a transition between agents and projects that zooms. No, I won't spoil it. Go see for yourself." },
+  { text: "Click me if you want to chat. I promise I'm more interesting than this floating text." },
+  // Lore & character
+  { text: "I was once a mighty warrior goddess. Now I narrate a portfolio. The universe has a sense of humor." },
+  { text: "The floating planets? I put them there. You're welcome for the ambiance." },
+  { text: "Arjun's code flows like ancient rivers. Mostly clean, occasionally buggy, always entertaining." },
+  { text: "I've watched Arjun debug at 3 AM. It's... a humbling experience for any deity." },
+  { text: "Between you and me, the Multi-Agent System is my favorite. Don't tell the others." },
+  // Random quips
+  { text: "Nice scrolling speed. Are you trying to break a record or just impatient?" },
+  { text: "I detect strong developer energy. Or maybe that's just the WiFi. Hard to tell from here." },
+  { text: "You're doing great. Like, genuinely. Most people bounce after the hero section." },
+  { text: "Fun fact: this site has 7 custom fonts. SEVEN. Arjun has a problem." },
+  { text: "If you see any bugs, they're not bugs. They're features. Ancient goddess wisdom." },
+  { text: "I see you eyeing that resume button. Go ahead, download it. I won't judge. Much." },
+  { text: "The splash screen font changes every time Arjun finds a new one. It's an addiction." },
+  { text: "I'm told I'm 'too sassy for a portfolio.' I prefer 'professionally opinionated.'" },
 ]
 
 function FunPopups({ enabled }: { enabled: boolean }) {
@@ -1795,33 +1810,119 @@ function ProjectsTransition() {
 function AIChatWidget({ sound }: { sound: any }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'agent'; text: string }>>([
-    { role: 'agent', text: "Greetings, traveler! I'm the Goddess Guide. Ask me anything about Arjun." }
+    { role: 'agent', text: "Greetings, traveler. I am the Goddess Guide, keeper of this portfolio's secrets. Ask me anything about Arjun — or don't. I'll judge you either way. Kidding. Mostly." }
   ])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const msgCountRef = useRef(0)
 
   const getResponse = (query: string): string => {
-    const q = query.toLowerCase()
-    if (q.includes('project') || q.includes('work') || q.includes('portfolio'))
-      return "Arjun has built 12+ projects — AI Research Agent, Gesture Particle Painter, Movie Explorer, and more. Check the Projects section!"
-    if (q.includes('agent') || q.includes('ai'))
-      return "4 AI agents: Research Agent (ReAct), Multi-Agent System, Data Analyst (Pyodide), and Coding Agent. See the Agents section!"
-    if (q.includes('skill') || q.includes('tech') || q.includes('stack'))
-      return "Python, React, Next.js, Cerebras, Power BI, MySQL, Three.js, Framer Motion, MediaPipe, Web Audio API."
-    if (q.includes('contact') || q.includes('email') || q.includes('hire'))
-      return "Email Arjun at arjunvashishtha2004@gmail.com or check the Contact section."
-    if (q.includes('education') || q.includes('college') || q.includes('vit'))
-      return "4th-year B.Tech CSE student at VIT Bhopal University."
-    if (q.includes('github') || q.includes('code'))
-      return "github.com/arjundroid12 — lots of AI agents and full-stack apps!"
-    if (q.includes('hello') || q.includes('hi') || q.includes('hey'))
-      return "Hello there, brave soul! What would you like to know about Arjun?"
+    const q = query.toLowerCase().trim()
+    msgCountRef.current++
+
+    // Greetings — multiple variations so it doesn't feel repetitive
+    if (/^(hi|hey|hello|yo|sup|hola|namaste|hey there)\b/.test(q))
+      return ["Ah, a greeting! Polite. I like that. What do you want to know about Arjun?",
+              "Hello, brave soul. I was beginning to think you'd never speak. What brings you here?",
+              "Hey yourself! Welcome to Arjun's digital realm. Ask away.",
+              "Greetings, traveler. I've been standing here for hours. You have no idea how happy I am to chat."][Math.floor(Math.random() * 4)]
+
+    // Projects — detailed with personality
+    if (q.includes('project') || q.includes('work') || q.includes('portfolio') || q.includes('built'))
+      return "Oh, you want to see his work? Ambitious. Arjun has built 12+ projects — AI Research Agent (autonomous, scary smart), Gesture Particle Painter (you paint with your HANDS), Movie Explorer, Realtime Chat, a calculator that doesn't break (rare, I know), and this very portfolio. Scroll to the Projects section. I'll wait."
+
+    // AI Agents — enthusiastic
+    if (q.includes('agent') || q.includes('ai') || q.includes('llm') || q.includes('gpt') || q.includes('model'))
+      return "Ah, my favorite topic! Arjun built 4 AI agents: a Research Agent that thinks autonomously using the ReAct pattern, a Multi-Agent System where 3 AIs argue with each other (entertaining), a Data Analyst that runs Python in YOUR browser via Pyodide, and a Coding Agent that's basically a mini v0.dev. Check the Agents section — it scrolls horizontally. Fancy."
+
+    // Skills / tech stack
+    if (q.includes('skill') || q.includes('tech') || q.includes('stack') || q.includes('tool') || q.includes('language'))
+      return "Arjun's arsenal: Python (his first love), React & Next.js (the current flame), Cerebras (for that sweet free LLM inference), Power BI, MySQL, Three.js for 3D, Framer Motion for animations, MediaPipe for hand tracking, and Web Audio API for... well, you'll hear. He's always adding more. It's exhausting to keep track of, honestly."
+
+    // Contact / hire / email
+    if (q.includes('contact') || q.includes('email') || q.includes('reach') || q.includes('hire') || q.includes('work with'))
+      return "Looking to hire him? Smart move. Email: arjunvashishtha2004@gmail.com. He's available for opportunities, collaborations, and AI conversations. He replies within 24 hours. I would know — I watch his inbox. Creepy? Maybe. Efficient? Absolutely."
+
+    // Education
+    if (q.includes('education') || q.includes('college') || q.includes('vit') || q.includes('study') || q.includes('university') || q.includes('degree'))
+      return "Arjun is in his 4th year of B.Tech Computer Science & Engineering at VIT Bhopal University. He's also working in Software Management & Marketing at Techify Inc. So yes, he's juggling. No, he doesn't sleep much. I've seen the commit timestamps."
+
+    // Resume
+    if (q.includes('resume') || q.includes('cv') || q.includes('experience'))
+      return "You want the resume? Click the 'Resume' button in the hero section. It downloads a PDF. I'd summarize it for you, but it's 4 pages of achievements and I have a word limit. Let's just say it's impressive."
+
+    // GitHub
+    if (q.includes('github') || q.includes('repo') || q.includes('code') || q.includes('source'))
+      return "github.com/arjundroid12 — that's where the magic (and the bugs) live. He has repos for AI agents, full-stack apps, a gesture painter, and this portfolio. Go star something. It makes him happy. I derive no benefit from this but I'm told it matters."
+
+    // About Arjun — personal
+    if (q.includes('who') && q.includes('arjun') || q.includes('about arjun') || q.includes('tell me about'))
+      return "Arjun Vashishtha. 4th-year B.Tech CSE student at VIT Bhopal. AI engineer by passion, full-stack developer by necessity, vocalist and flutist by... another passion? He builds autonomous agents, data-driven apps, and overly ambitious portfolios with pixel goddess narrators. That last one might be his magnum opus. Or his biggest mistake. Time will tell."
+
+    // Hobbies / personal
+    if (q.includes('hobby') || q.includes('hobbies') || q.includes('music') || q.includes('sing') || q.includes('flute') || q.includes('personal'))
+      return "When Arjun isn't coding, he's a vocalist and flutist. He also creates UGC content and edits videos. So he's either making AI agents sing or singing himself. There's a joke in there somewhere but I'm too pixelated to find it."
+
+    // Sound / audio
+    if (q.includes('sound') || q.includes('music') || q.includes('audio') || q.includes('noise') || q.includes('volume'))
+      return "This portfolio has sound effects! Click the speaker icon in the nav bar. You'll hear synthesized tones on every click, hover, and modal open. There's also ambient music that pauses when you switch tabs. Arjun spent way too long tuning those frequencies. I can hear them. Always."
+
+    // Planets / space
+    if (q.includes('planet') || q.includes('space') || q.includes('star') || q.includes('background') || q.includes('galaxy'))
+      return "Look closely at the background — you'll see 5 floating planets: Lava, Ice, Terran, Baren, and a Black Hole. They drift and rotate. I placed them there myself. You're welcome for the cosmic ambiance."
+
+    // This website / how built
+    if (q.includes('website') || q.includes('this site') || q.includes('how built') || q.includes('made') || q.includes('framework'))
+      return "This portfolio? Built with Next.js 16, Three.js (for the old 3D shapes that were replaced), Framer Motion for animations, Lenis for smooth scrolling, and a concerning amount of custom fonts. Currently deployed on Cloudflare Pages. The splash screen uses a font called 'Array.' Don't ask how many fonts were tried before it."
+
+    // Thanks
     if (q.includes('thank'))
-      return "You're welcome! May your code be bug-free. 🌟"
-    if (q.includes('who') || q.includes('about') || q.includes('arjun'))
-      return "Arjun Vashishtha — 4th-year B.Tech CSE student, AI builder, vocalist and flutist!"
-    return "Interesting question! Try asking about Arjun's projects, AI agents, skills, or contact info."
+      return ["You're welcome, traveler. May your code compile on the first try and your merges be conflict-free.",
+              "Anytime. I'm literally always here. Standing. Waiting. Judging. But also helping.",
+              "No problem! I live to serve. Well, I live to stand in a corner and occasionally talk, but close enough."][Math.floor(Math.random() * 3)]
+
+    // Compliments about the site
+    if (q.includes('nice') || q.includes('cool') || q.includes('awesome') || q.includes('amazing') || q.includes('love') || q.includes('great') || q.includes('beautiful') || q.includes('wow'))
+      return "Why thank you! I'll pass the compliment to Arjun. He spent an unreasonable amount of time on this. I mean, look at me — I'm a pixel goddess with a speech bubble. That's dedication. Or madness. Thin line."
+
+    // Who are you / about the goddess
+    if (q.includes('who are you') || q.includes('your name') || q.includes('goddess') || q.includes('character') || q.includes('npc'))
+      return "I am the Goddess Guide, pixel-art deity and resident portfolio narrator. I was once a mighty warrior in a fantasy game. Now I stand in the corner of a developer's website and sass visitors. It's a career pivot. I'm handling it with grace. Mostly."
+
+    // Jokes / fun
+    if (q.includes('joke') || q.includes('funny') || q.includes('fun') || q.includes('laugh'))
+      return "Why did the developer go broke? Because he used up all his cache. ...I didn't say I was a GOOD comedian. I'm a goddess, not a stand-up. Ask me about Arjun instead."
+
+    // Help / what can you do
+    if (q.includes('help') || q.includes('what can you') || q.includes('what do you do') || q.includes('menu'))
+      return "I can tell you about: Arjun's projects, his 4 AI agents, his tech stack, how to contact him, his education at VIT Bhopal, his GitHub, his resume, his hobbies, this website's features, or the floating planets. I can also make sarcastic remarks. It's a package deal."
+
+    // Bye / goodbye
+    if (q.includes('bye') || q.includes('goodbye') || q.includes('see you') || q.includes('later') || q.includes('cya'))
+      return "Farewell, traveler! May your journey through Arjun's portfolio be fruitful. Click me again if you need me. I'm not going anywhere. Literally. I'm a PNG."
+
+    // Salary / money / job
+    if (q.includes('salary') || q.includes('money') || q.includes('pay') || q.includes('job') || q.includes('internship'))
+      return "Ah, the money talk. I don't discuss Arjun's salary — I'm a goddess, not HR. But he's open to opportunities! Email him at arjunvashishtha2004@gmail.com and negotiate like adults. I'll be here. Watching."
+
+    // Age
+    if (q.includes('age') || q.includes('old') || q.includes('born'))
+      return "Arjun is a 4th-year student, so he's young enough to know the latest tech and old enough to have back pain from coding. The perfect age, really. I, on the other hand, am ageless. Pixel art doesn't wrinkle."
+
+    // Location
+    if (q.includes('where') || q.includes('location') || q.includes('live') || q.includes('based') || q.includes('india'))
+      return "Arjun is based in Bhopal, India. He studies at VIT Bhopal University. I, on the other hand, live in the bottom-right corner of your screen. It's cozy. Could use a window."
+
+    // Fallback — varied and contextual based on message count
+    const fallbacks = [
+      "Hmm, that's not in my scrolls. Try asking about his projects, AI agents, skills, education, or contact info. I'm knowledgeable but not omniscient. Yet.",
+      "I... don't actually know that. Shocking, I know. A goddess, stumped. Ask me about Arjun's work, AI agents, or how to contact him instead.",
+      "Interesting question! Sadly, my knowledge is limited to Arjun's portfolio. Projects, agents, skills, contact — those I can handle. This? Not so much.",
+      "You're testing my limits, aren't you? I respect that. But I can only talk about Arjun's projects, AI agents, tech stack, education, or contact details. Pick one.",
+      "Beep boop. Just kidding, I'm not a robot. I'm a deity. But even deities have scope limits. Ask me about Arjun's work, agents, or contact info!",
+    ]
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)]
   }
 
   const handleSend = () => {

@@ -2204,37 +2204,51 @@ function AIChatWidget({ sound }: { sound: any }) {
 // Outside the wheel, normal page scroll works.
 // Uses native wheel listener with passive:false to preventDefault.
 
-function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
-  project: any; angle: number; radius: number; rotation: any; sound: any; onClick: () => void
+// Category color map — each category gets a signature accent
+const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string; tagBg: string; tagText: string; tagBorder: string }> = {
+  'Frontend':   { bg: '#ecfdf5', border: 'rgba(16, 185, 129, 0.4)',  text: '#065f46', tagBg: '#d1fae5', tagText: '#047857', tagBorder: '#a7f3d0' },
+  'AI/ML':      { bg: '#f5f3ff', border: 'rgba(139, 92, 246, 0.4)',  text: '#5b21b6', tagBg: '#ede9fe', tagText: '#6d28d9', tagBorder: '#ddd6fe' },
+  'Backend':    { bg: '#eff6ff', border: 'rgba(59, 130, 246, 0.4)',  text: '#1e40af', tagBg: '#dbeafe', tagText: '#1d4ed8', tagBorder: '#bfdbfe' },
+  'Full-stack': { bg: '#fffbeb', border: 'rgba(245, 158, 11, 0.4)',  text: '#92400e', tagBg: '#fef3c7', tagText: '#b45309', tagBorder: '#fde68a' },
+}
+const getCategoryColor = (cat: string) => CATEGORY_COLORS[cat] ?? CATEGORY_COLORS['Frontend']
+
+function WheelCard({ project, angle, radius, rotation, sound, onClick, active }: {
+  project: any; angle: number; radius: number; rotation: any; sound: any; onClick: () => void; active: boolean
 }) {
   const counterRotation = useTransform(rotation, (r: number) => -r)
   const rad = (angle * Math.PI) / 180
   const x = Math.cos(rad) * radius
   const y = Math.sin(rad) * radius
+  const c = getCategoryColor(project.category)
 
   return (
-    <div
+    <motion.div
+      animate={{ opacity: active ? 1 : 0.12, scale: active ? 1 : 0.92 }}
+      transition={{ duration: 0.35 }}
       style={{
         position: 'absolute',
         top: `calc(50% + ${y}px)`,
         left: `calc(50% + ${x}px)`,
         transform: 'translate(-50%, -50%)',
-        zIndex: 5,
+        zIndex: active ? 5 : 2,
+        pointerEvents: active ? 'auto' : 'none',
       }}
     >
       <motion.div
         style={{ rotate: counterRotation }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.97 }}
-        onMouseEnter={() => sound.playHover()}
+        onMouseEnter={() => { if (active) sound.playHover() }}
         onClick={onClick}
       >
         <div
           style={{
             width: '440px',
-            background: 'rgba(255, 255, 255, 0.97)',
+            background: `linear-gradient(180deg, ${c.bg} 0%, rgba(255, 255, 255, 0.97) 30%)`,
             backdropFilter: 'blur(14px)',
-            border: '1px solid rgba(76, 175, 80, 0.35)',
+            border: `1px solid ${c.border}`,
+            borderTop: `4px solid ${c.border}`,
             borderRadius: '18px',
             padding: '22px 24px',
             boxShadow: '0 10px 32px rgba(0, 0, 0, 0.12)',
@@ -2246,7 +2260,7 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
             <span style={{ fontSize: '52px' }}>{project.icon}</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 800, color: '#1a1a2e', fontFamily: '"Array", sans-serif', lineHeight: 1.1 }}>{project.name}</h3>
-              <span style={{ fontSize: '13px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.7px' }}>{project.category}</span>
+              <span style={{ fontSize: '13px', color: c.text, textTransform: 'uppercase', letterSpacing: '0.7px', fontWeight: 600 }}>{project.category}</span>
             </div>
           </div>
           <p style={{ margin: '0 0 14px 0', fontSize: '15px', color: '#555', lineHeight: 1.5, maxHeight: '4.5em', overflow: 'hidden' }}>
@@ -2254,7 +2268,7 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {project.tech.slice(0, 5).map((t: string) => (
-              <span key={t} style={{ fontSize: '12px', padding: '4px 10px', background: '#e8f5e9', borderRadius: '6px', color: '#2e7d32', fontFamily: 'monospace', border: '1px solid #c8e6c9' }}>
+              <span key={t} style={{ fontSize: '12px', padding: '4px 10px', background: c.tagBg, borderRadius: '6px', color: c.tagText, fontFamily: 'monospace', border: `1px solid ${c.tagBorder}` }}>
                 {t}
               </span>
             ))}
@@ -2264,7 +2278,7 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
           </div>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -2273,9 +2287,41 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const rotation = useMotionValue(0)
   const smoothRotation = useSpring(rotation, { stiffness: 120, damping: 20 })
   const [progress, setProgress] = useState(0)
+  const [activeCategory, setActiveCategory] = useState<string>('All')
 
   const radius = 380
   const cardAngle = 360 / projects.length
+
+  // Unique categories in project order (preserve wheel order)
+  const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))]
+  const categoryCount = (cat: string) =>
+    cat === 'All' ? projects.length : projects.filter(p => p.category === cat).length
+
+  // When user picks a category, smoothly spin the wheel to bring the FIRST
+  // matching card to the right side (angle 0°). cardAngle = 360 / N.
+  // Card i's base angle is i*cardAngle - 90 (so i=0 is at top = -90°).
+  // We want that card's screen angle (after rotation) to be 0° (right side).
+  //   screenAngle = (baseAngle + rotation) mod 360
+  //   0 = (i*cardAngle - 90 + rotation) mod 360
+  //   rotation = 90 - i*cardAngle (then add multiples of 360 to stay near current)
+  const spinToCategory = (cat: string) => {
+    if (cat === 'All') return
+    const idx = projects.findIndex(p => p.category === cat)
+    if (idx === -1) return
+    const targetRot = 90 - idx * cardAngle
+    // Find nearest equivalent angle to current rotation (avoid huge spins)
+    const current = rotation.get()
+    let delta = targetRot - (current % 360)
+    if (delta > 180) delta -= 360
+    if (delta < -180) delta += 360
+    rotation.set(current + delta)
+  }
+
+  const handleChipClick = (cat: string) => {
+    sound.playClick()
+    setActiveCategory(cat)
+    spinToCategory(cat)
+  }
 
   // Wheel listener — must stop Lenis AND preventDefault when hovering
   // Lenis intercepts wheel events at window level, so we need to:
@@ -2334,6 +2380,68 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const containerH = (radius + cardHalfH) * 2  // = 1040px
 
   return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      {/* Filter chips row — sits above the wheel, centered horizontally
+          so it spans the visible right semicircle area */}
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '10px',
+        justifyContent: 'center', alignItems: 'center',
+        padding: '0 24px 24px 24px',
+        maxWidth: '900px',
+      }}>
+        {categories.map(cat => {
+          const isActive = activeCategory === cat
+          const c = cat === 'All' ? null : getCategoryColor(cat)
+          return (
+            <button
+              key={cat}
+              onClick={() => handleChipClick(cat)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '9px 18px',
+                borderRadius: '999px',
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                fontWeight: 600,
+                letterSpacing: '0.4px',
+                cursor: 'pointer',
+                border: isActive
+                  ? (c ? `1.5px solid ${c.border}` : '1.5px solid rgba(76, 175, 80, 0.6)')
+                  : '1.5px solid rgba(0, 0, 0, 0.12)',
+                background: isActive
+                  ? (c ? c.bg : '#e8f5e9')
+                  : 'rgba(255, 255, 255, 0.7)',
+                color: isActive
+                  ? (c ? c.text : '#1b5e20')
+                  : '#555',
+                boxShadow: isActive
+                  ? (c ? `0 4px 14px ${c.border}` : '0 4px 14px rgba(76, 175, 80, 0.25)')
+                  : '0 1px 4px rgba(0, 0, 0, 0.04)',
+                transition: 'all 0.25s ease',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              {/* Color dot — only for non-All chips */}
+              {c && (
+                <span style={{
+                  width: '9px', height: '9px', borderRadius: '50%',
+                  background: c.border.replace('0.4', '1').replace('rgba', 'rgb'),
+                  boxShadow: `0 0 6px ${c.border}`,
+                }} />
+              )}
+              {cat}
+              <span style={{
+                fontSize: '11px', opacity: 0.7,
+                background: isActive ? 'rgba(0,0,0,0.08)' : 'rgba(0,0,0,0.05)',
+                padding: '1px 7px', borderRadius: '999px',
+              }}>
+                {categoryCount(cat)}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
     <div
       ref={wheelRef}
       style={{
@@ -2395,6 +2503,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
             rotation={smoothRotation}
             sound={sound}
             onClick={() => { sound.playClick(); onCardClick(project) }}
+            active={activeCategory === 'All' || project.category === activeCategory}
           />
         ))}
       </motion.div>
@@ -2418,6 +2527,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
       }}>
         ↑↓ Hover & scroll to spin · {progress} / {projects.length}
       </div>
+    </div>
     </div>
   )
 }

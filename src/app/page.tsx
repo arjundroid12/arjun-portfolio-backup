@@ -2199,6 +2199,194 @@ function AIChatWidget({ sound }: { sound: any }) {
   )
 }
 
+// ============ PROJECT WHEEL v2 — hover-to-spin ============
+// Wheel only spins when you hover over it and scroll.
+// Outside the wheel, normal page scroll works.
+// Uses native wheel listener with passive:false to preventDefault.
+
+function WheelCard({ project, angle, radius, rotation, sound, onClick }: {
+  project: any; angle: number; radius: number; rotation: any; sound: any; onClick: () => void
+}) {
+  const counterRotation = useTransform(rotation, (r: number) => -r)
+  const rad = (angle * Math.PI) / 180
+  const x = Math.cos(rad) * radius
+  const y = Math.sin(rad) * radius
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: `calc(50% + ${y}px)`,
+        left: `calc(50% + ${x}px)`,
+        transform: 'translate(-50%, -50%)',
+        zIndex: 5,
+      }}
+    >
+      <motion.div
+        style={{ rotate: counterRotation }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.97 }}
+        onMouseEnter={() => sound.playHover()}
+        onClick={onClick}
+      >
+        <div
+          style={{
+            width: '220px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(76, 175, 80, 0.25)',
+            borderRadius: '14px',
+            padding: '14px',
+            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.08)',
+            cursor: 'pointer',
+            transition: 'box-shadow 0.3s ease',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '28px' }}>{project.icon}</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#1a1a2e' }}>{project.name}</h3>
+              <span style={{ fontSize: '9px', color: '#666', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{project.category}</span>
+            </div>
+          </div>
+          <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#555', lineHeight: 1.4, maxHeight: '2.8em', overflow: 'hidden' }}>
+            {project.desc}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {project.tech.slice(0, 3).map((t: string) => (
+              <span key={t} style={{ fontSize: '9px', padding: '2px 6px', background: '#e8f5e9', borderRadius: '4px', color: '#2e7d32', fontFamily: 'monospace', border: '1px solid #c8e6c9' }}>
+                {t}
+              </span>
+            ))}
+            {project.tech.length > 3 && (
+              <span style={{ fontSize: '9px', padding: '2px 6px', color: '#999', fontFamily: 'monospace' }}>+{project.tech.length - 3}</span>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound: any; onCardClick: (p: any) => void }) {
+  const wheelRef = useRef<HTMLDivElement>(null)
+  const rotation = useMotionValue(0)
+  const smoothRotation = useSpring(rotation, { stiffness: 120, damping: 20 })
+  const isHovering = useRef(false)
+  const [progress, setProgress] = useState(0)
+
+  const radius = 360
+  const cardAngle = 360 / projects.length
+
+  // Native wheel listener — only preventDefault when hovering
+  useEffect(() => {
+    const el = wheelRef.current
+    if (!el) return
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isHovering.current) return
+      e.preventDefault()  // Stop page scroll when hovering wheel
+      // Accumulate scroll delta into rotation (0.25 = sensitivity)
+      rotation.set(rotation.get() + e.deltaY * 0.25)
+    }
+
+    el.addEventListener('wheel', handleWheel, { passive: false })
+    return () => el.removeEventListener('wheel', handleWheel)
+  }, [rotation])
+
+  // Track progress (which card is at top)
+  useEffect(() => {
+    return smoothRotation.on('change', (r) => {
+      // Normalize rotation to 0-360
+      const norm = ((r % 360) + 360) % 360
+      const idx = Math.round(norm / cardAngle) % projects.length
+      setProgress(idx + 1)
+    })
+  }, [smoothRotation, cardAngle, projects.length])
+
+  return (
+    <div
+      ref={wheelRef}
+      onMouseEnter={() => { isHovering.current = true }}
+      onMouseLeave={() => { isHovering.current = false }}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '720px',
+        overflow: 'hidden',
+        cursor: 'grab',
+      }}
+    >
+      {/* Wheel container — center at left edge */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '-300px',  // off-screen left
+          width: `${radius * 2}px`,
+          height: `${radius * 2}px`,
+          marginLeft: `-${radius}px`,
+          marginTop: `-${radius}px`,
+          rotate: smoothRotation,
+        }}
+      >
+        {/* Wheel rim */}
+        <div style={{
+          position: 'absolute', inset: '0', borderRadius: '50%',
+          border: '2px dashed rgba(76, 175, 80, 0.2)',
+          background: 'radial-gradient(circle, rgba(232, 245, 233, 0.3) 0%, transparent 70%)',
+        }} />
+        {/* Inner rim */}
+        <div style={{
+          position: 'absolute', inset: '60px', borderRadius: '50%',
+          border: '1px solid rgba(76, 175, 80, 0.12)',
+        }} />
+        {/* Center hub */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '70px', height: '70px', borderRadius: '50%',
+          background: 'linear-gradient(135deg, #4caf50, #81c784)',
+          boxShadow: '0 4px 20px rgba(76, 175, 80, 0.3)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '24px',
+        }}>
+          🌿
+        </div>
+
+        {/* Cards */}
+        {projects.map((project, i) => (
+          <WheelCard
+            key={project.name}
+            project={project}
+            angle={i * cardAngle - 90}
+            radius={radius}
+            rotation={smoothRotation}
+            sound={sound}
+            onClick={() => { sound.playClick(); onCardClick(project) }}
+          />
+        ))}
+      </motion.div>
+
+      {/* Mask — fade cards on left (off-screen) side */}
+      <div style={{
+        position: 'absolute', inset: '0',
+        background: 'linear-gradient(90deg, rgba(240,247,240,1) 0%, rgba(240,247,240,0) 20%, rgba(240,247,240,0) 80%, rgba(240,247,240,0.6) 100%)',
+        pointerEvents: 'none', zIndex: 1,
+      }} />
+
+      {/* Hover hint */}
+      <div style={{
+        position: 'absolute', bottom: '20px', right: '40px',
+        fontSize: '12px', color: '#888', fontFamily: 'monospace',
+        zIndex: 10,
+      }}>
+        ↑↓ Hover & scroll to spin · {progress} / {projects.length}
+      </div>
+    </div>
+  )
+}
+
 // ============ MAIN PAGE ============
 
 export default function Home() {
@@ -2717,46 +2905,8 @@ export default function Home() {
             <p className="text-gray-600 text-lg">{PROJECTS.length}+ projects built — growing like a forest</p>
           </motion.div>
 
-          {/* Filter buttons */}
-          <div className="flex flex-wrap gap-2 justify-center mb-10">
-            {['All', 'AI/ML', 'Frontend', 'Full-stack', 'Backend'].map((cat) => (
-              <motion.button
-                key={cat}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { setActiveFilter(cat); sound.playFilter() }}
-                onMouseEnter={() => sound.playNavHover()}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  activeFilter === cat
-                    ? 'bg-teal-500 text-white border border-teal-600'
-                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                }`}
-              >
-                {cat}
-                <span className="ml-1.5 opacity-60">
-                  {cat === 'All' ? PROJECTS.length : PROJECTS.filter(p => p.category === cat).length}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Projects grid with 3D tilt */}
-          <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AnimatePresence mode="popLayout">
-              {filteredProjects.map((project) => (
-                <motion.div
-                  key={project.name}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <TiltCard project={project} onClick={() => handleProjectClick(project)} onHover={() => sound.playHover()} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          {/* Project Wheel — hover & scroll to spin */}
+          <ProjectWheel projects={PROJECTS} sound={sound} onCardClick={handleProjectClick} />
         </div>
       </section>
 

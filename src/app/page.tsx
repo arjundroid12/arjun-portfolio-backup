@@ -1625,11 +1625,14 @@ function ProjectsTransition() {
     restDelta: 0.001,
   })
 
-  // Phase 1: "Liked my agents?" — already in upper-LEFT corner when transition starts
-  // No movement from center — text is positioned in the corner immediately
-  // Just scales in + fades out
-  const likedScale = useTransform(smoothProgress, [0, 0.02], [0.8, 1.5])
-  const likedOpacity = useTransform(smoothProgress, [0, 0.02, 0.20, 0.30], [0, 1, 1, 0])
+  // Phase 1: "Liked my agents?" — starts CENTER, moves to upper-LEFT as you scroll
+  // Movement is tied to scroll pace — text reaches corner when you've scrolled through
+  const likedLeft = useTransform(smoothProgress, [0, 0.20], ['50%', '5%'])
+  const likedTop = useTransform(smoothProgress, [0, 0.20], ['50%', '18%'])
+  const likedX = useTransform(smoothProgress, [0, 0.20], ['-50%', '0%'])
+  const likedY = useTransform(smoothProgress, [0, 0.20], ['-50%', '0%'])
+  const likedScale = useTransform(smoothProgress, [0, 0.20], [1, 1.3])
+  const likedOpacity = useTransform(smoothProgress, [0, 0.03, 0.25, 0.35], [0, 1, 1, 0])
 
   // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, stays visible
   // Fades in at 0.20, stays until 0.65, then fades out
@@ -1682,11 +1685,13 @@ function ProjectsTransition() {
             style={{ background: '#ffffff', opacity: bgOpacity }}
           />
 
-          {/* Phase 1: "Liked my agents?" — already in upper-LEFT corner, scales in */}
+          {/* Phase 1: "Liked my agents?" — starts CENTER, moves to upper-LEFT with scroll */}
           <motion.div
             style={{
-              left: '40px',
-              top: '100px',
+              left: likedLeft,
+              top: likedTop,
+              x: likedX,
+              y: likedY,
               scale: likedScale,
               opacity: likedOpacity,
             }}

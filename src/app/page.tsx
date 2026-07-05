@@ -2277,25 +2277,41 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const radius = 450
   const cardAngle = 360 / projects.length
 
-  // Wheel listener on the wheel container element ONLY
-  // When mouse is over the wheel: preventDefault stops page scroll,
-  // deltaY spins the wheel.
-  // When mouse is NOT over the wheel: this listener doesn't fire,
-  // so page scrolls normally.
+  // Wheel listener — must stop Lenis AND preventDefault when hovering
+  // Lenis intercepts wheel events at window level, so we need to:
+  // 1. Stop Lenis on mouseenter
+  // 2. Listen on the element with passive:false
+  // 3. Prevent default + spin the wheel
+  // 4. Start Lenis again on mouseleave
   useEffect(() => {
     const el = wheelRef.current
     if (!el) return
 
     const handleWheel = (e: WheelEvent) => {
-      // Always prevent default when scrolling over the wheel
       e.preventDefault()
       e.stopPropagation()
-      // Spin the wheel
       rotation.set(rotation.get() + e.deltaY * 0.25)
     }
 
+    const stopLenis = () => {
+      const lenis = (window as any).__lenis
+      if (lenis) lenis.stop()
+    }
+
+    const startLenis = () => {
+      const lenis = (window as any).__lenis
+      if (lenis) lenis.start()
+    }
+
     el.addEventListener('wheel', handleWheel, { passive: false })
-    return () => el.removeEventListener('wheel', handleWheel)
+    el.addEventListener('mouseenter', stopLenis)
+    el.addEventListener('mouseleave', startLenis)
+
+    return () => {
+      el.removeEventListener('wheel', handleWheel)
+      el.removeEventListener('mouseenter', stopLenis)
+      el.removeEventListener('mouseleave', startLenis)
+    }
   }, [rotation])
 
   // Track progress (which card is at top)

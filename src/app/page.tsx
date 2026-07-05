@@ -1107,7 +1107,7 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
         <motion.h1
           className="select-none"
           style={{
-            fontFamily: '"TrenchSlab", "Merinda", sans-serif',
+            fontFamily: '"Tanker", "TrenchSlab", sans-serif',
             color: '#ffffff',
             fontSize: 'clamp(56px, 10vw, 140px)',
             fontWeight: 400,

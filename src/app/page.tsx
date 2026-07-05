@@ -1060,8 +1060,8 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const handleClick = () => {
     if (leaving) return
     setLeaving(true)
-    // Wait for the super-zoom exit to peak, then reveal hero
-    setTimeout(onEnter, 1100)
+    // Wait for the cinematic zoom to complete, then reveal hero
+    setTimeout(onEnter, 2000)
   }
 
   return (
@@ -1070,8 +1070,8 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
       onClick={handleClick}
       initial={{ opacity: 1 }}
       animate={{ opacity: leaving ? 0 : 1 }}
-      // Hold opacity at 1 through the zoom, then fade out at the very end
-      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1], delay: leaving ? 0.9 : 0 }}
+      // Hold opacity at 1 through the zoom, then fade out slowly at the end
+      transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1], delay: leaving ? 1.5 : 0 }}
       style={{
         // Premium blackish-purple: deep purple-black with subtle purple tint
         background: 'radial-gradient(circle at 50% 50%, #1a0a2e 0%, #0d0418 60%, #06020d 100%)',
@@ -1093,15 +1093,15 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
         initial={{ opacity: 0, y: 120 }}
         animate={
           leaving
-            ? // EXIT: super zoom into the text — scale way up and fade
-              { opacity: 0, y: 0, scale: 18 }
+            ? // EXIT: cinematic zoom — gradual acceleration into the text
+              { opacity: 0, y: 0, scale: 25 }
             : // ENTER: slide up from below
               { opacity: 1, y: 0, scale: 1 }
         }
         transition={
           leaving
-            ? { duration: 1.0, ease: [0.7, 0, 0.84, 0], opacity: { duration: 0.9, delay: 0.1 } }
-            : { duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.15 }
+            ? { duration: 1.8, ease: [0.6, 0, 0.8, 0.2], opacity: { duration: 1.2, delay: 0.6 } }
+            : { duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.15 }
         }
       >
         <motion.h1

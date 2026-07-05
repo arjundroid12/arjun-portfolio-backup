@@ -2381,13 +2381,16 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {/* Filter chips row — sits above the wheel, centered horizontally
-          so it spans the visible right semicircle area */}
+      {/* Filter chips row — LEFT-aligned so chips sit directly above the
+          wheel (which pops out from the left edge). Width matches wheel
+          container so the chip row aligns with the wheel's visible area. */}
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: '10px',
-        justifyContent: 'center', alignItems: 'center',
-        padding: '0 24px 24px 24px',
-        maxWidth: '900px',
+        justifyContent: 'flex-start', alignItems: 'center',
+        padding: '0 0 24px 0',
+        width: `${containerW}px`,
+        marginLeft: 0,
+        marginRight: 'auto',
       }}>
         {categories.map(cat => {
           const isActive = activeCategory === cat

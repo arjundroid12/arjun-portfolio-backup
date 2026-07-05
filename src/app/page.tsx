@@ -1772,6 +1772,271 @@ function ProjectsTransition() {
   )
 }
 
+// ============ AI AGENT CHAT WIDGET ============
+// Floating chat button with the Goddess NPC character avatar.
+// Opens a chat panel where visitors can ask questions about Arjun.
+// Uses a simple knowledge base + pattern matching for responses.
+
+function AIChatWidget({ sound }: { sound: any }) {
+  const [open, setOpen] = useState(false)
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'agent'; text: string }>>([
+    { role: 'agent', text: "Greetings, traveler! I'm the Goddess Guide. Ask me anything about Arjun — his projects, skills, or how to reach him." }
+  ])
+  const [input, setInput] = useState('')
+  const [typing, setTyping] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  // Simple knowledge base for the AI agent
+  const getResponse = (query: string): string => {
+    const q = query.toLowerCase()
+    
+    if (q.includes('project') || q.includes('work') || q.includes('portfolio'))
+      return "Arjun has built 12+ projects including AI Research Agent, Gesture Particle Painter, Movie Explorer, Realtime Chat, and this very portfolio! Scroll to the Projects section to explore them all."
+    if (q.includes('agent') || q.includes('ai'))
+      return "Arjun built 4 AI agents: AI Research Agent (autonomous ReAct pattern), Multi-Agent System (3 collaborating agents), Data Analyst Agent (CSV + Pyodide), and Coding Agent (live code generation). Check the Agents section!"
+    if (q.includes('skill') || q.includes('tech') || q.includes('stack'))
+      return "Arjun's tech stack: Python, React, Next.js, Cerebras, Power BI, MySQL, Three.js, Framer Motion, MediaPipe, and Web Audio API. He's always learning more!"
+    if (q.includes('contact') || q.includes('email') || q.includes('reach') || q.includes('hire'))
+      return "You can reach Arjun at arjunvashishtha2004@gmail.com or scroll to the Contact section. He's available for opportunities, collaborations, and AI conversations!"
+    if (q.includes('education') || q.includes('college') || q.includes('vit') || q.includes('study'))
+      return "Arjun is a 4th-year B.Tech Computer Science & Engineering student at VIT Bhopal University. He's currently working in Software Management & Marketing at Techify Inc."
+    if (q.includes('resume') || q.includes('cv'))
+      return "You can download Arjun's resume by clicking the 'Resume' button in the hero section, or find it in the About section."
+    if (q.includes('github') || q.includes('repo') || q.includes('code'))
+      return "Arjun's GitHub is github.com/arjundroid12 — check out his repos for AI agents, full-stack apps, and creative coding experiments!"
+    if (q.includes('hello') || q.includes('hi') || q.includes('hey') || q.includes('greet'))
+      return "Hello there, brave soul! Welcome to Arjun's realm. What would you like to know about this developer?"
+    if (q.includes('thank'))
+      return "You're most welcome, traveler! May your code be bug-free and your builds ever green. 🌟"
+    if (q.includes('who') || q.includes('about') || q.includes('arjun'))
+      return "Arjun Vashishtha is a 4th-year B.Tech CSE student at VIT Bhopal, passionate about AI engineering, full-stack development, and building autonomous agents. He's also a vocalist and flutist!"
+    if (q.includes('sound') || q.includes('music') || q.includes('audio'))
+      return "This portfolio has sound effects! Click the speaker icon in the nav bar to enable sounds. You'll hear clicks, doors, lasers, and even thunder!"
+    if (q.includes('planet') || q.includes('space') || q.includes('star'))
+      return "Look closely at the background — you'll see floating planets (Lava, Ice, Terran, Baren, and a Black Hole) drifting among the stars!"
+    
+    return "Interesting question, traveler! I may not have all the answers, but Arjun surely does. Try asking about his projects, AI agents, skills, or how to contact him. Or email him directly at arjunvashishtha2004@gmail.com!"
+  }
+
+  const handleSend = () => {
+    if (!input.trim()) return
+    const userMsg = input.trim()
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }])
+    setInput('')
+    setTyping(true)
+    sound.playClick()
+
+    // Simulate AI thinking delay
+    setTimeout(() => {
+      const response = getResponse(userMsg)
+      setMessages(prev => [...prev, { role: 'agent', text: response }])
+      setTyping(false)
+      sound.playPop()
+    }, 800 + Math.random() * 600)
+  }
+
+  // Auto-scroll to bottom on new message
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages, typing])
+
+  return (
+    <>
+      {/* Floating chat button */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 2, type: 'spring', stiffness: 200 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => { setOpen(!open); sound.playClick() }}
+        onMouseEnter={() => sound.playNavHover()}
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          width: '64px',
+          height: '64px',
+          borderRadius: '50%',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 100,
+          overflow: 'hidden',
+          boxShadow: '0 8px 30px rgba(138, 43, 226, 0.4), 0 0 0 3px rgba(255,255,255,0.1)',
+          background: 'linear-gradient(135deg, #1a0a2e, #0d0418)',
+        }}
+        aria-label="Open AI chat"
+      >
+        <img
+          src="/character/npc-portrait.png"
+          alt="Goddess Guide"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        {/* Pulse ring */}
+        <motion.div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            border: '2px solid rgba(138, 43, 226, 0.6)',
+            pointerEvents: 'none',
+          }}
+          animate={{ scale: [1, 1.4], opacity: [0.6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeOut' }}
+        />
+      </motion.button>
+
+      {/* Chat panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            style={{
+              position: 'fixed',
+              bottom: '100px',
+              right: '24px',
+              width: 'min(380px, calc(100vw - 48px))',
+              height: 'min(520px, calc(100vh - 140px))',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              zIndex: 100,
+              background: 'rgba(10, 10, 15, 0.95)',
+              backdropFilter: 'blur(24px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1), inset 0 0 0 1px rgba(255,255,255,0.08)',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '16px 18px',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              background: 'linear-gradient(135deg, rgba(138,43,226,0.15), rgba(20,184,166,0.08))',
+            }}>
+              <img
+                src="/character/npc-portrait.png"
+                alt="Goddess Guide"
+                style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(138,43,226,0.5)' }}
+              />
+              <div>
+                <div style={{ color: '#fff', fontSize: '14px', fontWeight: 600 }}>Goddess Guide</div>
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>AI Assistant · Online</div>
+              </div>
+              <button
+                onClick={() => { setOpen(false); sound.playClick() }}
+                style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', padding: '4px' }}
+                aria-label="Close chat"
+              >
+                <X style={{ width: '18px', height: '18px' }} />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div ref={scrollRef} style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+            }}>
+              {messages.map((msg, i) => (
+                <div key={i} style={{
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '80%',
+                  padding: '10px 14px',
+                  borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                  background: msg.role === 'user'
+                    ? 'linear-gradient(135deg, #6366f1, #8b5cf6)'
+                    : 'rgba(255,255,255,0.06)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  lineHeight: 1.5,
+                  border: msg.role === 'agent' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                }}>
+                  {msg.text}
+                </div>
+              ))}
+              {typing && (
+                <div style={{
+                  alignSelf: 'flex-start',
+                  padding: '10px 14px',
+                  borderRadius: '16px 16px 16px 4px',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  display: 'flex',
+                  gap: '4px',
+                }}>
+                  {[0, 1, 2].map(i => (
+                    <motion.span
+                      key={i}
+                      style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div style={{
+              padding: '12px 14px',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex',
+              gap: '8px',
+            }}>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Ask about Arjun..."
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.05)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={handleSend}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-label="Send message"
+              >
+                <Send style={{ width: '16px', height: '16px', color: '#fff' }} />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
 // ============ MAIN PAGE ============
 
 export default function Home() {
@@ -2434,6 +2699,9 @@ export default function Home() {
           </motion.p>
         </div>
       </footer>
+
+      {/* ============ AI AGENT CHAT WIDGET ============ */}
+      <AIChatWidget sound={sound} />
 
       {/* ============ PROJECT DETAIL MODAL ============ */}
       <AnimatePresence>

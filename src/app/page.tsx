@@ -1626,13 +1626,25 @@ function ProjectsTransition() {
   })
 
   // Phase 1: "Liked my agents?" — starts CENTER, moves to upper-LEFT as you scroll
-  // Movement starts EARLY — text begins dragging immediately on scroll
-  const likedLeft = useTransform(smoothProgress, [-0.05, 0.15], ['50%', '5%'])
-  const likedTop = useTransform(smoothProgress, [-0.05, 0.15], ['50%', '18%'])
-  const likedX = useTransform(smoothProgress, [-0.05, 0.15], ['-50%', '0%'])
-  const likedY = useTransform(smoothProgress, [-0.05, 0.15], ['-50%', '0%'])
-  const likedScale = useTransform(smoothProgress, [-0.05, 0.15], [1, 1.3])
-  const likedOpacity = useTransform(smoothProgress, [-0.05, 0.0, 0.20, 0.30], [0, 1, 1, 0])
+  // Uses a SEPARATE scroll tracker that starts BEFORE the section pins
+  // so text reaches corner by the time the section covers fullscreen
+  const { scrollYProgress: enterProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'start start'],
+  })
+  const enterSmooth = useSpring(enterProgress, {
+    stiffness: 60,
+    damping: 25,
+    restDelta: 0.001,
+  })
+  // Text moves from center to corner during section entry (before pin)
+  const likedLeft = useTransform(enterSmooth, [0.3, 0.95], ['50%', '5%'])
+  const likedTop = useTransform(enterSmooth, [0.3, 0.95], ['50%', '18%'])
+  const likedX = useTransform(enterSmooth, [0.3, 0.95], ['-50%', '0%'])
+  const likedY = useTransform(enterSmooth, [0.3, 0.95], ['-50%', '0%'])
+  const likedScale = useTransform(enterSmooth, [0.3, 0.95], [1, 1.3])
+  // Fade in early, stay visible after pin, then fade out during main scroll
+  const likedOpacity = useTransform(smoothProgress, [0, 0.02, 0.20, 0.30], [1, 1, 1, 0])
 
   // Phase 2: "Here's more" — fades in at bottom-RIGHT corner, stays visible
   // Fades in at 0.20, stays until 0.65, then fades out

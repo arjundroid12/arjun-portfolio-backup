@@ -2324,15 +2324,29 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
     })
   }, [smoothRotation, cardAngle, projects.length])
 
+  // Container fits ONLY the visible right half of the wheel + small buffer.
+  // Wheel is centered at the container's left edge, so only the right
+  // semicircle is visible. This keeps the scroll-capture area small
+  // (only the wheel itself) so the rest of the page scrolls normally.
+  //
+  // containerH is intentionally < wheel diameter: cards rotate through
+  // the visible window like a slot machine. Only cards near angle 0°
+  // (right side) are fully visible; top/bottom cards are clipped and
+  // rotate into view as the user spins.
+  const containerW = radius + 40   // visible half + small buffer = ~490px
+  const containerH = 320           // compact window (was 600) — half the footprint
+
   return (
     <div
       ref={wheelRef}
       style={{
         position: 'relative',
-        width: '100%',
-        height: '600px',
+        width: `${containerW}px`,
+        height: `${containerH}px`,
         overflow: 'hidden',
         cursor: 'grab',
+        marginLeft: 0,
+        marginRight: 'auto',
       }}
     >
       {/* Wheel container — center at left edge, right half visible */}
@@ -2388,10 +2402,10 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
         ))}
       </motion.div>
 
-      {/* Mask — fade cards on left (off-screen) side */}
+      {/* Mask — fade cards on left (off-screen) side only */}
       <div style={{
         position: 'absolute', inset: '0',
-        background: 'linear-gradient(90deg, rgba(240,247,240,1) 0%, rgba(240,247,240,0) 20%, rgba(240,247,240,0) 80%, rgba(240,247,240,0.6) 100%)',
+        background: 'linear-gradient(90deg, rgba(240,247,240,1) 0%, rgba(240,247,240,0.85) 8%, rgba(240,247,240,0) 28%, rgba(240,247,240,0) 100%)',
         pointerEvents: 'none', zIndex: 1,
       }} />
 

@@ -586,7 +586,7 @@ function FunPopups({ enabled }: { enabled: boolean }) {
       setPopups((prev) => [...prev, { id, text: msg.text }])
       setTimeout(() => {
         setPopups((prev) => prev.filter((p) => p.id !== id))
-      }, 5000)
+      }, 8000)
     }, 15000) // Every 15 seconds
 
     return () => clearInterval(interval)

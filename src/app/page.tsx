@@ -2278,20 +2278,27 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const radius = 360
   const cardAngle = 360 / projects.length
 
-  // Native wheel listener — only preventDefault when hovering
+  // Native wheel listener on WINDOW — only intercepts when hovering wheel
+  // Must be on window (not the div) because wheel events bubble up to
+  // document before reaching the element listener in some browsers.
   useEffect(() => {
-    const el = wheelRef.current
-    if (!el) return
-
     const handleWheel = (e: WheelEvent) => {
       if (!isHovering.current) return
-      e.preventDefault()  // Stop page scroll when hovering wheel
-      // Accumulate scroll delta into rotation (0.25 = sensitivity)
-      rotation.set(rotation.get() + e.deltaY * 0.25)
+      // Only prevent default if the event target is inside the wheel
+      const el = wheelRef.current
+      if (!el) return
+      const target = e.target as Node
+      if (el.contains(target) || el === target) {
+        e.preventDefault()
+        e.stopPropagation()
+        // Accumulate scroll delta into rotation
+        rotation.set(rotation.get() + e.deltaY * 0.25)
+      }
     }
 
-    el.addEventListener('wheel', handleWheel, { passive: false })
-    return () => el.removeEventListener('wheel', handleWheel)
+    // Use capture phase to intercept before any other handlers
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true })
+    return () => window.removeEventListener('wheel', handleWheel, { capture: true } as any)
   }, [rotation])
 
   // Track progress (which card is at top)

@@ -2244,36 +2244,36 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick, active }:
       >
         <div
           style={{
-            width: '420px',
+            width: '440px',
             background: `linear-gradient(180deg, ${c.bg} 0%, rgba(255, 255, 255, 0.97) 30%)`,
             backdropFilter: 'blur(14px)',
             border: `1px solid ${c.border}`,
             borderTop: `4px solid ${c.border}`,
-            borderRadius: '16px',
-            padding: '18px 20px',
-            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.12)',
+            borderRadius: '18px',
+            padding: '22px 24px',
+            boxShadow: '0 10px 32px rgba(0, 0, 0, 0.12)',
             cursor: 'pointer',
             transition: 'box-shadow 0.3s ease',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '44px' }}>{project.icon}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
+            <span style={{ fontSize: '52px' }}>{project.icon}</span>
             <div>
-              <h3 style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: '#1a1a2e', fontFamily: '"Array", sans-serif', lineHeight: 1.1 }}>{project.name}</h3>
-              <span style={{ fontSize: '11px', color: c.text, textTransform: 'uppercase', letterSpacing: '0.6px', fontWeight: 600 }}>{project.category}</span>
+              <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 800, color: '#1a1a2e', fontFamily: '"Array", sans-serif', lineHeight: 1.1 }}>{project.name}</h3>
+              <span style={{ fontSize: '13px', color: c.text, textTransform: 'uppercase', letterSpacing: '0.7px', fontWeight: 600 }}>{project.category}</span>
             </div>
           </div>
-          <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: '#555', lineHeight: 1.4, maxHeight: '3.6em', overflow: 'hidden' }}>
+          <p style={{ margin: '0 0 14px 0', fontSize: '15px', color: '#555', lineHeight: 1.5, maxHeight: '4.5em', overflow: 'hidden' }}>
             {project.desc}
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {project.tech.slice(0, 5).map((t: string) => (
-              <span key={t} style={{ fontSize: '11px', padding: '3px 8px', background: c.tagBg, borderRadius: '5px', color: c.tagText, fontFamily: 'monospace', border: `1px solid ${c.tagBorder}` }}>
+              <span key={t} style={{ fontSize: '12px', padding: '4px 10px', background: c.tagBg, borderRadius: '6px', color: c.tagText, fontFamily: 'monospace', border: `1px solid ${c.tagBorder}` }}>
                 {t}
               </span>
             ))}
             {project.tech.length > 5 && (
-              <span style={{ fontSize: '11px', padding: '3px 8px', color: '#999', fontFamily: 'monospace' }}>+{project.tech.length - 5}</span>
+              <span style={{ fontSize: '12px', padding: '4px 10px', color: '#999', fontFamily: 'monospace' }}>+{project.tech.length - 5}</span>
             )}
           </div>
         </div>
@@ -2289,7 +2289,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
   const [progress, setProgress] = useState(0)
   const [activeCategory, setActiveCategory] = useState<string>('All')
 
-  const radius = 220
+  const radius = 380
   const cardAngle = 360 / projects.length
 
   // Unique categories in project order (preserve wheel order)
@@ -2370,15 +2370,14 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
     })
   }, [smoothRotation, cardAngle, projects.length])
 
-  // BIG cards on a SMALL wheel. Cards overlap heavily (user said OK).
-  // Wheel center is at x = cardHalfW from container left (so we see ~3/4 of wheel).
-  // Container must fit: wheel center (cardHalfW) + radius + cardHalfW (right card edge)
-  //   = cardHalfW + radius + cardHalfW = 2*cardHalfW + radius
-  // Height must fit top/bottom cards: (radius + cardHalfH) * 2
-  const cardHalfW = 210  // half of card width (420)
-  const cardHalfH = 110  // half of card height (~220)
-  const containerW = 2 * cardHalfW + radius + 20   // = 660px (fits full wheel + cards)
-  const containerH = (radius + cardHalfH) * 2 + 40  // = 700px (fits in viewport)
+  // Container sized so cards are never clipped on right/top/bottom.
+  // Left-side overlap (cards extending past the wheel center) is fine —
+  // the white fade mask hides the back-half cards gracefully, and the
+  // user explicitly allowed overlap.
+  const cardHalfW = 220  // half of card width (440)
+  const cardHalfH = 140  // half of card height (~280)
+  const containerW = radius + cardHalfW + 30   // = 630px
+  const containerH = (radius + cardHalfH) * 2  // = 1040px
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
@@ -2458,9 +2457,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
         marginRight: 'auto',
       }}
     >
-      {/* Wheel — shifted right so we see most of it (only left sliver hidden).
-          Wheel center at x = cardHalfW (210px) from container left.
-          This shows ~3/4 of the wheel, with cards on left/top/right/bottom visible. */}
+      {/* Wheel container — center at left edge, right half visible */}
       <motion.div
         style={{
           position: 'absolute',
@@ -2468,7 +2465,7 @@ function ProjectWheel({ projects, sound, onCardClick }: { projects: any[]; sound
           left: '0px',
           width: `${radius * 2}px`,
           height: `${radius * 2}px`,
-          marginLeft: `-${radius - cardHalfW}px`,
+          marginLeft: `-${radius}px`,
           marginTop: `-${radius}px`,
           rotate: smoothRotation,
           background: 'rgba(76, 175, 80, 0.05)',

@@ -4249,10 +4249,11 @@ export default function Home() {
             transition={{ delay: 1.2, type: 'spring', stiffness: 80, damping: 12 }}
             style={{
               position: 'absolute',
-              // Sit on the top edge: bottom half on the nav, top half above it
-              // Nav bar height is 52px. Dog is 46px. Top = -18px puts dog's
-              // bottom 60% on the nav, top 40% above the edge.
-              top: '-18px',
+              // Sit ON the top edge: most of dog ABOVE the nav bar, just the
+              // bottom (feet/belly) resting on the nav bar's top edge.
+              // Nav bar is 52px tall (0 to 52px). Dog is 46px tall.
+              // top: -30px → dog spans -30px to 16px → bottom 16px on nav, top 30px above.
+              top: '-30px',
               left: '30px',
               zIndex: 55,
               width: '46px',

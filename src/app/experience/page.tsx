@@ -44,13 +44,13 @@ const WIZARD_LINES = [
 // Experience entries — Arjun's actual roles/education.
 const EXPERIENCE_ENTRIES = [
   {
-    role: 'Software Management & Marketing',
-    org: 'Techify Inc.',
+    role: 'Website Management',
+    org: 'AIOrders × Foodswipe',
     period: '2024 — Present',
     location: 'Remote',
     summary:
-      'Managing software delivery timelines and coordinating the marketing pipeline alongside my B.Tech coursework. Owning cross-functional comms between the dev team and growth side, shipping release notes, and running data-driven campaigns tied to product launches.',
-    tags: ['Project Management', 'Marketing Strategy', 'Cross-functional', 'Growth'],
+      'Leading website management for AIOrders and Foodswipe while heading marketing across both brands. Owning site updates, performance tuning, and content drops alongside the marketing pipeline — campaigns, positioning, and growth experiments tied to each product launch.',
+    tags: ['Website Management', 'Marketing Head', 'Growth', 'Cross-brand'],
     rarity: 'legendary',
   },
   {

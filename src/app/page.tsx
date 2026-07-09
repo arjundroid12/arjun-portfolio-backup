@@ -4249,6 +4249,24 @@ export default function Home() {
                   {item}
                 </a>
               ))}
+              {/* Experience — separate route (/experience), styled like a glowing dungeon portal */}
+              <a
+                href="/experience"
+                onMouseEnter={() => sound.playNavHover()}
+                onClick={() => sound.playClick()}
+                style={{
+                  position: 'relative', zIndex: 1, padding: '7px 13px',
+                  fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap', letterSpacing: '0.3px',
+                  color: navOnWhite ? '#7c2d12' : '#fde68a',
+                  textDecoration: 'none', cursor: 'pointer',
+                  textShadow: navOnWhite ? 'none' : '0 0 12px rgba(250,204,21,0.45)',
+                  transition: 'color 0.3s ease, text-shadow 0.3s ease',
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.color = navOnWhite ? '#000000' : '#fffbeb'; e.currentTarget.style.textShadow = navOnWhite ? 'none' : '0 0 18px rgba(250,204,21,0.7)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.color = navOnWhite ? '#7c2d12' : '#fde68a'; e.currentTarget.style.textShadow = navOnWhite ? 'none' : '0 0 12px rgba(250,204,21,0.45)'; }}
+              >
+                Experience
+              </a>
             </div>
 
             {/* GitHub button — HIDDEN on mobile */}
@@ -4432,6 +4450,24 @@ export default function Home() {
               {item}
             </a>
           ))}
+          {/* Experience — separate route (/experience), highlighted like a glowing dungeon portal */}
+          <a
+            href="/experience"
+            onClick={() => { setMobileMenuOpen(false); sound.playClick() }}
+            style={{
+              padding: '12px 16px',
+              fontSize: '15px',
+              fontWeight: 600,
+              color: '#fde68a',
+              textDecoration: 'none',
+              borderRadius: '10px',
+              background: 'rgba(250,204,21,0.1)',
+              border: '1px solid rgba(250,204,21,0.35)',
+              textShadow: '0 0 10px rgba(250,204,21,0.4)',
+            }}
+          >
+            Experience
+          </a>
           <a
             href="https://github.com/arjundroid12"
             target="_blank"

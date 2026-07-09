@@ -4288,6 +4288,52 @@ export default function Home() {
             >Z</motion.span>
           </motion.div>
         )}
+
+        {/* Rabbit running back and forth along the nav bar strip —
+            runs from left to right, flips, runs back. Desktop only. */}
+        {!isMobile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            style={{
+              position: 'absolute',
+              // Sits on the nav bar strip, vertically centered
+              top: '50%',
+              left: 0,
+              right: 0,
+              height: '28px',
+              zIndex: 4, // Below nav content (z-index 10) so it runs behind text
+              pointerEvents: 'none',
+              imageRendering: 'pixelated',
+              transform: 'translateY(-50%)',
+            }}
+          >
+            <motion.img
+              src="/animals/rabbit.png"
+              alt="Running rabbit"
+              animate={{
+                // Run across the nav bar width, then back. Using left percentage
+                // since we're inside the nav container.
+                left: ['80px', 'calc(100% - 50px)', '80px'],
+                // Flip to face direction: 1 = right-facing, -1 = left-facing
+                scaleX: [1, 1, -1],
+              }}
+              transition={{
+                duration: 14,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{
+                position: 'absolute',
+                width: '36px',
+                height: 'auto',
+                imageRendering: 'pixelated',
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))',
+              }}
+            />
+          </motion.div>
+        )}
       </motion.nav>
 
       {/* (Old fixed-position dog code removed — dog is now a child of the nav bar above) */}

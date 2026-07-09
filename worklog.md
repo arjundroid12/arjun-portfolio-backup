@@ -120,3 +120,39 @@ Stage Summary:
 - Speech bubble no longer overlaid by header — sits to the left of wizard
 - Live at https://arjun-portfolio-emc.pages.dev/experience
 - Both repos synced at b532d41
+
+---
+Task ID: 4
+Agent: main (Super Z)
+Task: User noticed wizard GIF has inbuilt padding causing layout issues. Verify and fix.
+
+Work Log:
+- Wrote scripts/analyze_wizard_padding.py to inspect each frame's non-transparent bbox
+- Finding: GIF is 250x250 but the actual wizard sprite is only 57x104 pixels
+  - Padding: L=108, T=63, R=85, B=83 (~75% of the canvas is transparent)
+  - The sprite is also shifted RIGHT (108px left padding vs 85px right)
+- This explained why scaling up looked weird: the image wasn't getting bigger,
+  the padding was. Forced previous attempts to use weird bubble overlap offsets.
+- Wrote scripts/crop_wizard.py:
+  - Computes union bbox across all 8 frames (with 2px breathing margin)
+  - Crops each frame to bbox
+  - Re-encodes as animated GIF preserving transparency:
+    * Pastes RGBA sprite onto magenta background (color the wizard won't use)
+    * Quantizes to 255-color adaptive palette
+    * Finds magenta's palette index, marks it as the GIF transparency index
+    * disposal=2 (restore to bg) for clean frame transitions
+- Result: public/experience/wizard.gif is now 61x108 (down from 250x250), 9KB
+  (was 12KB), all 8 frames preserved, transparency intact
+- Updated experience/page.tsx:
+  - Wizard img: width=200, height=354 (preserves 61:108 native aspect ratio)
+  - Reverted bubble to clean 14px gap (right: calc(100% + 14px)) — no overlap
+    needed now that the wizard has no padding
+  - Hero grid gap back to 32px
+- Build clean, deployed to Cloudflare (26 new files)
+- Committed 65fee98, pushed to origin + backup
+
+Stage Summary:
+- Wizard sprite properly cropped — no more dead padding
+- Rendered at 200x354 (natural aspect), looks crisp via image-rendering: pixelated
+- Bubble back to clean layout with normal 14px gap
+- Both repos synced at 65fee98

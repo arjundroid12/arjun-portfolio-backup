@@ -92,3 +92,31 @@ Stage Summary:
 - 34 more random popup messages for variety
 - Both git repos in sync at commit 8d4b4c4
 - Backup repo updated (source of truth preserved)
+
+---
+Task ID: 3
+Agent: main (Super Z)
+Task: Make wizard bigger and fix speech bubble being overlaid by header text.
+
+Work Log:
+- Diagnosed overlap: bubble was positioned ABOVE wizard (bottom: calc(100% + 14px))
+- Root cause: hero section has zIndex 4, header has zIndex 5 — when bubble extended
+  above the wizard into the header's vertical band, the header covered it
+- Fix: repositioned bubble to the LEFT of the wizard, vertically centered
+  (right: calc(100% + 14px); top: 50%; transform: translateY(-50%))
+- This keeps the bubble clear of BOTH the header (above) and the "click to talk"
+  label (below), and uses the natural empty space to the wizard's left
+- Tail moved from bottom to right side of bubble, points right toward wizard
+- Wizard image: 240px -> 300px (native GIF is 250, upscaled with imageRendering:
+  pixelated which keeps the blocky dungeon aesthetic crisp)
+- Bubble maxWidth: 280 -> 300 to match larger wizard
+- Updated wizardBubbleIn keyframe: now animates translateX(8px -> 0) with
+  translateY(-50%) preserved (was translateY(6px -> 0) for old bottom position)
+- Build clean, deployed to Cloudflare (25 new files, 1.75s)
+- Committed b532d41, pushed to origin + backup
+
+Stage Summary:
+- Wizard now 300px (25% bigger)
+- Speech bubble no longer overlaid by header — sits to the left of wizard
+- Live at https://arjun-portfolio-emc.pages.dev/experience
+- Both repos synced at b532d41

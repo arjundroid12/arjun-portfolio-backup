@@ -4980,14 +4980,84 @@ export default function Home() {
                 whileHover={{ y: -6, scale: 1.03 }}
                 onMouseEnter={() => sound.playPop()}
                 onClick={() => sound.playClick()}
+                style={{ textDecoration: 'none' }}
               >
-                <Card className="bg-amber-950/60 border border-amber-800/40 shadow-lg text-center h-full backdrop-blur-sm">
-                  <CardContent className="pt-6 pb-4">
-                    <contact.icon className="w-6 h-6 mx-auto mb-3 text-amber-400" />
-                    <div className="text-xs text-amber-200/60 uppercase tracking-wider mb-1">{contact.label}</div>
-                    <div className="text-sm text-amber-100 font-mono truncate">{contact.value}</div>
-                  </CardContent>
-                </Card>
+                <div
+                  style={{
+                    position: 'relative',
+                    height: '100%',
+                    minHeight: '150px',
+                    padding: '22px 16px 18px',
+                    borderRadius: '14px',
+                    background: 'linear-gradient(160deg, rgba(30,20,12,0.85) 0%, rgba(20,14,8,0.92) 100%)',
+                    border: '1px solid rgba(250,204,21,0.18)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 30px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5)',
+                    backdropFilter: 'blur(8px)',
+                    overflow: 'hidden',
+                    textAlign: 'center',
+                    transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(250,204,21,0.5)'
+                    e.currentTarget.style.boxShadow =
+                      'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 30px rgba(0,0,0,0.4), 0 12px 32px rgba(0,0,0,0.6), 0 0 24px rgba(250,204,21,0.25)'
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(250,204,21,0.18)'
+                    e.currentTarget.style.boxShadow =
+                      'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 30px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5)'
+                  }}
+                >
+                  {/* Top accent line — subtle gold gradient */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: '20%', right: '20%',
+                      height: '1px',
+                      background: 'linear-gradient(90deg, transparent, rgba(250,204,21,0.6), transparent)',
+                    }}
+                  />
+                  {/* Circular icon badge with radial glow */}
+                  <div
+                    style={{
+                      width: '44px', height: '44px',
+                      margin: '0 auto 14px',
+                      borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: 'radial-gradient(circle at 30% 30%, rgba(250,204,21,0.25), rgba(120,80,20,0.4))',
+                      border: '1px solid rgba(250,204,21,0.4)',
+                      boxShadow: '0 0 18px rgba(250,204,21,0.3), inset 0 1px 1px rgba(255,255,255,0.15)',
+                    }}
+                  >
+                    <contact.icon className="w-5 h-5" style={{ color: '#fde68a' }} />
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      letterSpacing: '2.5px',
+                      textTransform: 'uppercase',
+                      color: 'rgba(250,204,21,0.65)',
+                      marginBottom: '6px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {contact.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '13px',
+                      color: '#fde68a',
+                      fontFamily: 'var(--font-vt323), monospace',
+                      letterSpacing: '0.3px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {contact.value}
+                  </div>
+                </div>
               </motion.a>
             ))}
           </div>
@@ -4997,16 +5067,120 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="bg-amber-950/60 border border-amber-800/40 shadow-lg text-center p-8 backdrop-blur-sm">
-              <Sparkles className="w-8 h-8 mx-auto mb-4 text-amber-400" />
-              <h3 className="text-xl font-bold mb-3 text-amber-200">Have a quest in mind?</h3>
-              <p className="text-amber-100/60 mb-6">I'm always interested in hearing about new adventures and AI collaborations.</p>
-              <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 border-0 text-white" asChild onClick={() => sound.playSuccess()}>
-                <a href="mailto:arjunvashishtha2004@gmail.com" onMouseEnter={() => sound.playHover()}>
-                  <Mail className="w-4 h-4 mr-2" /> Send a raven
-                </a>
-              </Button>
-            </Card>
+            <div
+              style={{
+                position: 'relative',
+                padding: '36px 28px',
+                borderRadius: '18px',
+                textAlign: 'center',
+                background:
+                  'linear-gradient(160deg, rgba(30,20,12,0.9) 0%, rgba(20,14,8,0.95) 100%)',
+                border: '1px solid rgba(250,204,21,0.25)',
+                boxShadow:
+                  'inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 40px rgba(0,0,0,0.4), 0 12px 40px rgba(0,0,0,0.6), 0 0 30px rgba(250,204,21,0.15)',
+                backdropFilter: 'blur(10px)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Glowing arcane circle behind the icon */}
+              <div
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  top: '24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(250,204,21,0.18) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }}
+              />
+              {/* Top accent line */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0, left: '15%', right: '15%',
+                  height: '1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(250,204,21,0.6), transparent)',
+                }}
+              />
+              <div
+                style={{
+                  width: '56px', height: '56px',
+                  margin: '0 auto 18px',
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'radial-gradient(circle at 30% 30%, rgba(250,204,21,0.3), rgba(120,80,20,0.5))',
+                  border: '1px solid rgba(250,204,21,0.5)',
+                  boxShadow: '0 0 28px rgba(250,204,21,0.4), inset 0 1px 1px rgba(255,255,255,0.2)',
+                  position: 'relative',
+                }}
+              >
+                <Sparkles className="w-7 h-7" style={{ color: '#fde68a' }} />
+              </div>
+              <h3
+                style={{
+                  fontFamily: '"TrenchSlab", sans-serif',
+                  fontSize: '24px',
+                  fontWeight: 700,
+                  marginBottom: '10px',
+                  color: '#fde68a',
+                  textShadow: '0 0 16px rgba(250,204,21,0.3)',
+                }}
+              >
+                Have a quest in mind?
+              </h3>
+              <p
+                style={{
+                  color: 'rgba(253,230,138,0.65)',
+                  marginBottom: '24px',
+                  maxWidth: '440px',
+                  marginLeft: 'auto',
+                  marginRight: 'auto',
+                  fontSize: '15px',
+                  lineHeight: 1.6,
+                }}
+              >
+                I&apos;m always interested in hearing about new adventures and AI collaborations.
+              </p>
+              <a
+                href="mailto:arjunvashishtha2004@gmail.com"
+                onMouseEnter={() => sound.playHover()}
+                onClick={() => sound.playSuccess()}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 28px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  letterSpacing: '0.5px',
+                  color: '#1a1010',
+                  textDecoration: 'none',
+                  borderRadius: '999px',
+                  background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%)',
+                  border: '1px solid rgba(255,220,120,0.6)',
+                  boxShadow:
+                    '0 0 24px rgba(250,204,21,0.5), 0 6px 20px rgba(234,88,12,0.4), inset 0 1px 1px rgba(255,255,255,0.4)',
+                  transition: 'transform 0.2s ease, box-shadow 0.3s ease',
+                  cursor: 'pointer',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow =
+                    '0 0 32px rgba(250,204,21,0.7), 0 8px 24px rgba(234,88,12,0.5), inset 0 1px 1px rgba(255,255,255,0.5)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow =
+                    '0 0 24px rgba(250,204,21,0.5), 0 6px 20px rgba(234,88,12,0.4), inset 0 1px 1px rgba(255,255,255,0.4)'
+                }}
+              >
+                <Mail className="w-4 h-4" /> Send a raven
+              </a>
+            </div>
           </motion.div>
         </div>
       </section>

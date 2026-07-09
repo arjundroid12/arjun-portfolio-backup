@@ -4241,9 +4241,9 @@ export default function Home() {
       </motion.nav>
 
       {/* ============ NAV BAR PET DOG ============ */}
-      {/* A sleeping dog that sits ON TOP of the nav bar (perched on the edge
-          like a companion pet). Desktop only (mobile nav is too cramped).
-          Positioned to overlap the nav bar's left edge, sitting on top of it. */}
+      {/* A sleeping dog perched on the LEFT rounded edge of the nav bar —
+          like a companion pet sitting on the corner of the menu.
+          Desktop only (mobile nav is too cramped). */}
       {!isMobile && (
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -4251,16 +4251,14 @@ export default function Home() {
           transition={{ delay: 1.2, type: 'spring', stiffness: 80, damping: 12 }}
           style={{
             position: 'fixed',
-            // Nav bar is at top:26px, height ~52px. Dog sits ON the bar,
-            // so bottom of dog aligns with top of nav bar content.
-            // Dog is 50px tall, perched so its bottom edge is at nav bar's vertical center.
-            top: '30px',
-            // Position dog at the left edge of the nav bar, slightly overlapping
-            // Nav bar left edge is at 22px, dog overlaps by sitting on top
-            left: '30px',
-            zIndex: 51,
-            width: '50px',
-            height: '50px',
+            // Nav bar is at: top 26px, left 22px, height 52px, borderRadius 28px
+            // Dog sits ON the left rounded edge — centered vertically on the nav bar,
+            // positioned at the far left edge before the logo
+            top: '24px',
+            left: '8px',
+            zIndex: 55,
+            width: '48px',
+            height: '48px',
             pointerEvents: 'none',
             imageRendering: 'pixelated',
           }}

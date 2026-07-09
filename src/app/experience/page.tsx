@@ -248,16 +248,18 @@ export default function ExperiencePage() {
 
         {/* Wizard character — clickable, speech bubble on click */}
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {/* Speech bubble — anchored to the RIGHT edge of the wizard column
-              so it grows leftward into the page (wizard is on the right side).
-              This keeps it on-screen instead of overflowing off the right edge. */}
+          {/* Speech bubble — positioned to the LEFT of the wizard, vertically
+              centered. Avoids the header bar above (which has higher z-index
+              and was covering the bubble) and the 'click to talk' label below.
+              Tail points right, toward the wizard. */}
           {showWizardBubble && (
             <div
               style={{
                 position: 'absolute',
-                bottom: 'calc(100% + 14px)',
-                right: '0',
-                maxWidth: '280px',
+                right: 'calc(100% + 14px)',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                maxWidth: '300px',
                 width: 'max-content',
                 padding: '12px 14px',
                 background: 'rgba(15,12,25,0.96)',
@@ -274,18 +276,18 @@ export default function ExperiencePage() {
               }}
             >
               {wizardLine}
-              {/* tail — positioned near the wizard's center (right side of bubble) */}
+              {/* tail — on the RIGHT side of bubble, pointing toward the wizard */}
               <div
                 style={{
                   position: 'absolute',
-                  bottom: '-8px',
-                  right: '40px',
-                  transform: 'rotate(45deg)',
+                  top: '50%',
+                  right: '-8px',
+                  transform: 'translateY(-50%) rotate(45deg)',
                   width: '14px',
                   height: '14px',
                   background: 'rgba(15,12,25,0.96)',
+                  borderTop: '1px solid rgba(168,85,247,0.55)',
                   borderRight: '1px solid rgba(168,85,247,0.55)',
-                  borderBottom: '1px solid rgba(168,85,247,0.55)',
                 }}
               />
             </div>
@@ -313,12 +315,12 @@ export default function ExperiencePage() {
               e.currentTarget.style.filter = 'drop-shadow(0 0 18px rgba(168,85,247,0.45)) drop-shadow(0 8px 12px rgba(0,0,0,0.7))'
             }}
           >
-            {/* Wizard.gif — 250x250 native, rendered at 240 */}
+            {/* Wizard.gif — 250x250 native, rendered at 300 (upscaled, pixelated keeps it crisp-blocky) */}
             <img
               src="/experience/wizard.gif"
               alt="Idle dungeon wizard"
-              width={240}
-              height={240}
+              width={300}
+              height={300}
               style={{ display: 'block', imageRendering: 'pixelated' }}
               draggable={false}
             />
@@ -477,8 +479,8 @@ export default function ExperiencePage() {
           50% { transform: translateY(-8px); }
         }
         @keyframes wizardBubbleIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(-50%) translateX(8px); }
+          to   { opacity: 1; transform: translateY(-50%) translateX(0); }
         }
       `}</style>
     </main>

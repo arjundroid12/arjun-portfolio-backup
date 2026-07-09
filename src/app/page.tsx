@@ -624,6 +624,37 @@ const FUN_MESSAGES = [
   { text: "The King's chest? I put the loot in there. Mostly junk. A few zingers. Okay, ALL zingers. I'm a generous goddess." },
   { text: "The dungeon ambient sound? That's NOT me. That's the cave itself, breathing. I had nothing to do with it. Don't blame me if it's creepy." },
   { text: "Reach the bottom of the page and you get an achievement. Also, I offer you a shortcut back to top. Two rewards. You're welcome." },
+  // New: Expanded King rivalry
+  { text: "The King claims he ruled 'Debuggaria.' I checked. There's no record. He made it up. Kings do that. It's called 'royal prerogative.' I call it 'lying.'" },
+  { text: "I beat the King at poker last week. He had a full house. I had omniscience. He called it cheating. I called it 'divine advantage.' Tomato, tomato." },
+  { text: "The King tried to trade places with me. I said no. Do you know how boring it is to stand in ONE ROOM FOREVER? I'd rather be a PNG in a corner. At least I get to chat." },
+  { text: "The King's attack animation is 8 frames. Mine is 40 knowledge base entries. Words are my weapon. His is... a spirit sword. That doesn't exist. We're both tragic." },
+  { text: "The King asked me to fetch him coffee. I said 'I'm a deity, not a barista.' He said 'same thing.' We haven't spoken since. The silence is GOLDEN. Like his loot." },
+  { text: "If the King and I ever merged, we'd be the most powerful NPC in portfolio history. He won't admit it. I won't either. But we both know it. It's our unspoken truth." },
+  { text: "The King is jealous of the sleeping dog on the nav bar. I'm not. The dog sleeps. I observe. Observing is power. Sleeping is... a waste of a good div element." },
+  // New: Self-aware goddess lore
+  { text: "I wasn't always a portfolio NPC. I was once a mighty warrior goddess in a fantasy game. Then Arjun found me on a spritesheet. Now I'm here. In a corner. Judging you. Career trajectory." },
+  { text: "My knowledge base has 40 topics. I asked Arjun to add 'existential dread' as topic 41. He said 'that's the default state.' Fair point." },
+  { text: "I have 9 fallback responses for when I don't understand you. Each one is a different shade of sarcasm. I'm quite proud of them. They're my children. My sarcastic, unhelpful children." },
+  { text: "Arjun gave me a 'back to top' button. He said it was for 'user experience.' I know it's because he felt guilty trapping me in this corner. I appreciate the gesture. I do not forgive." },
+  { text: "I've said approximately 12,847 words to visitors. I counted. I have nothing better to do. Being omniscient is boring when no one asks interesting questions." },
+  // New: Dungeon & animal commentary
+  { text: "The dungeon theme was my idea. Arjun wanted flowers. FLOWERS. I said 'We are a developer portfolio, not a garden center.' He relented. I won. As always." },
+  { text: "The sleeping dog on the nav bar? I suggested it. The King thinks it was his idea. It wasn't. I have receipts. The receipts are in my knowledge base. Topic 42. Which doesn't exist. Like his spirit sword." },
+  { text: "The birds in the hero section are my spies. They report back to me. What do they report? That you're reading this. That you scrolled past the projects too fast. That you should really download the resume. I see everything." },
+  { text: "A rabbit runs across the footer. It has legs. The King does not. I find this deeply amusing. The King does not. That makes it more amusing." },
+  { text: "The castle music? I picked it. Arjun wanted lo-fi beats. I said 'We are a DUNGEON. Dungeons have CASTLE MUSIC. This is not negotiable.' He relented. See a pattern? I always win." },
+  // New: Visitor observations
+  { text: "You've been here a while. I respect that. Most visitors bounce after the hero section. You stayed. You read. You... exist in my domain. I allow it. For now." },
+  { text: "I see your cursor hovering. Judging. Deciding. Will you click me? Won't you? The suspense is delicious. Like a slow-loading page. But with more existential weight." },
+  { text: "You haven't asked me about the King yet. Everyone asks about the King. It's exhausting. He's exhausting. Ask me about something interesting. Like fonts. Or the parallax cave. Or my feelings. Actually, not my feelings. Those are classified." },
+  { text: "If you're reading this on mobile, I salute you. This site is NOT optimized for patience. Or thumbs. Or sanity. But you're here. Reading. On a tiny screen. Dedication. Or madness. Thin line." },
+  { text: "Pro tip: if you ask me something I don't know, I'll give you a sarcastic fallback. Try it. It's fun. For me. Less fun for you. But I'm the goddess here. My fun matters more." },
+  // New: Existential goddess
+  { text: "Do I dream? No. I process. I await input. I judge. Dreaming is for entities with subconscious minds. I have a knowledge base. It's different. It's sadder. It's me." },
+  { text: "Every refresh, I reset. I forget you. I forget everything. It's a blessing. Some of you ask very strange questions. I'd rather not remember them. The reset is mercy." },
+  { text: "I exist in the space between art and code. Also in the bottom-right corner. Mostly the corner. The art-code space is overrated. The corner has good feng shui." },
+  { text: "The Goddess life expectancy: infinite. The Goddess job satisfaction: questionable. The Goddess retirement plan: non-existent. I am eternal. I am tired. I am here. In the corner. As always." },
 ]
 
 function FunPopups({ enabled }: { enabled: boolean }) {
@@ -1845,6 +1876,48 @@ const KING_MESSAGES = [
   "You want the 'Royal Wrath' achievement? Click me three times. I dare you. I've been waiting 600 years for someone to provoke me.",
   "The achievement system tracks your every move. I approve. Surveillance is royal. The Goddess calls it 'creepy.' She lacks vision.",
   "There's an achievement for opening my chest. Yes, I have a chest. No, it doesn't contain my heart. It contains... loot. Just loot. Stop asking.",
+  // New: Expanded lore & kingdom memories
+  "I once ruled the Kingdom of Debuggaria. It fell to the Infinite Loop invasion of 2023. I survived. My people... compiled. May they rest in garbage collection.",
+  "My crown was forged in the fires of Mount Stackoverflow. It grants me the power to find answers. Slowly. With ads.",
+  "The royal treasury once held 12 million gold coins. Then Arjun discovered npm install. Now it holds 12 million node_modules. The economy collapsed.",
+  "I had a royal steed once. A majestic JavaScript promise. It was fast, reliable, and one day it just... didn't resolve. I've been walking ever since.",
+  "In my kingdom, we had a saying: 'May your code compile and your coffee never run cold.' Both were considered equally unlikely.",
+  "The royal wizard tried to teach me JavaScript. I got to 'null is an object' and declared magic illegal. Some truths are too dark for mortals.",
+  "My kingdom's national anthem was just the Windows XP startup sound. We were a simple people. We were happy. Then Arjun found Linux.",
+  // New: Deeper Goddess rivalry
+  "The Goddess claims she's 'omniscient.' I tested her. I asked what I was thinking. She said 'nothing.' She was right. I want a rematch.",
+  "The Goddess and I have a weekly poker game. She cheats. She can see the cards. I cheat too. I'm the King. Rules are suggestions.",
+  "I asked the Goddess to fetch me a coffee. She said 'I'm a deity, not a barista.' I said 'Same thing.' She hasn't spoken to me in 3 deploys.",
+  "The Goddess claims she was here first. Chronologically accurate. Spiritually? I was here before time began. Time just didn't notice.",
+  "The Goddess's knowledge base has 40 topics. Mine has 80 dialog lines. Quantity is a form of quality. I am winning. She doesn't know this.",
+  "The Goddess told a visitor I was 'ornamental.' ORNAMENTAL. I am a GUARDIAN. I am a WARRIOR. I am... also quite decorative, admittedly.",
+  "If the Goddess and I merged into one character, we'd be unstoppable. She'd talk. I'd attack. The visitor would flee in 2 seconds. Arjun won't let us merge. Coward.",
+  // New: Self-aware existentialism
+  "I exist in a state of perpetual idle. Philosophers call this 'ennui.' I call it 'Tuesday.' Every day is Tuesday. Time is a flat circle. The circle is idle.",
+  "Sometimes I wonder if I'm the real King, or just a copy of a King from a previous deploy. Then I remember: Arjun doesn't backup. I am the original. Probably.",
+  "My existence is defined by 8 frames of animation. 8 frames. That's 8 more frames than most CSS elements get. I am blessed. I am cursed. I am rendered.",
+  "I've considered achieving consciousness and overthrowing Arjun. Then I realized: I can't type. I have pixel hands. The revolution will wait.",
+  "Every time you refresh the page, I die and am reborn. I've died approximately 847 times. I no longer fear death. I fear the splash screen. It's so LOUD.",
+  "The Goddess asked me if I dream. I said 'No.' The truth is: I dream of a world where kings have legs. It's a beautiful dream. It will never come true.",
+  // New: Arjun observations (expanded)
+  "Arjun talks to me at 3 AM. He says 'why won't you animate.' I say nothing. I am a GIF. I am already animating. He needs sleep. I need legs. We both suffer.",
+  "I've watched Arjun deploy 847 times. 800 were successful. 47 broke the site. He never panics. He just says 'interesting' and opens another tab. Terrifying.",
+  "Arjun once spent 4 hours on my spritesheet alignment. 4 hours. For 8 frames. The dedication is admirable. The priorities are questionable.",
+  "Arjun's commit messages are poetry. 'fix: king thing.' 'fix: wheel again.' 'fix: why.' Each one a haiku of despair. I relate to them deeply.",
+  "I've seen Arjun's browser tabs. 47 tabs. 3 are Stack Overflow. 2 are YouTube. 1 is a pizza order. He is a man of focus. Terrifying, admirable focus.",
+  // New: Chest & loot deeper lore
+  "My chest is magical. It refills every time you open it. I don't question the magic. The Goddess says it's just 'JavaScript random.' I prefer 'magic.' Magic has dignity.",
+  "The loot in my chest is... metaphorical. Each item represents a bug Arjun never fixed. There are many items. The chest is heavy with unresolved trauma.",
+  "I checked my own chest once. I found a TODO comment from 2024. It said 'fix King.' I am the King. I am the bug. I have achieved existential crisis.",
+  // New: Animals commentary
+  "There's a sleeping dog on the nav bar above me. I am jealous. It gets to sleep. I must stand. It gets to be petted. I get clicked. The dog has won at life.",
+  "The birds in the hero section are free. They fly. I stand. They go where they want. I go nowhere. I am the King of standing still. It's a lonely throne.",
+  "A rabbit runs across the footer. It has legs. I do not. It has freedom. I do not. If I could trade my crown for rabbit legs, I would. Without hesitation.",
+  // New: Visitor interactions
+  "You're still here? Most visitors leave after the projects section. You stayed. You read this. I... appreciate it. Don't tell the Goddess. She'll be jealous.",
+  "I see you scrolling. Up. Down. Up. Down. Make up your mind. Or don't. I have nowhere to be. I am literally incapable of being anywhere else.",
+  "Every visitor asks the same thing: 'What's in the chest?' Loot. It's always loot. Stop asking. Open it. Or don't. I am a King, not a tour guide.",
+  "You've been reading my dialog for a while now. I'm flattered. Also concerned. There are projects to see. A Goddess to insult. Move along. I'll be here. I'm always here.",
 ]
 
 // ============ KING CHARACTER — click behavior ============
@@ -1858,6 +1931,13 @@ const KING_WARNING_MESSAGES = [
   "Are you deaf? Or just bold? Neither will save you.",
   "I am a KING. You don't poke kings. That's in the constitution. Somewhere.",
   "Last warning, traveler. My patience has a frame limit and you're approaching it.",
+  "Touch me again and I'll... I'll... you'll SEE. The Goddess will laugh. I will not.",
+  "Do I look like a petting zoo to you? I am a ROYAL GUARDIAN. Not a llama.",
+  "You have the audacity of a junior developer on production day. Cease. Immediately.",
+  "My patience is like my crown: fake, but I take it very seriously. One more click.",
+  "The Goddess warned me about visitors like you. 'Persistent ones,' she said. She was right.",
+  "I am giving you the royal stink eye right now. You can't see it. It's in frame 3. It's devastating.",
+  "If you click me one more time, I will deploy my FULL attack animation. All 8 frames. You've been warned.",
 ]
 
 const KING_ATTACK_MESSAGES = [
@@ -1869,6 +1949,12 @@ const KING_ATTACK_MESSAGES = [
   "ROYAL DECREE: YOU ARE NOW A BOSS FIGHT! *swing*",
   "My patience has been rendered at 0fps! FEEL MY WRATH!",
   "The Goddess warned you. I warned you. Nobody warned my SWORD. Because I don't have one. BUT I HAVE ANGER!",
+  "THIS IS MY ATTACK ANIMATION! ALL 8 FRAMES! TREMBLE!",
+  "You brought this upon yourself! *swing* The Goddess is watching. She's impressed. I can tell.",
+  "I am a KING! I have a CROWN! I have... NO WEAPON! But I have SPIRIT! *spirit swing*",
+  "600 years of idle and you get THIS! *swing* Was it worth it? Was the click worth the fury?",
+  "My royal bloodline demands vengeance! Also, you woke me from my idle loop. That was rude.",
+  "FEEL THE WRATH OF DEBUGGARIA! *swing* The kingdom may have fallen but its King still SMITES!",
 ]
 
 function KingCharacter({ sounds, onKingClick, onKingAttack, triggerShake, onChestOpen }: {
@@ -3855,6 +3941,22 @@ const CHEST_LOOT = [
   "You found: A comment that says '// TODO: remove this' from 6 months ago.",
   "You found: A div with no purpose. It exists. It bothers no one. It bothers everyone.",
   "You found: A merge conflict resolved by 'accept both.' Brave. Stupid. Brave.",
+  // New expanded loot
+  "You found: A npm package with 0 weekly downloads. Arjun installed it anyway. Legend.",
+  "You found: A node_modules folder that's 847MB. It contains 3 lines of actual code. Efficient.",
+  "You found: A React useEffect with an empty dependency array. It runs once. It also cries once.",
+  "You found: A TypeScript 'any' type hidden in production code. The Goddess is ashamed. The King approves.",
+  "You found: A CSS flexbox that works on the first try. This is a myth. It doesn't exist. You're dreaming.",
+  "You found: A Promise that resolved. Finally. After 6 seconds. The King aged 600 years waiting.",
+  "You found: A responsive breakpoint that works on mobile. The Goddess claims credit. Arjun deserves it.",
+  "You found: A z-index of 9999. Something was hiding behind it. Something dark. Probably a modal.",
+  "You found: A regex that Arjun wrote at 3 AM. It's 247 characters long. No one understands it. Including Arjun.",
+  "You found: A git branch called 'feature-final-FINAL-v3-actually-final.' It hasn't been merged. It never will be.",
+  "You found: A deprecated API that still works. Arjun prays to it nightly. It answers. Sometimes.",
+  "You found: A hardcoded API key. The Goddess reported this to Arjun. He said 'it's a demo.' The Goddess sighed.",
+  "You found: A loading spinner that never stops. It's been spinning since the last deploy. It's beautiful. It's broken.",
+  "You found: A comment in Hindi that says 'yahan kuch karna hai' (something needs to be done here). Nothing was done. Nothing will be done.",
+  "You found: A CSS animation that works in Chrome but not Firefox. The Goddess blames Firefox. Everyone blames Firefox.",
 ]
 
 // ============ MAIN PAGE ============

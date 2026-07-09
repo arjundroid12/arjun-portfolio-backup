@@ -280,3 +280,55 @@ Stage Summary:
 - 26 files, 46 passing tests, CI configured for py3.9-3.11
 - Ready for next session: P4Runtime integration, DDoS detection, or load balancer mode
 - Portfolio untouched (per user instruction to pause)
+
+---
+Task ID: 8
+Agent: main (Super Z)
+Task: Implement DDoS detection for SDN project + add it as a portfolio project card.
+
+Work Log:
+SDN project (https://github.com/arjundroid12/sdn-project):
+- Wrote controller/security.py — DDoSDetector class with:
+  * Threshold detection (block source after N packets in window)
+  * Entropy detection (block source after N distinct dst MACs)
+  * Sliding window sample expiry (no memory leak)
+  * Auto-unblock after block_duration
+  * Manual block/unblock via REST API
+  * Thread-safe, background daemon thread
+  * Block/unblock callbacks push ACL flows to all connected switches
+- Wired into controller/main.py:
+  * _start_ddos_detector() installs block/unblock callbacks
+  * Packet-in handler feeds samples to detector (never blocks forwarding)
+  * ACL drop flow: priority=200, eth_src match, no actions = drop
+- Added 6 new /api/v1/security/* endpoints to rest_api.py:
+  * GET /security/blocked, GET /security/blocked/{mac}/status
+  * POST /security/blocked/{mac}, DELETE /security/blocked/{mac}
+  * GET /security/stats, PUT /security/config
+- Wrote tests/test_security.py — 20 new tests covering:
+  * Sample ingestion (broadcast/null src filtering)
+  * Threshold + entropy detection (block + no-block cases)
+  * Window expiry
+  * Manual block/unblock (idempotency, callback invocation)
+  * Auto-unblock after block_duration
+  * Stats reporting + thread lifecycle
+- Fixed bugs: _detect_anomalies signature, test import typo, auto-unblock test
+- All 66 tests passing in 2.72s (was 46)
+- Updated README with DDoS section, 6 new security endpoints in API table, test count
+- Committed a702b3a, pushed to origin/main
+
+Portfolio (https://arjun-portfolio-emc.pages.dev):
+- Added 'SDN Controller' as new legendary project card (category: Networking)
+- Positioned at top of PROJECTS array alongside SmartAgro
+- 10 features listed: Ryu controller, P4 data plane, LLDP, BFS forwarding,
+  DDoS detection, ACL drops, REST API, dashboard, CLI, test suite + CI
+- Links to https://github.com/arjundroid12/sdn-project
+- Build clean, deployed to Cloudflare
+- Committed 06e649d, pushed to origin + backup
+
+Stage Summary:
+- SDN project now has real controller intelligence (DDoS mitigation)
+- 66 tests passing, CI green on push
+- Portfolio updated with SDN Controller as legendary card
+- Live at https://arjun-portfolio-emc.pages.dev (scroll to Projects)
+- Both portfolio repos synced at 06e649d
+- SDN repo synced at a702b3a

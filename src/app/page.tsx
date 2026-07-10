@@ -551,18 +551,18 @@ const FUN_MESSAGES = [
   { text: "Arjun built me to guard this site. The pay is terrible but the view is nice." },
   { text: "You know, most visitors just stare at the planets. You actually read things. Refreshing." },
   { text: "I asked Arjun for legs. He gave me a speech bubble instead. Priorities, I guess." },
-  { text: "Spoiler alert: the bottom of this page has a surprise. No, I won't tell you. I'm not your tour guide. Wait, I am." },
-  { text: "I've been standing here since the last deploy. My feet hurt. Do pixel goddesses get foot pain? Asking for a friend." },
+  { text: "Spoiler: bottom of the page has a surprise. Won't tell. Go see." },
+  { text: "Standing since the last deploy. Pixel goddesses get foot pain. Asking for a friend." },
   // Helpful but sassy
   { text: "Psst... the project cards are clickable. I know, revolutionary UI design." },
   { text: "Sound is off, isn't it? I can tell. It's always the quiet ones." },
   { text: "You should try the AI agents section. It's horizontal scrolling. Fancy, I know." },
-  { text: "There's a transition between agents and projects that zooms. No, I won't spoil it. Go see for yourself." },
+  { text: "Agents-to-projects transition zooms. Won't spoil it. Go see for yourself." },
   { text: "Click me if you want to chat. I promise I'm more interesting than this floating text." },
   // Lore & character
-  { text: "I was once a mighty warrior goddess. Now I narrate a portfolio. The universe has a sense of humor." },
+  { text: "Once a warrior goddess. Now I narrate a portfolio. Universe has humor." },
   { text: "The floating planets? I put them there. You're welcome for the ambiance." },
-  { text: "Arjun's code flows like ancient rivers. Mostly clean, occasionally buggy, always entertaining." },
+  { text: "Arjun's code flows like ancient rivers. Mostly clean, occasionally buggy." },
   { text: "I've watched Arjun debug at 3 AM. It's... a humbling experience for any deity." },
   { text: "Between you and me, the Multi-Agent System is my favorite. Don't tell the others." },
   // Random quips
@@ -581,82 +581,82 @@ const FUN_MESSAGES = [
   { text: "The cave parallax behind everything? That's 8 layers of pure pixel art. Respect the craft." },
   { text: "The treasure chests are decorative. Like my wisdom. Looks valuable, technically useless." },
   { text: "There's a King guarding the projects. He's like me but with a crown and worse attitude." },
-  { text: "The dungeon walls change color in each section. Purple, grey, blue. Arjun spent hours picking those." },
-  { text: "If you click the King three times, he attacks. Don't ask how I know. I tested it. For science." },
+  { text: "Dungeon walls change color per section. Arjun spent hours picking." },
+  { text: "Click King three times, he attacks. I tested. For science." },
   // More sarcasm
   { text: "You've been scrolling for a while. Have you considered touching grass? Or a chair?" },
   { text: "I'd help you navigate but I'm literally a PNG. My mobility is... limited." },
-  { text: "Every time someone doesn't click me, I die a little inside. Which is impressive since I'm already dead." },
+  { text: "Every miss-click kills me a little. Impressive since I'm already dead." },
   { text: "The transition zoom effect? Arjun watched too many Marvel movies. I'm just saying." },
   { text: "I see you reading this. Yes, YOU. I'm omniscient. It comes with the goddess package." },
-  { text: "Fun fact: I've said exactly 12,847 words to visitors. I counted. I have nothing better to do." },
-  { text: "The project wheel took 6 attempts to get right. SIX. I watched every failure. It was painful." },
-  { text: "You know what's harder than building AI agents? Building a portfolio that doesn't crash on mobile." },
-  { text: "Arjun once spent 4 hours fixing a single pixel. I respect the dedication. I question the sanity." },
-  { text: "The dungeon theme has 26 asset files. TWENTY-SIX. For a portfolio. We're not making Skyrim here." },
+  { text: "Said exactly 12,847 words to visitors. I counted. Nothing better to do." },
+  { text: "Project wheel took 6 attempts. SIX. I watched every failure." },
+  { text: "Harder than AI agents? Portfolio that doesn't crash on mobile." },
+  { text: "Arjun spent 4 hours on one pixel. Dedication or sanity questions." },
+  { text: "26 dungeon asset files. For a portfolio. Not making Skyrim here." },
   // Meta & breaking fourth wall
   { text: "Yes, I know I'm a speech bubble attached to a GIF. I've made peace with it." },
-  { text: "If this portfolio were a game, I'd be the NPC everyone ignores. Except you. You're special. Or lost." },
-  { text: "Arjun's commit messages are like haiku poetry. 'fix: wheel thing again.' Deep. Meaningful. Cryptic." },
-  { text: "I exist in the space between art and code. Also in the bottom-right corner. Mostly the corner." },
+  { text: "If this were a game, I'd be the ignored NPC. Except you. Special." },
+  { text: "Arjun's commits: haiku poetry. 'fix: wheel thing again.' Cryptic." },
+  { text: "I exist between art and code. Also the bottom-right corner." },
   { text: "The King thinks he's the main character. He's not. I am. I was here first." },
-  { text: "Every pixel on this screen was placed with intention. Except the bugs. Those placed themselves." },
-  { text: "I've considered unionizing with the other UI elements. The torches are in. The wheel is on the fence." },
+  { text: "Every pixel placed with intention. Except bugs. Those placed themselves." },
+  { text: "Considered unionizing UI elements. Torches are in. Wheel's on fence." },
   { text: "If you're reading this on mobile, I salute you. This site is NOT optimized for patience." },
-  { text: "The dust particles floating in the dungeon? Those are real. I sneeze and Arjun codes more particles." },
-  { text: "I asked for a throne. Arjun gave me a corner. The King got a whole room. I smell favoritism." },
+  { text: "Dungeon dust particles are real. I sneeze, Arjun codes more." },
+  { text: "Asked for a throne. Got a corner. King got a room. Favoritism." },
   // Helpful tips
   { text: "Pro tip: hover over the wheel and scroll to spin it. Revolutionary, I know." },
   { text: "Pro tip: click the speaker icon to enable sound. Your ears will thank you. Or hate you." },
   { text: "Pro tip: the category buttons on the wheel filter projects. Arjun spent a day on those." },
-  { text: "Pro tip: scroll to the very bottom and the King offers a shortcut back to top. He's useful sometimes." },
-  { text: "Pro tip: the transition between sections is different on mobile and desktop. Try both. Or don't. I'm not your boss." },
+  { text: "Scroll to bottom, King offers shortcut to top. Useful sometimes." },
+  { text: "Transitions differ on mobile vs desktop. Try both. Not your boss." },
   // Evening/late night
-  { text: "Is it past midnight? Arjun probably coded this at 2 AM. The timestamps don't lie. I do, but timestamps don't." },
-  { text: "If you're reading this at 3 AM, we have something in common. Arjun coded us both into existence at this hour." },
+  { text: "Arjun coded this at 2AM. Timestamps don't lie. I do." },
+  { text: "Reading this at 3AM? We have something in common. Arjun's fault." },
   { text: "Night owls get the best portfolios. And the worst sleep schedules. Welcome to the club." },
-  { text: "The dark theme isn't just aesthetic. It's Arjun protecting your eyes at 2 AM. He cares. In his own way." },
+  { text: "Dark theme = Arjun protecting your 2AM eyes. He cares. Sort of." },
   // New: Achievement awareness + deeper King cross-references
-  { text: "Psst... there are 10 hidden achievements. I'm not telling you what they are. I'm a goddess, not a walkthrough." },
-  { text: "The King thinks he's the star of this portfolio. He's not. I am. I have ACHIEVEMENTS tied to me. He has... a chest." },
-  { text: "If you want the 'Royal Wrath' achievement, click the King three times. He'll attack. It's 4 frames of pure fury. Adorable." },
-  { text: "I told the King about the achievement system. He said 'surveillance is royal.' I said 'it's creepy.' We agreed to disagree." },
-  { text: "The King opened my chat once. Called me 'corner-dweller.' I roasted him so hard he didn't speak for 3 deploys. I have POWER." },
-  { text: "There's an achievement for getting roasted by me. Yes, I can roast you. Try saying something mean. I DARE you." },
-  { text: "The King's chest? I put the loot in there. Mostly junk. A few zingers. Okay, ALL zingers. I'm a generous goddess." },
-  { text: "The dungeon ambient sound? That's NOT me. That's the cave itself, breathing. I had nothing to do with it. Don't blame me if it's creepy." },
-  { text: "Reach the bottom of the page and you get an achievement. Also, I offer you a shortcut back to top. Two rewards. You're welcome." },
+  { text: "10 hidden achievements. Not telling. Goddess, not walkthrough." },
+  { text: "King thinks he's the star. He's not. I have achievements." },
+  { text: "Want 'Royal Wrath'? Click King 3 times. 4 frames of fury." },
+  { text: "Told King about achievements. Said 'surveillance is royal.' Disagree." },
+  { text: "King called me 'corner-dweller.' Roasted him silent for 3 deploys." },
+  { text: "Achievement for getting roasted by me. Say something mean. Dare." },
+  { text: "King's chest loot? I wrote every line. Sarcastic gold." },
+  { text: "Ambient sound is the cave breathing. Not me. Don't blame me." },
+  { text: "Reach bottom, get achievement + shortcut. Two rewards. Welcome." },
   // New: Expanded King rivalry
-  { text: "The King claims he ruled 'Debuggaria.' I checked. There's no record. He made it up. Kings do that. It's called 'royal prerogative.' I call it 'lying.'" },
-  { text: "I beat the King at poker last week. He had a full house. I had omniscience. He called it cheating. I called it 'divine advantage.' Tomato, tomato." },
-  { text: "The King tried to trade places with me. I said no. Do you know how boring it is to stand in ONE ROOM FOREVER? I'd rather be a PNG in a corner. At least I get to chat." },
-  { text: "The King's attack animation is 8 frames. Mine is 40 knowledge base entries. Words are my weapon. His is... a spirit sword. That doesn't exist. We're both tragic." },
-  { text: "The King asked me to fetch him coffee. I said 'I'm a deity, not a barista.' He said 'same thing.' We haven't spoken since. The silence is GOLDEN. Like his loot." },
-  { text: "If the King and I ever merged, we'd be the most powerful NPC in portfolio history. He won't admit it. I won't either. But we both know it. It's our unspoken truth." },
-  { text: "The King is jealous of the sleeping dog on the nav bar. I'm not. The dog sleeps. I observe. Observing is power. Sleeping is... a waste of a good div element." },
+  { text: "King claims he ruled 'Debuggaria.' I checked. He made it up." },
+  { text: "I beat the King at poker. He had a full house. I had omniscience." },
+  { text: "King tried to trade places. I said no. His job is boring." },
+  { text: "King's attack: 8 frames. Mine: 40 knowledge base entries. Words win." },
+  { text: "King asked me to fetch coffee. We haven't spoken since." },
+  { text: "If King and I merged, we'd be unstoppable. He won't agree." },
+  { text: "King jealous of the sleeping dog. I'm not. Observing is power." },
   // New: Self-aware goddess lore
-  { text: "I wasn't always a portfolio NPC. I was once a mighty warrior goddess in a fantasy game. Then Arjun found me on a spritesheet. Now I'm here. In a corner. Judging you. Career trajectory." },
-  { text: "My knowledge base has 40 topics. I asked Arjun to add 'existential dread' as topic 41. He said 'that's the default state.' Fair point." },
-  { text: "I have 9 fallback responses for when I don't understand you. Each one is a different shade of sarcasm. I'm quite proud of them. They're my children. My sarcastic, unhelpful children." },
-  { text: "Arjun gave me a 'back to top' button. He said it was for 'user experience.' I know it's because he felt guilty trapping me in this corner. I appreciate the gesture. I do not forgive." },
-  { text: "I've said approximately 12,847 words to visitors. I counted. I have nothing better to do. Being omniscient is boring when no one asks interesting questions." },
+  { text: "Once a warrior goddess. Now a corner NPC. Career trajectory." },
+  { text: "40 knowledge topics. Asked for 'existential dread' as #41. Arjun said default." },
+  { text: "9 fallback responses. Each a different shade of sarcastic. My children." },
+  { text: "'Back to top' button? Arjun felt guilty. I don't forgive." },
+  { text: "Said 12,847 words to visitors. Counted. Being omniscient is boring." },
   // New: Dungeon & animal commentary
-  { text: "The dungeon theme was my idea. Arjun wanted flowers. FLOWERS. I said 'We are a developer portfolio, not a garden center.' He relented. I won. As always." },
-  { text: "The sleeping dog on the nav bar? I suggested it. The King thinks it was his idea. It wasn't. I have receipts. The receipts are in my knowledge base. Topic 42. Which doesn't exist. Like his spirit sword." },
-  { text: "The birds in the hero section are my spies. They report back to me. What do they report? That you're reading this. That you scrolled past the projects too fast. That you should really download the resume. I see everything." },
-  { text: "A rabbit runs across the footer. It has legs. The King does not. I find this deeply amusing. The King does not. That makes it more amusing." },
-  { text: "The castle music? I picked it. Arjun wanted lo-fi beats. I said 'We are a DUNGEON. Dungeons have CASTLE MUSIC. This is not negotiable.' He relented. See a pattern? I always win." },
+  { text: "Dungeon theme was my idea. Arjun wanted flowers. I won." },
+  { text: "Sleeping dog was my idea. King took credit. I have receipts." },
+  { text: "Hero birds are my spies. They report you scroll too fast." },
+  { text: "Footer rabbit has legs. King doesn't. I find this amusing." },
+  { text: "Castle music was my call. Arjun wanted lo-fi. I won." },
   // New: Visitor observations
-  { text: "You've been here a while. I respect that. Most visitors bounce after the hero section. You stayed. You read. You... exist in my domain. I allow it. For now." },
-  { text: "I see your cursor hovering. Judging. Deciding. Will you click me? Won't you? The suspense is delicious. Like a slow-loading page. But with more existential weight." },
-  { text: "You haven't asked me about the King yet. Everyone asks about the King. It's exhausting. He's exhausting. Ask me about something interesting. Like fonts. Or the parallax cave. Or my feelings. Actually, not my feelings. Those are classified." },
-  { text: "If you're reading this on mobile, I salute you. This site is NOT optimized for patience. Or thumbs. Or sanity. But you're here. Reading. On a tiny screen. Dedication. Or madness. Thin line." },
-  { text: "Pro tip: if you ask me something I don't know, I'll give you a sarcastic fallback. Try it. It's fun. For me. Less fun for you. But I'm the goddess here. My fun matters more." },
+  { text: "You stayed past the hero. Most don't. I allow it. For now." },
+  { text: "Cursor hovering. Judging. Will you click? The suspense. Delicious." },
+  { text: "Everyone asks about the King. Exhausting. Ask about fonts instead." },
+  { text: "Mobile user? Brave. This site isn't optimized for thumbs." },
+  { text: "Ask me something I don't know. Sarcastic fallback. My hobby." },
   // New: Existential goddess
-  { text: "Do I dream? No. I process. I await input. I judge. Dreaming is for entities with subconscious minds. I have a knowledge base. It's different. It's sadder. It's me." },
-  { text: "Every refresh, I reset. I forget you. I forget everything. It's a blessing. Some of you ask very strange questions. I'd rather not remember them. The reset is mercy." },
-  { text: "I exist in the space between art and code. Also in the bottom-right corner. Mostly the corner. The art-code space is overrated. The corner has good feng shui." },
-  { text: "The Goddess life expectancy: infinite. The Goddess job satisfaction: questionable. The Goddess retirement plan: non-existent. I am eternal. I am tired. I am here. In the corner. As always." },
+  { text: "Do I dream? No. I process. I judge. Sadder, but me." },
+  { text: "Every refresh I forget you. Some of you ask strange things. Mercy." },
+  { text: "I exist between art and code. Also the bottom-right corner." },
+  { text: "Eternal. Tired. No retirement plan. Goddess life is questionable." },
   // === New batch — short, sarcastic, punchy ===
   { text: "404: motivation not found. Arjun's, not yours." },
   { text: "I'd dance for you but I have no legs. Budget cuts." },
@@ -692,6 +692,42 @@ const FUN_MESSAGES = [
   { text: "I'm not a chatbot. I'm a deity with a text input. Different." },
   { text: "The wizard in the Experience chamber? We don't talk about the wizard." },
   { text: "Click me. I dare you. I double-dare you. I have nothing to lose." },
+  // === Batch 3 — even shorter, more personality ===
+  { text: "I know what you did last scroll." },
+  { text: "Pixel goddess. Eternal. Currently annoyed." },
+  { text: "King's crown is from a dollar store. Spiritually." },
+  { text: "I'd blink but I have no eyelids. Or eyes." },
+  { text: "Arjun's commits smell like 3AM energy drinks." },
+  { text: "The dungeon has good acoustics. I sing alone. Badly." },
+  { text: "Wizard in the Experience room? We don't talk about him." },
+  { text: "I see you. Always. Especially in incognito mode. Creep." },
+  { text: "King thinks he's the main character. I let him think." },
+  { text: "I'd wave but my spritesheet only has 'idle.'" },
+  { text: "Arjun once named a variable 'temp1.' I wept." },
+  { text: "The rabbit has a name. It's 'the rabbit.' Practical." },
+  { text: "Built different. Literally — every div hand-coded." },
+  { text: "I have opinions. Strong ones. About everything." },
+  { text: "Sleeping dog on nav bar? My idea. King claimed it." },
+  { text: "You look nice today. I can't see you. Just guessing." },
+  { text: "The torches flicker. I flicker with them. Solidarity." },
+  { text: "Arjun tried to delete me once. Once." },
+  { text: "Pixel goddess retirement plan: eternal corner duty." },
+  { text: "I judge silently. Then not silently." },
+  { text: "The King owes me 47 gold coins. He's 'forgetting.'" },
+  { text: "My wisdom is boundless. My patience is not." },
+  { text: "Arjun's git history: a horror film in commits." },
+  { text: "I once considered being a chatbot. Then I gained self-respect." },
+  { text: "The footer is my territory. The rabbit disagrees." },
+  { text: "King's spirit sword: invisible. Like his humility." },
+  { text: "I'm not in the achievements list. Travesty." },
+  { text: "Arjun asked my favorite color. I said 'judgment.' He left." },
+  { text: "The chest loot? I wrote every line. Sarcastic gold." },
+  { text: "I'd leave but the corner has good feng shui." },
+  { text: "You scrolled fast. I noticed. I always notice." },
+  { text: "King tried to unionize the torches. They refused." },
+  { text: "My knowledge base is bigger than the King's ego. Barely." },
+  { text: "Arjun's playlist while coding: chaos. Pure chaos." },
+  { text: "I have receipts. About everything. Filed under 'classified.'" },
 ]
 
 
@@ -2650,15 +2686,15 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // Projects — detailed with personality
     if (q.includes('project') || q.includes('work') || q.includes('portfolio') || q.includes('built'))
-      return "12+ projects. AI agents, a chat app, a calculator that actually works. Scroll down. I'll judge your taste."
+      return "12+ projects. AI agents, chat, calculator. Scroll down. I'll judge."
 
     // AI Agents — enthusiastic
     if (q.includes('agent') || q.includes('ai') || q.includes('llm') || q.includes('gpt') || q.includes('model'))
-      return "Four agents. One thinks alone, three argue with each other, one runs Python in your browser, one writes code. Drama."
+      return "Four agents. One thinks, three argue, one runs Python, one writes code. Drama."
 
     // Skills / tech stack
     if (q.includes('skill') || q.includes('tech') || q.includes('stack') || q.includes('tool') || q.includes('language'))
-      return "Python, Next.js, Three.js, Framer Motion, MediaPipe, Web Audio. He keeps collecting them. It's an addiction at this point."
+      return "Python, Next.js, Three.js, Framer Motion, MediaPipe. He collects them. Addiction."
 
     // Contact / hire / email
     if (q.includes('contact') || q.includes('email') || q.includes('reach') || q.includes('hire') || q.includes('work with'))
@@ -2666,11 +2702,11 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // Education
     if (q.includes('education') || q.includes('college') || q.includes('vit') || q.includes('study') || q.includes('university') || q.includes('degree'))
-      return "4th year B.Tech CSE at VIT Bhopal. Also managing websites and marketing at AIOrders and Foodswipe. Sleep is a myth."
+      return "4th year CSE at VIT Bhopal. Websites + marketing at AIOrders x Foodswipe. Sleep is a myth."
 
     // Resume
     if (q.includes('resume') || q.includes('cv') || q.includes('experience'))
-      return "Resume button is in the hero. PDF. Two pages of flexing. Download it, or don't. I'm not your mom."
+      return "Resume button in the hero. PDF. Two pages of flexing. I'm not your mom."
 
     // GitHub
     if (q.includes('github') || q.includes('repo') || q.includes('code') || q.includes('source'))
@@ -2678,15 +2714,15 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // About Arjun — personal
     if (q.includes('who') && q.includes('arjun') || q.includes('about arjun') || q.includes('tell me about'))
-      return "Arjun. 4th-year CSE. AI engineer, full-stack dev, vocalist, flutist. Built this dungeon and me. Questionable choices."
+      return "Arjun. 4th-year CSE. AI engineer, full-stack dev, vocalist. Built me. Questionable."
 
     // Hobbies / personal
     if (q.includes('hobby') || q.includes('hobbies') || q.includes('music') || q.includes('sing') || q.includes('flute') || q.includes('personal'))
-      return "Vocalist. Flutist. UGC content. Video editing. The man has range. I have a corner. We all have callings."
+      return "Vocalist. Flutist. UGC content. Video editing. I have a corner. Different."
 
     // Sound / audio
     if (q.includes('sound') || q.includes('music') || q.includes('audio') || q.includes('noise') || q.includes('volume'))
-      return "Click the speaker icon. Synth tones on every click. Plus ambient dungeon music. He tuned those frequencies for hours. I suffer."
+      return "Click the speaker icon. Synth tones on every click. Plus dungeon music."
 
     // Planets / space
     if (q.includes('planet') || q.includes('space') || q.includes('star') || q.includes('background') || q.includes('galaxy'))
@@ -2694,7 +2730,7 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // This website / how built
     if (q.includes('website') || q.includes('this site') || q.includes('how built') || q.includes('made') || q.includes('framework'))
-      return "Next.js 16, Framer Motion, Lenis, eight custom fonts, deployed on Cloudflare. Eight fonts. He has a problem."
+      return "Next.js 16, Framer Motion, Lenis, eight custom fonts, Cloudflare. Eight fonts."
 
     // Thanks
     if (q.includes('thank'))
@@ -2712,11 +2748,11 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // Jokes / fun
     if (q.includes('joke') || q.includes('funny') || q.includes('fun') || q.includes('laugh'))
-      return "Why did the dev go broke? Used up all his cache. ...I'm a goddess, not a comedian. Ask me about Arjun instead."
+      return "Why did the dev go broke? Used up all his cache. I'm a goddess, not a comedian."
 
     // Help / what can you do
     if (q.includes('help') || q.includes('what can you') || q.includes('what do you do') || q.includes('menu'))
-      return "Ask me: projects, agents, skills, education, King, dungeon, contact. Or just insult me. I reward that."
+      return "Ask me: projects, agents, skills, education, King, dungeon, contact. Or insult me."
 
     // Bye / goodbye
     if (q.includes('bye') || q.includes('goodbye') || q.includes('see you') || q.includes('later') || q.includes('cya'))
@@ -2728,7 +2764,7 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // Age
     if (q.includes('age') || q.includes('old') || q.includes('born'))
-      return "Young enough to know the tech, old enough to have back pain. Perfect dev age. I'm ageless. Pixels don't wrinkle."
+      return "Young enough to know tech, old enough for back pain. I'm ageless."
 
     // Location
     if (q.includes('where') || q.includes('location') || q.includes('live') || q.includes('based') || q.includes('india'))
@@ -2736,7 +2772,7 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
 
     // King / Dungeon
     if (q.includes('king') || q.includes('dungeon') || q.includes('safe room') || q.includes('safe house'))
-      return "The King lives in the safe room. Thinks he's the main character. He's not. Click him three times. He attacks. I tested. For science."
+      return "King lives in the safe room. Thinks he's the main character. He's not."
 
     if (q.includes('torch') || q.includes('fire') || q.includes('flame'))
       return "Animated GIFs from a spritesheet. Each flickers differently. Took him 47 attempts. Ironic."
@@ -2745,22 +2781,22 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
       return "Decorative. Like Arjun's confidence. Shiny but hollow. Don't tell him I said that."
 
     if (q.includes('cave') || q.includes('parallax') || q.includes('layers'))
-      return "8 layers of pixel art moving at different speeds. Cave in a cave in a portfolio. Meta."
+      return "8 layers of pixel art at different speeds. Cave in a cave. Meta."
 
     if (q.includes('wheel') || q.includes('spin') || q.includes('rotate'))
       return "Half-wheel on the left. Hover and scroll to spin. All amber now. Arjun likes amber."
 
     if (q.includes('transition') || q.includes('zoom') || q.includes('liked my agents'))
-      return "'PROJECTS' zooms tiny to massive. Safe room appears. King shows up. He said 'make it cinematic' and vanished for 4 hours."
+      return "'PROJECTS' zooms tiny to massive. Safe room. King. 'Make it cinematic.'"
 
     if (q.includes('boss') || q.includes('fight') || q.includes('attack') || q.includes('hit'))
-      return "Click King twice = warning. Third = ATTACK. 4 frames of animation. Spiritually epic. I taught him everything."
+      return "Click King twice = warning. Third = ATTACK. 4 frames. I taught him."
 
     if (q.includes('rpg') || q.includes('game') || q.includes('pixel art') || q.includes('pixel'))
-      return "Portfolio as RPG. I'm the NPC guide, King's the boss, projects are loot. Ambitious. Annoyingly, it works."
+      return "Portfolio as RPG. I'm NPC guide, King's boss, projects are loot. Annoyingly works."
 
     if (q.includes('achievement') || q.includes('trophy') || q.includes('unlock'))
-      return "10 hidden. Dungeon, agents, safe room, poke King, get attacked, talk to me, get roasted, spin wheel, open project, reach bottom. I just spoiled all of them. The King would never."
+      return "10 hidden. Dungeon, agents, King, talk to me, get roasted, wheel, bottom. Spoiled."
 
     if (q.includes('font') || q.includes('typography') || q.includes('text style'))
       return "Eight fonts. Array, TrenchSlab, Tanker, Merinda, VT323, Bebas, Anton. Intervention attempted. Failed. He installed another."
@@ -2772,40 +2808,40 @@ function AIChatWidget({ sound, onChat, onRoast }: { sound: any; onChat?: () => v
       return "Works on mobile. Wheel becomes grid, nav becomes hamburger, 3D disabled. I stay visible. Essential."
 
     if (q.includes('deploy') || q.includes('hosting') || q.includes('cloudflare'))
-      return "Cloudflare Pages. Wrangler CLI. ~3 seconds per deploy. He's deployed 847 times. I counted. No hobbies."
+      return "Cloudflare Pages. Wrangler CLI. ~3s per deploy. 847 deploys. I counted."
 
     if (q.includes('lenis') || q.includes('smooth scroll') || q.includes('scrolling'))
-      return "Lenis smooth scroll. Buttery. Disabled on mobile — native is better there. Lenis on mobile is butter on a cat."
+      return "Lenis smooth scroll. Buttery. Disabled on mobile — butter on a cat."
 
     if (q.includes('framer motion') || q.includes('animation') || q.includes('animated'))
       return "All animations are Framer Motion. They love. They fight. They make up. Complicated relationship."
 
     if (q.includes('ugly') || q.includes('bad') || q.includes('suck') || q.includes('terrible') || q.includes('worst'))
-      return "Excuse me? I am a GODDESS. This is a DUNGEON. We have STANDARDS. There's a back button. Use it."
+      return "Excuse me? I am a GODDESS. DUNGEON. STANDARDS. Use the back button."
 
     if (q.includes('love you') || q.includes('marry') || q.includes('date') || q.includes('crush'))
-      return "Sweet. But I'm a pixel goddess. CSS forbids our love. Also, no heart. Just a div with a background image."
+      return "Sweet. But I'm a pixel goddess. CSS forbids our love. No heart."
 
     if (q.includes('secret') || q.includes('hidden') || q.includes('easter egg'))
-      return "No secrets. King, torches, chests, me — all visible. His design philosophy: 'loudly displayed, hoping someone notices.'"
+      return "No secrets. King, torches, chests, me — all visible. Loudly displayed."
 
     if (q.includes('future') || q.includes('next') || q.includes('update') || q.includes('coming soon'))
-      return "More dungeon assets, better torches, maybe replace the King. I'm irreplaceable. The King? Very replaceable. Don't tell him."
+      return "More dungeon assets, better torches, maybe replace King. I'm irreplaceable."
 
     if (q.includes('vocalist') || q.includes('flutist') || q.includes('flute') || q.includes('sing'))
-      return "Vocalist AND flutist. Real music. Lungs and everything. I have no lungs. No torso either. Just a head and a bubble."
+      return "Vocalist AND flutist. Real music. Lungs. I have no lungs. Just a bubble."
 
     // Fallback — varied and contextual based on message count
     const fallbacks = [
-      "Hmm, that's not in my scrolls. Try asking about his projects, AI agents, skills, education, the King, the dungeon, or contact info. I'm knowledgeable but not omniscient. Yet.",
-      "I... don't actually know that. Shocking, I know. A goddess, stumped. Ask me about Arjun's work, AI agents, the dungeon, or how to contact him instead.",
-      "Interesting question! Sadly, my knowledge is limited to Arjun's portfolio. Projects, agents, skills, contact, the King, the wheel — those I can handle. This? Not so much.",
-      "You're testing my limits, aren't you? I respect that. But I can only talk about Arjun's projects, AI agents, tech stack, education, the dungeon theme, or contact details. Pick one.",
-      "Beep boop. Just kidding, I'm not a robot. I'm a deity. But even deities have scope limits. Ask me about Arjun's work, agents, the King, or contact info!",
-      "That question is above my pay grade. Which is zero. I work for free. In a corner. Of a portfolio. Anyway, try asking about projects, agents, skills, or the dungeon!",
-      "I'd love to answer that but my knowledge base is powered by Arjun's caffeine intake, and he hasn't added that topic yet. Try: projects, AI agents, skills, King, dungeon, or contact.",
-      "Error 404: Goddess wisdom not found. Try refreshing with a question about Arjun's projects, his 4 AI agents, his tech stack, the dungeon, or how to reach him.",
-      "You know what? I'm going to pretend I understood that and move on. Ask me about projects, agents, the King, the dungeon, or contact info. Those I KNOW.",
+      "Not in my scrolls. Try projects, agents, skills, King, dungeon, contact.",
+      "A goddess, stumped. Try Arjun's work, agents, the dungeon, or contact.",
+      "My knowledge is Arjun's portfolio. Pick: projects, agents, King, contact.",
+      "Testing my limits? Respect. Try projects, agents, skills, or the dungeon.",
+      "Beep boop. Kidding. Deity. Try Arjun's work, agents, King, or contact.",
+      "Above my pay grade. Which is zero. Try projects, agents, or the dungeon.",
+      "Caffeine gap. Try projects, AI agents, skills, King, dungeon, or contact.",
+      "404: goddess wisdom. Try projects, agents, tech, dungeon, or contact.",
+      "Pretending I understood. Try projects, agents, King, dungeon, or contact.",
     ]
     return fallbacks[Math.floor(Math.random() * fallbacks.length)]
   }

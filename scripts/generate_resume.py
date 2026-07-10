@@ -145,7 +145,7 @@ story = []
 
 # ── Header (with clickable hyperlinks) ──
 story.append(Paragraph('<b>ARJUN VASHISHTHA</b>', name_style))
-story.append(Paragraph('Website Management &amp; Marketing Head &bull; Data Science &bull; AI Builder', title_style))
+story.append(Paragraph('Full-Stack Developer &bull; AI Builder &bull; Data Science &bull; SDN Engineer', title_style))
 
 # Contact line — all links clickable
 PORTFOLIO_URL = 'https://arjun-portfolio-emc.pages.dev'

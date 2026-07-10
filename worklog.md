@@ -368,3 +368,63 @@ Stage Summary:
 - Live at https://arjun-portfolio-emc.pages.dev (Resume button in hero section)
 - Downloadable at https://arjun-portfolio-emc.pages.dev/resume.pdf
 - Both repos synced at f1d5214
+
+---
+Task ID: 10
+Agent: main (Super Z)
+Task: Build "crazy gesture thing" project end-to-end + integrate into portfolio + resume.
+
+Work Log:
+- User wanted "crazy gesture thing" — defaulted to SpellCaster (hand signs cast spells)
+- Built /home/z/my-project/spellcaster/ — pure vanilla JS web app:
+  * index.html — boot screen + stage + MediaPipe CDN includes
+  * style.css — neon cyberpunk (purple/cyan palette, shadowBlur glow, mirrored webcam)
+  * gestures.js — hand sign classifier (fist, open_palm, v_sign, pinch, thumbs_up,
+    flat_sideways) with 5-frame smoothing
+  * particles.js — neon particle system (burst, beam, ring, trail primitives)
+  * audio.js — Web Audio synth (6 spell sounds: fireball, shield, lightning,
+    magic_missile, heal, ice_blast) — all synthesized, no audio files
+  * spells.js — 6 spell definitions: gesture → color + particle effect + sound + cooldown
+  * app.js — main loop, MediaPipe Hands wiring, skeleton drawing, HUD updates
+- 6 spells implemented:
+  * Fireball (fist) — orange+yellow burst, cooldown 1.2s
+  * Shield (open palm) — cyan ring, cooldown 1.5s
+  * Lightning (V sign) — yellow beam upward, cooldown 1.0s
+  * Magic Missile (pinch) — 3 purple homing trails, cooldown 0.8s
+  * Heal (thumbs up) — pink sparkle chime, cooldown 2.0s
+  * Ice Blast (flat sideways) — cyan shard burst, cooldown 1.4s
+- HUD: spell name, combo counter, cast counter, 6 spell slots with live cooldowns
+- Features: mirrored webcam, dual-hand skeleton overlay, finger trail particles,
+  per-spell cooldown indicators, mute toggle, mobile responsive
+- GitHub Actions workflow (deploy.yml) for auto-deploy to GitHub Pages on push
+- README with spell table, tech stack, file layout, browser support, roadmap
+- Created github.com/arjundroid12/spellcaster (public)
+- Committed, pushed, enabled GitHub Pages (build_type=workflow)
+- Deploy workflow succeeded on first run
+- Live: https://arjundroid12.github.io/spellcaster (HTTP 200, title verified)
+
+Portfolio integration:
+- Added SpellCaster as legendary project card in src/app/page.tsx
+- Category: Computer Vision, icon: 🪄, 10 features listed
+- Positioned after SDN Controller, before FIOLA
+- Links to live demo + GitHub repo
+
+Resume integration:
+- Added SpellCaster project entry with clickable live demo link
+- Updated project count: 13+ -> 14+
+- Added Computer Vision to Core Skills (MediaPipe Hands, gesture recognition,
+  real-time webcam processing, Canvas 2D rendering)
+- PDF regenerated: 73KB, 2 pages
+
+Fixups:
+- spellcaster/ folder was accidentally embedded as a git submodule in portfolio
+  repo — removed with git rm --cached, added to .gitignore
+- Both portfolio repos synced at 97ab8ba
+- SpellCaster repo at initial commit, Pages live
+
+Stage Summary:
+- SpellCaster LIVE: https://arjundroid12.github.io/spellcaster
+- Repo: https://github.com/arjundroid12/spellcaster
+- Portfolio updated with new legendary card: https://arjun-portfolio-emc.pages.dev
+- Resume updated: https://arjun-portfolio-emc.pages.dev/resume.pdf
+- All repos pushed, all deployments verified HTTP 200

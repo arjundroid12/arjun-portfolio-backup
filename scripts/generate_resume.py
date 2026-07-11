@@ -215,7 +215,7 @@ story.append(portfolio_callout_table)
 story.append(Spacer(1, 8))
 
 story.append(Paragraph(
-    '14+ projects built across AI/ML, computer vision, networking, full-stack, frontend, and backend. '
+    '15+ projects built across AI products, computer vision, networking, full-stack, frontend, and backend. '
     'Live demos and source code available on GitHub. Selected highlights:',
     body_style
 ))
@@ -245,6 +245,19 @@ story.extend(project_entry(
     'MediaPipe Hands, Web Audio API, Canvas 2D, Vanilla JS, GitHub Pages',
     'https://arjundroid12.github.io/spellcaster',
     'arjundroid12.github.io/spellcaster'
+))
+
+story.extend(project_entry(
+    'QUIRK — AI Toolkit for Content Creators',
+    'AI-powered toolkit that helps content creators plan, script, optimize, and grow — all in one workspace. Three AI '
+    'features: Script Studio (platform-specific scripts with hooks, pacing, CTAs + inline AI editing), Idea Engine '
+    '(generates 4-10 personalized content ideas per batch with niche/platform/tone controls + idea bank with status '
+    'pipeline), and Thumbnail Tester (upload 2-3 thumbnails, AI scores on composition/emotion/text legibility/CTR, '
+    'picks winner with reasoning). Built with Next.js 16, Tailwind CSS 4, shadcn/ui, magic-link auth, Turso database, '
+    'Z.AI GLM-4.5-flash for text AI, Groq Llama 4 Scout for vision. Deployed on Vercel. Live and fully functional.',
+    'Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui, Turso, Z.AI GLM-4.5, Groq Llama 4, Vercel',
+    'https://my-project-kappa-ten-24.vercel.app',
+    'my-project-kappa-ten-24.vercel.app'
 ))
 
 story.extend(project_entry(

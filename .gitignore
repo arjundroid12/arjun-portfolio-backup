@@ -59,3 +59,7 @@ tool-results/
 download/
 spellcaster/
 createos-context/
+
+# Scripts with credentials — never commit
+scripts/reset_vercel_envs*.py
+scripts/create_quirk_tables.py

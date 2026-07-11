@@ -1287,10 +1287,10 @@ function VersionSelector({ onFun, onBoring }: { onFun: () => void; onBoring: () 
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.1 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.3 }}
       style={{
         position: 'fixed',
         inset: 0,
@@ -4396,17 +4396,16 @@ export default function Home() {
         animation: shake ? 'kingShake 0.4s cubic-bezier(.36,.07,.19,.97) both' : undefined,
       }}
     >
-      {/* ============ SPLASH SCREEN (white + purple, click to enter) ============ */}
-      <AnimatePresence>
+      {/* ============ SPLASH SCREEN + VERSION SELECTOR ============ */}
+      {/* Both share one AnimatePresence. Splash exits instantly (no animation)
+          so the version selector covers the screen immediately — no dungeon flash. */}
+      <AnimatePresence mode="wait">
         {!entered && !showVersionSelect && (
-          <SplashScreen onEnter={() => { sound.playPop(); setShowVersionSelect(true) }} />
+          <SplashScreen key="splash" onEnter={() => { sound.playPop(); setShowVersionSelect(true) }} />
         )}
-      </AnimatePresence>
-
-      {/* ============ VERSION SELECTOR (FUN vs Boring) ============ */}
-      <AnimatePresence>
         {!entered && showVersionSelect && (
           <VersionSelector
+            key="version-select"
             onFun={() => { sound.playPop(); setEntered(true); setShowVersionSelect(false); unlock('enter') }}
             onBoring={() => { sound.playClick(); window.location.href = '/terminal.html' }}
           />

@@ -1495,8 +1495,8 @@ function SplashScreen({ onEnter }: { onEnter: () => void }) {
   const handleClick = () => {
     if (leaving) return
     setLeaving(true)
-    // Wait for the zoom to complete, then reveal hero
-    setTimeout(onEnter, 1200)
+    // Call onEnter immediately — version selector covers the screen instantly
+    onEnter()
   }
 
   return (
@@ -4397,20 +4397,20 @@ export default function Home() {
       }}
     >
       {/* ============ SPLASH SCREEN + VERSION SELECTOR ============ */}
-      {/* Both share one AnimatePresence. Splash exits instantly (no animation)
-          so the version selector covers the screen immediately — no dungeon flash. */}
-      <AnimatePresence mode="wait">
+      {/* Version selector is rendered OUTSIDE AnimatePresence with a solid
+          background at z-index 200 — covers everything instantly when shown.
+          No AnimatePresence delay, no dungeon flash. */}
+      <AnimatePresence>
         {!entered && !showVersionSelect && (
           <SplashScreen key="splash" onEnter={() => { sound.playPop(); setShowVersionSelect(true) }} />
         )}
-        {!entered && showVersionSelect && (
-          <VersionSelector
-            key="version-select"
-            onFun={() => { sound.playPop(); setEntered(true); setShowVersionSelect(false); unlock('enter') }}
-            onBoring={() => { sound.playClick(); window.location.href = '/terminal.html' }}
-          />
-        )}
       </AnimatePresence>
+      {!entered && showVersionSelect && (
+        <VersionSelector
+          onFun={() => { sound.playPop(); setEntered(true); setShowVersionSelect(false); unlock('enter') }}
+          onBoring={() => { sound.playClick(); window.location.href = '/terminal.html' }}
+        />
+      )}
 
       {/* ============ FUN POPUPS ============ */}
       {!isMobile && <FunPopups enabled={sound.enabled} />}

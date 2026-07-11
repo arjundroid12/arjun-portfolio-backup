@@ -4905,7 +4905,7 @@ export default function Home() {
             {/* Inner photo */}
             <div className="absolute inset-2 rounded-full bg-gradient-to-br from-teal-500/20 to-amber-500/20 backdrop-blur-xl border border-white/10 overflow-hidden">
               <motion.img
-                src="/photo.jpg"
+                src="/photo-new.png"
                 alt="Arjun Vashishtha"
                 initial={{ scale: 1.15, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}

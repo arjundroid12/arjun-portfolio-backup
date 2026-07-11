@@ -1,0 +1,216 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-jakarta);
+  --font-mono: var(--font-jetbrains);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-pink: var(--brand-pink);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-dark: var(--brand-dark);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* QUIRK theme — Fly.io-inspired pastel gradient + star particles */
+:root {
+  --radius: 0.75rem;
+
+  /* Brand */
+  --brand: #7C3AED;          /* deep purple */
+  --brand-foreground: #FFFFFF;
+  --brand-pink: #EC4899;     /* electric pink */
+  --brand-cream: #FAFAF7;    /* cream */
+  --brand-dark: #0F0F1A;     /* near-black */
+
+  /* Surfaces — translucent for glass effect over gradient */
+  --background: #FAFAF7;
+  --foreground: #0F0F1A;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #0F0F1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F0F1A;
+
+  /* Brand as primary */
+  --primary: #7C3AED;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1ECFE;
+  --secondary-foreground: #4C1D95;
+  --muted: #F4F4F0;
+  --muted-foreground: #6B6B7B;
+  --accent: #FCE7F3;
+  --accent-foreground: #831843;
+  --destructive: #DC2626;
+
+  --border: rgba(124, 58, 237, 0.12);
+  --input: rgba(124, 58, 237, 0.12);
+  --ring: #7C3AED;
+
+  --chart-1: #A78BFA;
+  --chart-2: #F472B6;
+  --chart-3: #FBBF24;
+  --chart-4: #34D399;
+  --chart-5: #38BDF8;
+
+  --sidebar: #060610;
+  --sidebar-foreground: #FAFAF7;
+  --sidebar-primary: #7C3AED;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #18182A;
+  --sidebar-accent-foreground: #FAFAF7;
+  --sidebar-border: #18182A;
+  --sidebar-ring: #A78BFA;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    /* Fly.io-style pastel gradient background */
+    background-color: #FAFAF7;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(252, 231, 243, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 60% at 80% 100%, rgba(224, 242, 254, 0.8) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(241, 236, 254, 0.5) 0%, transparent 50%);
+    background-attachment: fixed;
+    color: var(--foreground);
+    font-feature-settings: "ss01", "cv11";
+    min-height: 100vh;
+  }
+  ::selection {
+    background-color: rgba(124, 58, 237, 0.25);
+  }
+}
+
+/* Star particle background — CSS-only sparkles scattered across the page */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  /* Star particles using radial gradients */
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, rgba(196, 181, 253, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 25% 60%, rgba(244, 114, 182, 0.5), transparent),
+    radial-gradient(2px 2px at 50% 15%, rgba(196, 181, 253, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 70% 80%, rgba(56, 189, 248, 0.4), transparent),
+    radial-gradient(2px 2px at 85% 30%, rgba(196, 181, 253, 0.5), transparent),
+    radial-gradient(1px 1px at 15% 75%, rgba(244, 114, 182, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 40% 90%, rgba(56, 189, 248, 0.3), transparent),
+    radial-gradient(2px 2px at 60% 45%, rgba(196, 181, 253, 0.4), transparent),
+    radial-gradient(1px 1px at 90% 65%, rgba(244, 114, 182, 0.3), transparent),
+    radial-gradient(1.5px 1.5px at 30% 40%, rgba(167, 139, 250, 0.4), transparent),
+    radial-gradient(2px 2px at 75% 10%, rgba(56, 189, 248, 0.3), transparent),
+    radial-gradient(1px 1px at 5% 50%, rgba(196, 181, 253, 0.3), transparent);
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Ensure content sits above the particle layer */
+#__next, body > div:first-child {
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom utility classes for QUIRK */
+@utility brand-gradient {
+  background-image: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+}
+
+@utility brand-gradient-text {
+  background-image: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility glass {
+  background-color: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+}
+
+@utility glass-dark {
+  background-color: rgba(15, 15, 26, 0.65);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Custom scrollbar */
+.custom-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(124, 58, 237, 0.2);
+  border-radius: 9999px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(124, 58, 237, 0.4);
+}
+
+/* Subtle grid pattern for hero */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Glow — softer for light theme */
+@utility glow-brand {
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.1),
+              0 18px 60px -20px rgba(124, 58, 237, 0.3),
+              0 8px 30px -10px rgba(236, 72, 153, 0.15);
+}
+
+/* Soft pastel glow orbs for hero sections */
+@utility glow-pastel {
+  box-shadow:
+    0 0 80px -10px rgba(252, 231, 243, 0.8),
+    0 0 120px -20px rgba(224, 242, 254, 0.6);
+}

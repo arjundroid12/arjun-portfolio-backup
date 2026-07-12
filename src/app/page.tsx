@@ -1730,18 +1730,18 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
           className={isMobileView ? "flex flex-col gap-6 w-full" : "agents-track flex gap-10 will-change-transform"}
         >
           {AI_AGENTS.map((agent, i) => {
-            // Dungeon-themed agent cards — amber/gold/bronze palette
+            // Dark purple glass cards — translucent, see-through, with purple glow accents
             const cardBgs: Record<string, string> = {
-              'AI Research Agent': 'linear-gradient(135deg, #1a1208 0%, #2a1f0e 50%, #1a1208 100%)',
-              'Multi-Agent System': 'linear-gradient(135deg, #1a1408 0%, #2e2410 50%, #1a1408 100%)',
-              'Data Analyst Agent': 'linear-gradient(135deg, #14100a 0%, #28200e 50%, #14100a 100%)',
-              'Coding Agent': 'linear-gradient(135deg, #1c1408 0%, #2e2210 50%, #1c1408 100%)',
+              'AI Research Agent': 'rgba(20, 12, 35, 0.35)',
+              'Multi-Agent System': 'rgba(15, 10, 30, 0.35)',
+              'Data Analyst Agent': 'rgba(18, 12, 32, 0.35)',
+              'Coding Agent': 'rgba(22, 14, 38, 0.35)',
             }
             const cardAccents: Record<string, string> = {
-              'AI Research Agent': '#f0c060',
-              'Multi-Agent System': '#e0a040',
-              'Data Analyst Agent': '#d4a050',
-              'Coding Agent': '#fbbf24',
+              'AI Research Agent': '#a78bfa',
+              'Multi-Agent System': '#8b5cf6',
+              'Data Analyst Agent': '#7c3aed',
+              'Coding Agent': '#c4b5fd',
             }
             const bg = cardBgs[agent.name] || '#1e1b4b'
             const accent = cardAccents[agent.name] || '#818cf8'
@@ -1752,7 +1752,10 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
                 className={isMobileView ? "relative w-full h-auto min-h-[400px] rounded-3xl overflow-hidden flex flex-col mx-auto" : "relative shrink-0 w-[88vw] md:w-[55vw] lg:w-[42vw] h-[60vh] md:h-[56vh] rounded-3xl overflow-hidden flex flex-col mx-auto"}
                 style={{
                   background: bg,
-                  boxShadow: '0 25px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(20px) saturate(150%)',
+                  WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+                  border: '1px solid rgba(167, 139, 250, 0.15)',
+                  boxShadow: '0 25px 80px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
                 }}
                 onMouseEnter={() => sound.playHover()}
               >
@@ -4447,26 +4450,17 @@ export default function Home() {
       {!isMobile && <StarField />}
       {!isMobile && <FloatingPlanets />}
 
-      {/* ============ AMBER/BLACK THEME OVERLAY (agents section) ============ */}
-      {/* Fades in a warm amber + dark brown background when the agents
-          section is in view — matches the dungeon aesthetic */}
+      {/* ============ DARK PURPLE THEME OVERLAY (agents section) ============ */}
+      {/* Fades in a deep purple background when the agents section is in view */}
       <motion.div
         className="fixed inset-0 z-[1] pointer-events-none"
         style={{
           opacity: redOverlayOpacity,
           background: `
-            radial-gradient(ellipse at 30% 20%, rgba(120, 80, 20, 0.35), transparent 55%),
-            radial-gradient(ellipse at 70% 80%, rgba(180, 120, 40, 0.25), transparent 60%),
-            linear-gradient(180deg, #0a0805 0%, #15100a 50%, #0a0805 100%)
+            radial-gradient(ellipse at 30% 20%, rgba(60, 30, 100, 0.3), transparent 55%),
+            radial-gradient(ellipse at 70% 80%, rgba(80, 40, 120, 0.2), transparent 60%),
+            linear-gradient(180deg, #0a0a0f 0%, #0e0a18 50%, #0a0a0f 100%)
           `,
-        }}
-      />
-      {/* Subtle warm vignette for the amber theme */}
-      <motion.div
-        className="fixed inset-0 z-[1] pointer-events-none"
-        style={{
-          opacity: redOverlayOpacity,
-          background: 'radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%)',
         }}
       />
 

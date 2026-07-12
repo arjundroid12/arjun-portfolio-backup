@@ -268,15 +268,10 @@ story.append(Spacer(1, 4))
 
 # ── Core Skills ──
 story.extend(section_header('Core Skills'))
-story.append(Paragraph('<b>Data Science &amp; Machine Learning:</b> &nbsp;Python (Pandas, NumPy, scikit-learn), CNN, Random Forest, NLP, exploratory data analysis, model building &amp; evaluation', body_style))
-story.append(Paragraph('<b>AI Engineering:</b> &nbsp;Cerebras, OpenAI API, ReAct Pattern, Multi-Agent Systems, Pyodide, LLM integration', body_style))
-story.append(Paragraph('<b>Computer Vision:</b> &nbsp;MediaPipe Hands, hand pose tracking, gesture recognition, real-time webcam processing, Canvas 2D rendering', body_style))
-story.append(Paragraph('<b>Networking:</b> &nbsp;Software-Defined Networking (SDN), Ryu Controller, P4, OpenFlow 1.3, Mininet, network topology discovery, DDoS detection', body_style))
-story.append(Paragraph('<b>Web Development:</b> &nbsp;JavaScript, TypeScript, React, Next.js 16, Node.js, Express, Tailwind CSS, Framer Motion, Three.js', body_style))
-story.append(Paragraph('<b>Data &amp; Analytics:</b> &nbsp;Power BI, MySQL, Excel, data cleaning &amp; preprocessing, data visualization', body_style))
-story.append(Paragraph('<b>Software &amp; Product:</b> &nbsp;Website management, project coordination, AI website building, no-code app development, REST API design', body_style))
-story.append(Paragraph('<b>Marketing &amp; Content:</b> &nbsp;UGC content creation, social media advertising (Instagram, Facebook, Google Ads), video editing &amp; videography', body_style))
-story.append(Paragraph('<b>Tools &amp; Platforms:</b> &nbsp;Git, GitHub Actions, Vercel, Render, Cloudflare Pages, Three.js, MediaPipe, Web Audio API, Flask', body_style))
+story.append(Paragraph('<b>AI/ML:</b> &nbsp;Python (Pandas, NumPy, scikit-learn), CNN, Random Forest, NLP, MediaPipe Hands, ReAct Pattern, Multi-Agent Systems, LLM integration', body_style))
+story.append(Paragraph('<b>Web &amp; Networking:</b> &nbsp;JavaScript, TypeScript, React, Next.js 16, Node.js, Express, Tailwind CSS, Framer Motion, SDN (Ryu, P4, OpenFlow), Flask', body_style))
+story.append(Paragraph('<b>Data &amp; Tools:</b> &nbsp;Power BI, MySQL, Git, GitHub Actions, Vercel, Cloudflare Pages, Turso, Three.js, Web Audio API', body_style))
+story.append(Paragraph('<b>Product &amp; Marketing:</b> &nbsp;Website management, project coordination, UGC content, social media ads (Instagram, Facebook, Google Ads), video editing', body_style))
 
 # ── Education ──
 story.extend(section_header('Education'))

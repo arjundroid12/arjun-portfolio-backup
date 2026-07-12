@@ -339,7 +339,7 @@ story.append(Paragraph('VIT Bhopal University, Bhopal &nbsp;|&nbsp; 2022 – 202
 # ── Interests ──
 story.extend(section_header('Interests'))
 story.append(Paragraph(
-    'Music (vocalist &amp; flutist), videography, content creation, social media, and game development. '
+    'Music (vocalist &amp; guitarist), videography, content creation, social media, and game development. '
     'Active GitHub contributor with daily coding challenges auto-committed via GitHub Actions.',
     body_style
 ))

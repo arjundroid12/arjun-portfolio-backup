@@ -4255,17 +4255,14 @@ export default function Home() {
 
   const [mounted, setMounted] = useState(false)
   const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null)
-  const [entered, setEntered] = useState(false)
-  const [showVersionSelect, setShowVersionSelect] = useState(false)
-
-  // Remember if user already chose a portfolio — skip splash on back/refresh
-  // If they chose terminal and press back, they land in dungeon directly
-  useEffect(() => {
-    const choice = sessionStorage.getItem('quirk-experience')
-    if (choice === 'dungeon' || choice === 'terminal') {
-      setEntered(true)
+  const [entered, setEntered] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const c = sessionStorage.getItem('quirk-experience')
+      return c === 'dungeon' || c === 'terminal'
     }
-  }, [])
+    return false
+  })
+  const [showVersionSelect, setShowVersionSelect] = useState(false)
   const [redTheme, setRedTheme] = useState(false)
   const [navOnWhite, setNavOnWhite] = useState(false)
   const [showTechGuy, setShowTechGuy] = useState(false)
@@ -4418,8 +4415,6 @@ export default function Home() {
       className="min-h-screen bg-[#0a0a0f] text-white"
       style={{
         overflowX: 'clip',
-        // Hide all content while splash is showing — prevents lag from 3D + animations loading
-        visibility: entered ? 'visible' : 'hidden',
         // Apply screen shake animation when King attacks
         animation: shake ? 'kingShake 0.4s cubic-bezier(.36,.07,.19,.97) both' : undefined,
       }}

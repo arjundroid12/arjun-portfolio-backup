@@ -42,7 +42,7 @@ PORTFOLIO_BORDER = colors.HexColor('#8b6914') # Gold border for portfolio callou
 # ── Styles ──
 name_style = ParagraphStyle(
     'ResumeName', fontName='FreeSerif-Bold', fontSize=22,
-    leading=26, alignment=TA_CENTER, spaceAfter=2,
+    leading=22, alignment=TA_CENTER, spaceAfter=2,
     textColor=ACCENT
 )
 title_style = ParagraphStyle(
@@ -56,8 +56,8 @@ contact_style = ParagraphStyle(
     spaceAfter=6
 )
 section_title_style = ParagraphStyle(
-    'ResumeSectionTitle', fontName='FreeSerif-Bold', fontSize=12,
-    leading=15, spaceBefore=8, spaceAfter=3,
+    'ResumeSectionTitle', fontName='FreeSerif-Bold', fontSize=11,
+    leading=13, spaceBefore=5, spaceAfter=2,
     textColor=ACCENT
 )
 job_title_style = ParagraphStyle(
@@ -69,21 +69,21 @@ job_meta_style = ParagraphStyle(
     leading=12, textColor=TEXT_MUTED, spaceAfter=3
 )
 bullet_style = ParagraphStyle(
-    'ResumeBullet', fontName='FreeSerif', fontSize=9.5,
-    leading=13, leftIndent=14, bulletIndent=0,
-    spaceBefore=0.5, spaceAfter=0.5
+    'ResumeBullet', fontName='FreeSerif', fontSize=9,
+    leading=11.5, leftIndent=14, bulletIndent=0,
+    spaceBefore=0.3, spaceAfter=0.3
 )
 body_style = ParagraphStyle(
-    'ResumeBody', fontName='FreeSerif', fontSize=9.5,
-    leading=13, spaceAfter=2, alignment=TA_JUSTIFY
+    'ResumeBody', fontName='FreeSerif', fontSize=9,
+    leading=11.5, spaceAfter=1, alignment=TA_JUSTIFY
 )
 project_style = ParagraphStyle(
-    'ResumeProject', fontName='FreeSerif-Bold', fontSize=10,
-    leading=13, spaceBefore=3, spaceAfter=1
+    'ResumeProject', fontName='FreeSerif-Bold', fontSize=9.5,
+    leading=12, spaceBefore=2, spaceAfter=1
 )
 project_tech_style = ParagraphStyle(
-    'ResumeProjectTech', fontName='FreeSerif-Italic', fontSize=9,
-    leading=12, textColor=TEXT_MUTED, spaceAfter=1
+    'ResumeProjectTech', fontName='FreeSerif-Italic', fontSize=8.5,
+    leading=11, textColor=TEXT_MUTED, spaceAfter=1
 )
 portfolio_callout_style = ParagraphStyle(
     'ResumePortfolioCallout', fontName='FreeSerif', fontSize=10,
@@ -136,7 +136,7 @@ os.makedirs('/home/z/my-project/download', exist_ok=True)
 doc = SimpleDocTemplate(
     output_path, pagesize=A4,
     leftMargin=1.5*cm, rightMargin=1.5*cm,
-    topMargin=1.3*cm, bottomMargin=1.3*cm,
+    topMargin=1.0*cm, bottomMargin=1.0*cm,
     title='Resume - Arjun Vashishtha',
     author='Arjun Vashishtha', creator='Arjun Vashishtha'
 )

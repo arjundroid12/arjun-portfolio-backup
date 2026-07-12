@@ -4117,7 +4117,7 @@ function useScreenShake() {
 // Toggleable via a fixed mute button (bottom-left).
 
 function useDungeonAmbient() {
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const start = useCallback(() => {
@@ -4135,6 +4135,24 @@ function useDungeonAmbient() {
       void audio.play()
     } catch {}
   }, [])
+
+  // Auto-start on first user interaction (browsers block autoplay)
+  useEffect(() => {
+    const autoStart = () => {
+      start()
+      window.removeEventListener('click', autoStart)
+      window.removeEventListener('keydown', autoStart)
+      window.removeEventListener('touchstart', autoStart)
+    }
+    window.addEventListener('click', autoStart, { once: false })
+    window.addEventListener('keydown', autoStart, { once: false })
+    window.addEventListener('touchstart', autoStart, { once: false })
+    return () => {
+      window.removeEventListener('click', autoStart)
+      window.removeEventListener('keydown', autoStart)
+      window.removeEventListener('touchstart', autoStart)
+    }
+  }, [start])
 
   const stop = useCallback(() => {
     try {

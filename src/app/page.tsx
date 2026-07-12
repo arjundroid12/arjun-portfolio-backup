@@ -1754,8 +1754,8 @@ function AgentsShowcase({ sound, onThemeChange }: { sound: any; onThemeChange?: 
                   background: 'linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.004) 45%, rgba(255,255,255,0.012))',
                   backdropFilter: 'blur(12px) saturate(140%)',
                   WebkitBackdropFilter: 'blur(12px) saturate(140%)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: '0 25px 80px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 0 1px rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(167,139,250,0.25)',
+                  boxShadow: '0 25px 80px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 0 0 1px rgba(167,139,250,0.08), 0 0 20px rgba(167,139,250,0.15), 0 0 40px rgba(139,92,246,0.08)',
                 }}
                 onMouseEnter={() => sound.playHover()}
               >

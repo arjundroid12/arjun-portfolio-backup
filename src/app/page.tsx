@@ -4257,6 +4257,19 @@ export default function Home() {
   const [selectedProject, setSelectedProject] = useState<typeof PROJECTS[0] | null>(null)
   const [entered, setEntered] = useState(false)
   const [showVersionSelect, setShowVersionSelect] = useState(false)
+
+  // Force full reload when page is restored from bfcache (browser back button)
+  // Without this, the splash component is stuck in "leaving" state → black screen
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        // Page was restored from bfcache — force reload to get fresh splash
+        window.location.reload()
+      }
+    }
+    window.addEventListener('pageshow', onPageShow)
+    return () => window.removeEventListener('pageshow', onPageShow)
+  }, [])
   const [redTheme, setRedTheme] = useState(false)
   const [navOnWhite, setNavOnWhite] = useState(false)
   const [showTechGuy, setShowTechGuy] = useState(false)

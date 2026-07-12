@@ -180,39 +180,14 @@ story.extend(section_header('Experience'))
 story.append(Paragraph('<b>Website Management &amp; Marketing Head</b>', job_title_style))
 story.append(Paragraph('AIOrders &times; Foodswipe &nbsp;|&nbsp; Nov 2025 – Present &nbsp;|&nbsp; Remote', job_meta_style))
 story.append(Paragraph('• <i>Leading website management and marketing across both AIOrders and Foodswipe brands.</i>', bullet_style))
-story.append(Paragraph('• Manage website updates, performance tuning, and content drops for two products simultaneously.', bullet_style))
-story.append(Paragraph('• Plan and run marketing campaigns across Instagram, Facebook, and Google Ads to drive reach and engagement.', bullet_style))
-story.append(Paragraph('• Create UGC content and produce/edit video to support brand and product marketing initiatives.', bullet_style))
-story.append(Paragraph('• Coordinate software delivery timelines and own cross-functional comms between dev and growth teams.', bullet_style))
+story.append(Paragraph('• Manage website updates, performance tuning, and content drops for AIOrders and Foodswipe.', bullet_style))
+story.append(Paragraph('• Run marketing campaigns across Instagram, Facebook, and Google Ads; create UGC content and edit video.', bullet_style))
+story.append(Paragraph('• Coordinate software delivery timelines and cross-functional comms between dev and growth teams.', bullet_style))
 
-# ── Portfolio Highlight Callout ──
-story.extend(section_header('Key Projects'))
-
-# Portfolio callout box — a bordered Table with cream background + gold border
-portfolio_callout_text = Paragraph(
-    f'<b><font color="#8b6914" size="12">&#127760; PORTFOLIO HIGHLIGHT</font></b><br/><br/>'
-    f'<b>{link(PORTFOLIO_URL, "Dual-Version Portfolio — arjunv.is-a.dev")}</b><br/>'
-    f'Premium dual-version interactive portfolio. FUN version: dungeon/RPG-themed with 8-layer parallax caves, '
-    f'animated King character, Goddess NPC with 167 sarcastic dialog lines, achievement system (10 unlockables), '
-    f'treasure chest loot, RPG-style project cards with rarity borders, ambient castle music, and an interactive '
-    f'terminal portfolio with playable Snake game and 4 themes. Built with Next.js 16, Framer Motion, Web Audio API. '
-    f'Deployed on Cloudflare Pages with custom domain arjunv.is-a.dev.',
-    portfolio_callout_style
-)
-portfolio_callout_table = Table(
-    [[portfolio_callout_text]],
-    colWidths=[17 * cm]
-)
-portfolio_callout_table.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (-1, -1), PORTFOLIO_BG),
-    ('BOX', (0, 0), (-1, -1), 1.5, PORTFOLIO_BORDER),
-    ('LEFTPADDING', (0, 0), (-1, -1), 12),
-    ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-    ('TOPPADDING', (0, 0), (-1, -1), 10),
-    ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-]))
-story.append(portfolio_callout_table)
-story.append(Spacer(1, 8))
+# ── Portfolio link (compact one-liner instead of big callout box) ──
+portfolio_link_html = '<b>' + link(PORTFOLIO_URL, 'Portfolio: arjunv.is-a.dev') + '</b> — dual-version interactive portfolio (dungeon RPG + terminal) with Next.js 16, Framer Motion, Web Audio API, 167 Goddess dialog lines, King boss fight, achievement system, and playable Snake game.'
+story.append(Paragraph(portfolio_link_html, body_style))
+story.append(Spacer(1, 3))
 
 story.append(Paragraph(
     '15+ projects built across AI products, computer vision, networking, full-stack, frontend, and backend. '
@@ -225,11 +200,10 @@ story.append(Paragraph(
 
 story.extend(project_entry(
     'QUIRK — AI Toolkit for Content Creators',
-    'AI-powered toolkit with three features: Script Studio (platform-specific scripts with hooks, pacing, CTAs + inline '
-    'AI editing), Idea Engine (generates 4-10 personalized content ideas per batch with niche/platform/tone controls + '
-    'idea bank with status pipeline), and Thumbnail Tester (upload 2-3 thumbnails, AI scores on composition/emotion/text '
-    'legibility/CTR, picks winner with reasoning). Built with Next.js 16, Tailwind CSS 4, shadcn/ui, magic-link auth, '
-    'Turso database, Z.AI GLM-4.5-flash for text AI, Groq Llama 4 Scout for vision. Deployed on Vercel. Live and fully functional.',
+    'AI-powered toolkit with three features: Script Studio (AI script generation with platform presets + inline editing), '
+    'Idea Engine (4-10 personalized content ideas per batch with niche/platform/tone controls + idea bank), and '
+    'Thumbnail Tester (AI vision scores on composition/emotion/CTR, picks winner). Next.js 16, Tailwind CSS 4, '
+    'shadcn/ui, magic-link auth, Turso DB, Z.AI GLM-4.5-flash + Groq Llama 4 Scout. Live on Vercel.',
     'Next.js 16, TypeScript, Tailwind CSS 4, shadcn/ui, Turso, Z.AI GLM-4.5, Groq Llama 4, Vercel',
     'https://quirk-ten.vercel.app',
     'quirk-ten.vercel.app'
@@ -237,10 +211,9 @@ story.extend(project_entry(
 
 story.extend(project_entry(
     'SDN Controller — Ryu + P4 + DDoS Detection',
-    'Custom Software-Defined Networking controller on Ryu + OpenFlow 1.3 with a P4-16 data plane for BMv2. LLDP topology '
-    'discovery, reactive L2 forwarding with BFS shortest-path, and a real-time DDoS detector using threshold + entropy '
-    'anomaly detection that auto-installs ACL drop flows. Includes Flask REST API (16 endpoints), D3.js topology dashboard, '
-    'sdnctl CLI, and a 66-test pytest suite with GitHub Actions CI on Python 3.9/3.10/3.11.',
+    'Custom SDN controller on Ryu + OpenFlow 1.3 with P4-16 data plane. LLDP topology discovery, reactive L2 '
+    'forwarding with BFS shortest-path, real-time DDoS detector (threshold + entropy) with auto ACL drops. '
+    'Flask REST API (16 endpoints), D3.js dashboard, sdnctl CLI, 66-test pytest suite, GitHub Actions CI.',
     'Python, Ryu, P4-16, OpenFlow 1.3, Mininet, Flask, D3.js, pytest, GitHub Actions',
     'https://github.com/arjundroid12/sdn-project',
     'github.com/arjundroid12/sdn-project'
@@ -248,17 +221,16 @@ story.extend(project_entry(
 
 story.extend(project_entry(
     'SpellCaster — Gesture-Controlled Spellcasting',
-    'Gesture-controlled spellcasting web app. MediaPipe Hands detects 21 landmarks per hand in real time, gesture classifier '
-    'smooths jitter, and a spell fires from your fingertip with neon particle effects + synthesized Web Audio sounds. Six '
-    'spells: Fireball (fist), Shield (open palm), Lightning (V sign), Magic Missile (pinch), Heal (thumbs up), Ice Blast '
-    '(flat sideways). Pure vanilla JS, no deps, runs entirely in browser. Live demo on GitHub Pages.',
+    'Gesture-controlled spellcasting web app. MediaPipe Hands detects 21 landmarks per hand, gesture classifier '
+    'smooths jitter, spells fire from fingertips with neon particle FX + Web Audio synth sounds. Six spells, '
+    'cooldowns, combo counter. Pure vanilla JS, no deps. Live demo on GitHub Pages.',
     'MediaPipe Hands, Web Audio API, Canvas 2D, Vanilla JS, GitHub Pages',
     'https://arjundroid12.github.io/spellcaster',
     'arjundroid12.github.io/spellcaster'
 ))
 
 # Highlighted line — see all projects at portfolio
-story.append(Spacer(1, 6))
+story.append(Spacer(1, 3))
 see_more_html = '<b><font color="#8b6914">' + link(PORTFOLIO_URL, 'See all 15+ projects with live demos at arjunv.is-a.dev') + '</font></b>'
 story.append(Paragraph(
     see_more_html,

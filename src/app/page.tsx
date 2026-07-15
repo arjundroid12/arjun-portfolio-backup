@@ -3347,6 +3347,16 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick, isMobile 
   const y = Math.sin(rad) * radius
   const rarity = getRarity(project.rarity)
 
+  // Dynamic z-index: cards closer to the right (angle 0°) get higher z-index
+  // This prevents cards on the left/back from being hidden behind front cards
+  const cardRotation = useTransform(rotation, (r: number) => {
+    const effectiveAngle = ((angle + r) % 360 + 360) % 360
+    // Cards at 0° (right side, facing user) get highest z-index
+    // Cards at 180° (left side, back) get lowest z-index
+    const zIndex = Math.round(100 - Math.abs(((effectiveAngle + 180) % 360) - 180) * 0.5)
+    return zIndex
+  })
+
   return (
     <div
       style={{
@@ -3354,7 +3364,7 @@ function WheelCard({ project, angle, radius, rotation, sound, onClick, isMobile 
         top: `calc(50% + ${y}px)`,
         left: `calc(50% + ${x}px)`,
         transform: 'translate(-50%, -50%)',
-        zIndex: 5,
+        zIndex: cardRotation as any,
       }}
     >
       <motion.div
